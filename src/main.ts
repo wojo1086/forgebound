@@ -5,7 +5,13 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors();
+  app.enableCors({
+    origin: [
+      'https://forgebound.io',
+      'https://www.forgebound.io',
+      'http://localhost:3000',
+    ],
+  });
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(

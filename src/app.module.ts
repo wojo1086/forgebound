@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { CharactersModule } from './characters/characters.module';
 import { GameDataModule } from './game-data/game-data.module';
 import { MapModule } from './map/map.module';
+import { TravelModule } from './travel/travel.module';
 import { DatabaseModule } from './database/database.module';
 import { SupabaseAuthGuard } from './auth/auth.guard';
 import { AppController } from './app.controller';
@@ -25,6 +26,7 @@ import { AppController } from './app.controller';
     CharactersModule,
     GameDataModule,
     MapModule,
+    TravelModule,
   ],
   controllers: [AppController],
   providers: [

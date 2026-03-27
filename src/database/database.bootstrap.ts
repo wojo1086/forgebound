@@ -100,6 +100,14 @@ export class DatabaseBootstrap implements OnModuleInit {
       );
     `);
 
+    // Add travel columns (idempotent)
+    await client.query(`
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS travel_path jsonb DEFAULT NULL;
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS travel_started_at timestamptz DEFAULT NULL;
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS travel_eta timestamptz DEFAULT NULL;
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS travel_step_times jsonb DEFAULT NULL;
+    `);
+
     this.logger.log('Tables verified');
   }
 

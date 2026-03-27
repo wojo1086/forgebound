@@ -92,6 +92,21 @@ export class CharactersService {
     return data;
   }
 
+  async getMe(userId: string) {
+    const supabase = this.supabaseService.getClient();
+    const { data, error } = await supabase
+      .from('characters')
+      .select('*, race:races(id, name), class:classes(id, name)')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !data) {
+      throw new NotFoundException('No character found. Create one first.');
+    }
+
+    return data;
+  }
+
   private calculatePointBuyCost(dto: CreateCharacterDto): number {
     let total = 0;
     for (const ability of ABILITIES) {

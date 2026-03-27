@@ -1,0 +1,87 @@
+### Get my character (includes travel status)
+GET {{host}}/characters/me
+Authorization: Bearer {{token}}
+
+### Step north
+POST {{host}}/travel/move
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "direction": "north"
+}
+
+### Step south
+POST {{host}}/travel/move
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "direction": "south"
+}
+
+### Step east
+POST {{host}}/travel/move
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "direction": "east"
+}
+
+### Step west
+POST {{host}}/travel/move
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "direction": "west"
+}
+
+### Travel to Thornhaven (50, 50)
+POST {{host}}/travel/go
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "x": 50,
+  "y": 50
+}
+
+### Travel to a nearby coordinate (55, 50)
+POST {{host}}/travel/go
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "x": 55,
+  "y": 50
+}
+
+### Travel across the map (76, 48) — The Greenwood
+POST {{host}}/travel/go
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "x": 76,
+  "y": 48
+}
+
+### Check travel status
+GET {{host}}/travel/status
+Authorization: Bearer {{token}}
+
+### Cancel active travel
+POST {{host}}/travel/cancel
+Authorization: Bearer {{token}}
+
+### Try to move into ocean (should fail 400)
+POST {{host}}/travel/go
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "x": 0,
+  "y": 0
+}

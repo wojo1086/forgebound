@@ -146,7 +146,7 @@ for (let y = 0; y < H; y++) {
   }
 }
 
-// ── Step 3: Overlay biomes (all positions scaled 2x from 50x50) ─────────────
+// ── Step 3: Overlay biomes (all positions scaled 2x from 100x100) ─────────────
 
 // Mountains — multiple distinct ranges and peaks
 function isMountain(x: number, y: number): boolean {
