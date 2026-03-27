@@ -3,6 +3,7 @@ import { CharactersService } from './characters.service';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { TravelService } from '../travel/travel.service';
+import { ThrottleTier } from '../common/decorators/throttle-tier.decorator';
 
 @Controller('characters')
 export class CharactersController {
@@ -20,6 +21,7 @@ export class CharactersController {
     return this.travelService.getMe(user.id);
   }
 
+  @ThrottleTier('gameplay')
   @Post()
   create(
     @CurrentUser() user: { id: string },

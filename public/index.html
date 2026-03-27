@@ -436,6 +436,13 @@
         <a href="#ep-map-cell"><span class="method-sm get">GET</span> Cell Info</a>
       </div>
       <div class="sidebar-section">
+        <div class="sidebar-heading">Travel</div>
+        <a href="#ep-travel-move"><span class="method-sm post">POST</span> Move (Step)</a>
+        <a href="#ep-travel-go"><span class="method-sm post">POST</span> Travel To</a>
+        <a href="#ep-travel-status"><span class="method-sm get">GET</span> Travel Status</a>
+        <a href="#ep-travel-cancel"><span class="method-sm post">POST</span> Cancel Travel</a>
+      </div>
+      <div class="sidebar-section">
         <div class="sidebar-heading">Reference</div>
         <a href="#ref-races">Races &amp; Bonuses</a>
         <a href="#ref-classes">Classes</a>
@@ -846,6 +853,164 @@ Content-Type: application/json
 }</pre>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- TRAVEL -->
+      <div class="endpoint-section" id="travel">
+        <div class="section-label">Travel</div>
+        <div class="section-title">Travel &amp; Movement</div>
+        <div class="section-desc">Move your character across the world. Travel takes real time based on terrain difficulty. You can step one cell at a time or pathfind to any reachable coordinate. Hidden POIs are discovered as you pass through cells.</div>
+
+        <div class="endpoint-block" id="ep-travel-move">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/travel/move</code>
+          </div>
+          <div class="endpoint-desc">
+            Step one cell in a cardinal direction. Travel time depends on the destination terrain. You cannot move while already traveling.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "direction": "north"
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "direction": "north",
+  "from": { "x": 50, "y": 50 },
+  "destination": { "x": 50, "y": 49 },
+  "terrain": "plains",
+  "travelSeconds": 10,
+  "startedAt": "2026-03-27T12:00:00.000Z",
+  "eta": "2026-03-27T12:00:10.000Z"
+}</pre>
+            </div>
+          </div>
+          <div class="endpoint-desc" style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">
+            Valid directions: <code>north</code>, <code>south</code>, <code>east</code>, <code>west</code>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-travel-go">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/travel/go</code>
+          </div>
+          <div class="endpoint-desc">
+            Travel to a specific coordinate. The server pathfinds the shortest route using A* and terrain costs. Total travel time is the sum of all cells along the path.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "x": 76,
+  "y": 48
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "from": { "x": 50, "y": 50 },
+  "destination": { "x": 76, "y": 48 },
+  "path": [{ "x": 50, "y": 50 }, ...],
+  "totalCells": 28,
+  "travelSeconds": 385,
+  "startedAt": "2026-03-27T12:00:00.000Z",
+  "eta": "2026-03-27T12:06:25.000Z"
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-travel-status">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/travel/status</code>
+          </div>
+          <div class="endpoint-desc">
+            Check your current travel progress. If the ETA has passed, the server resolves the trip&mdash;updating your position and returning any POIs discovered along the way.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response (traveling)</div>
+              <pre>{
+  "isTraveling": true,
+  "position": { "x": 50, "y": 50 },
+  "estimatedCurrent": { "x": 58, "y": 50 },
+  "destination": { "x": 76, "y": 48 },
+  "progressIndex": 8,
+  "totalCells": 28,
+  "startedAt": "...",
+  "eta": "..."
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response (arrived)</div>
+              <pre>{
+  "isTraveling": false,
+  "position": { "x": 76, "y": 48 },
+  "discoveries": [
+    {
+      "id": "hidden-shrine-04",
+      "name": "Overgrown Shrine",
+      "type": "shrine",
+      "x": 62, "y": 49
+    }
+  ]
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-travel-cancel">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/travel/cancel</code>
+          </div>
+          <div class="endpoint-desc">
+            Cancel active travel. Your character stops at the furthest cell reached based on elapsed time. Any hidden POIs along the traversed portion are still discovered.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "cancelled": true,
+  "position": { "x": 58, "y": 50 },
+  "cellsTraversed": 8,
+  "discoveries": []
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div id="ref-terrain-costs" style="margin-top:2rem;">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.75rem;">Terrain Travel Costs</h3>
+          <table class="ref-table">
+            <tr><th>Terrain</th><th>Seconds per Cell</th><th>Traversable</th></tr>
+            <tr><td>Plains</td><td>10s</td><td style="color:var(--get)">Yes</td></tr>
+            <tr><td>Coast</td><td>15s</td><td style="color:var(--get)">Yes</td></tr>
+            <tr><td>Forest</td><td>20s</td><td style="color:var(--get)">Yes</td></tr>
+            <tr><td>Desert</td><td>25s</td><td style="color:var(--get)">Yes</td></tr>
+            <tr><td>Swamp</td><td>30s</td><td style="color:var(--get)">Yes</td></tr>
+            <tr><td>Mountain</td><td>45s</td><td style="color:var(--get)">Yes</td></tr>
+            <tr><td>Ocean</td><td>&mdash;</td><td style="color:var(--delete)">No</td></tr>
+          </table>
         </div>
       </div>
 

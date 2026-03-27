@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { join } from 'path';
 import { SupabaseModule } from './supabase/supabase.module';
@@ -11,6 +12,7 @@ import { MapModule } from './map/map.module';
 import { TravelModule } from './travel/travel.module';
 import { DatabaseModule } from './database/database.module';
 import { SupabaseAuthGuard } from './auth/auth.guard';
+import { ForgeboundThrottlerGuard } from './common/guards/throttler.guard';
 import { AppController } from './app.controller';
 
 @Module({
@@ -20,6 +22,7 @@ import { AppController } from './app.controller';
       rootPath: join(__dirname, '..', '..', 'public'),
       exclude: ['/api/{*path}'],
     }),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
     DatabaseModule,
     SupabaseModule,
     AuthModule,
@@ -33,6 +36,10 @@ import { AppController } from './app.controller';
     {
       provide: APP_GUARD,
       useClass: SupabaseAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ForgeboundThrottlerGuard,
     },
   ],
 })

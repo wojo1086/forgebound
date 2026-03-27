@@ -3,7 +3,9 @@ import { TravelService } from './travel.service';
 import { MoveDto } from './dto/move.dto';
 import { TravelDto } from './dto/travel.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { ThrottleTier } from '../common/decorators/throttle-tier.decorator';
 
+@ThrottleTier('gameplay')
 @Controller('travel')
 export class TravelController {
   constructor(private travelService: TravelService) {}
