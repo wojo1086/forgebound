@@ -1,0 +1,184 @@
+{
+  "regions": [
+    {
+      "id": "the-greenwood",
+      "name": "The Greenwood",
+      "terrains": ["forest"],
+      "centerX": 76,
+      "centerY": 48,
+      "radius": 18,
+      "color": "#2ecc71",
+      "description": "A vast and ancient forest covering the eastern reaches, its canopy so thick that sunlight barely touches the forest floor."
+    },
+    {
+      "id": "eldergrove",
+      "name": "Eldergrove",
+      "terrains": ["forest"],
+      "centerX": 28,
+      "centerY": 28,
+      "radius": 14,
+      "color": "#1abc9c",
+      "description": "An old-growth forest in the northwest where enormous trees tower above all else, said to be as old as the world itself."
+    },
+    {
+      "id": "pineheart-woods",
+      "name": "Pineheart Woods",
+      "terrains": ["forest"],
+      "centerX": 55,
+      "centerY": 78,
+      "radius": 10,
+      "color": "#27ae60",
+      "description": "A dense pine forest in the southern reaches, its resinous scent carrying for miles on the wind."
+    },
+    {
+      "id": "the-thornweald",
+      "name": "The Thornweald",
+      "terrains": ["forest"],
+      "centerX": 45,
+      "centerY": 45,
+      "radius": 8,
+      "color": "#16a085",
+      "description": "A tangled central woodland choked with thorny undergrowth. Few paths exist, and those that do shift with the seasons."
+    },
+    {
+      "id": "windbreak-copse",
+      "name": "Windbreak Copse",
+      "terrains": ["forest"],
+      "centerX": 80,
+      "centerY": 30,
+      "radius": 8,
+      "color": "#3498db",
+      "description": "A wind-battered stretch of coastal woodland that shields the northeastern shores from ocean storms."
+    },
+    {
+      "id": "briartangle",
+      "name": "Briartangle",
+      "terrains": ["forest"],
+      "centerX": 18,
+      "centerY": 50,
+      "radius": 7,
+      "color": "#45b39d",
+      "description": "A wild thicket in the west where briar roses grow taller than a man and the paths change overnight."
+    },
+    {
+      "id": "the-ashspine-range",
+      "name": "The Ashspine Range",
+      "terrains": ["mountain"],
+      "centerX": 50,
+      "centerY": 36,
+      "radius": 30,
+      "color": "#95a5a6",
+      "description": "The great mountain spine that divides the northern reaches from the heartlands. Its peaks are wreathed in perpetual cloud."
+    },
+    {
+      "id": "stormcrest-highlands",
+      "name": "Stormcrest Highlands",
+      "terrains": ["mountain"],
+      "centerX": 56,
+      "centerY": 60,
+      "radius": 6,
+      "color": "#7f8c8d",
+      "description": "A cluster of storm-battered peaks in the south-central region where lightning strikes with unnatural frequency."
+    },
+    {
+      "id": "the-fangpeaks",
+      "name": "The Fangpeaks",
+      "terrains": ["mountain"],
+      "centerX": 22,
+      "centerY": 55,
+      "radius": 4,
+      "color": "#bdc3c7",
+      "description": "Three jagged peaks in the west that resemble enormous fangs jutting from the earth."
+    },
+    {
+      "id": "ironridge",
+      "name": "Ironridge",
+      "terrains": ["mountain"],
+      "centerX": 75,
+      "centerY": 25,
+      "radius": 4,
+      "color": "#a0aeb4",
+      "description": "A low northeastern ridge rich in iron ore, its exposed rock faces stained rust-red."
+    },
+    {
+      "id": "mount-cinderveil",
+      "name": "Mount Cinderveil",
+      "terrains": ["mountain"],
+      "centerX": 75,
+      "centerY": 70,
+      "radius": 4,
+      "color": "#e74c3c",
+      "description": "A dormant volcano in the southeast, its caldera perpetually shrouded in warm, sulfurous haze."
+    },
+    {
+      "id": "the-rotmire",
+      "name": "The Rotmire",
+      "terrains": ["swamp"],
+      "centerX": 65,
+      "centerY": 72,
+      "radius": 12,
+      "color": "#6b8e4e",
+      "description": "A vast and treacherous swamp in the southeast where the ground itself seems to breathe. Many who enter are never seen again."
+    },
+    {
+      "id": "bogwater-fen",
+      "name": "Bogwater Fen",
+      "terrains": ["swamp"],
+      "centerX": 78,
+      "centerY": 60,
+      "radius": 7,
+      "color": "#5d7a3e",
+      "description": "Eastern marshlands fed by underground springs, the water here has an eerie green luminescence at night."
+    },
+    {
+      "id": "misthollow-bog",
+      "name": "Misthollow Bog",
+      "terrains": ["swamp"],
+      "centerX": 48,
+      "centerY": 55,
+      "radius": 5,
+      "color": "#4e6b3a",
+      "description": "A small central bog perpetually blanketed in thick mist. Strange lights drift between the dead trees."
+    },
+    {
+      "id": "weeping-marsh",
+      "name": "Weeping Marsh",
+      "terrains": ["swamp"],
+      "centerX": 15,
+      "centerY": 65,
+      "radius": 6,
+      "color": "#7d9b5e",
+      "description": "Western wetlands near the coast where willows hang low over murky pools that never seem to dry."
+    },
+    {
+      "id": "the-scorchflats",
+      "name": "The Scorchflats",
+      "terrains": ["desert"],
+      "centerX": 28,
+      "centerY": 70,
+      "radius": 12,
+      "color": "#e67e22",
+      "description": "A vast southwestern desert of cracked earth and endless dunes. The sun here is merciless and water is worth more than gold."
+    },
+    {
+      "id": "dusthowl-badlands",
+      "name": "Dusthowl Badlands",
+      "terrains": ["desert"],
+      "centerX": 38,
+      "centerY": 60,
+      "radius": 7,
+      "color": "#d35400",
+      "description": "A maze of eroded sandstone pillars and dry ravines where the wind howls through narrow canyons."
+    },
+    {
+      "id": "the-dry-steppe",
+      "name": "The Dry Steppe",
+      "terrains": ["desert"],
+      "centerX": 50,
+      "centerY": 28,
+      "radius": 5,
+      "color": "#f39c12",
+      "description": "A parched stretch of grassland in the northern foothills where rain is rare and the soil is sandy and thin."
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+### Register a new account
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "t.wojtylak@gmail.com",
+  "password": "Badboytim32!"
+}
+
+### Login
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "t.wojtylak@gmail.com",
+    "password": "Badboytim32!"
+}
+
+> {%
+    client.global.set("token", response.body.accessToken);
+%}
+
+### Get my profile (requires login first)
+GET {{host}}/auth/me
+Authorization: Bearer {{token}}

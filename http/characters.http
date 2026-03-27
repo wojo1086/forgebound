@@ -1,0 +1,171 @@
+## Run auth.http → Login first to populate {{token}}
+
+### Dwarf Warrior — tanky melee bruiser (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Thorin Ironfist",
+  "raceId": "dwarf",
+  "classId": "warrior",
+  "strength": 15,
+  "dexterity": 8,
+  "constitution": 15,
+  "intelligence": 8,
+  "wisdom": 10,
+  "charisma": 10
+}
+
+### Elf Mage — glass cannon spellcaster (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Aelindra Starweave",
+  "raceId": "elf",
+  "classId": "mage",
+  "strength": 8,
+  "dexterity": 12,
+  "constitution": 13,
+  "intelligence": 15,
+  "wisdom": 14,
+  "charisma": 8
+}
+
+### Halfling Rogue — sneaky and lucky (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Pip Shadowfoot",
+  "raceId": "halfling",
+  "classId": "rogue",
+  "strength": 8,
+  "dexterity": 15,
+  "constitution": 12,
+  "intelligence": 13,
+  "wisdom": 10,
+  "charisma": 12
+}
+
+### Human Cleric — balanced divine caster (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Roland the Devout",
+  "raceId": "human",
+  "classId": "cleric",
+  "strength": 12,
+  "dexterity": 10,
+  "constitution": 14,
+  "intelligence": 10,
+  "wisdom": 15,
+  "charisma": 10
+}
+
+### Orc Ranger — strong wilderness tracker (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Grak Bonecleaver",
+  "raceId": "orc",
+  "classId": "ranger",
+  "strength": 14,
+  "dexterity": 14,
+  "constitution": 13,
+  "intelligence": 8,
+  "wisdom": 12,
+  "charisma": 8
+}
+
+### Elf Ranger — dexterous sharpshooter (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Faelen Windbow",
+  "raceId": "elf",
+  "classId": "ranger",
+  "strength": 10,
+  "dexterity": 15,
+  "constitution": 12,
+  "intelligence": 12,
+  "wisdom": 13,
+  "charisma": 8
+}
+
+### Dwarf Cleric — heavily armored healer (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Bruna Stoneheart",
+  "raceId": "dwarf",
+  "classId": "cleric",
+  "strength": 14,
+  "dexterity": 8,
+  "constitution": 14,
+  "intelligence": 8,
+  "wisdom": 15,
+  "charisma": 10
+}
+
+### Human Mage — well-rounded generalist (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Merin Ashford",
+  "raceId": "human",
+  "classId": "mage",
+  "strength": 8,
+  "dexterity": 13,
+  "constitution": 14,
+  "intelligence": 15,
+  "wisdom": 12,
+  "charisma": 8
+}
+
+### Orc Warrior — pure brute force (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Krug the Unbroken",
+  "raceId": "orc",
+  "classId": "warrior",
+  "strength": 15,
+  "dexterity": 10,
+  "constitution": 15,
+  "intelligence": 8,
+  "wisdom": 8,
+  "charisma": 10
+}
+
+### Halfling Mage — unconventional but nimble (27 pts)
+POST {{host}}/characters
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Nix Sparkfingers",
+  "raceId": "halfling",
+  "classId": "mage",
+  "strength": 8,
+  "dexterity": 14,
+  "constitution": 12,
+  "intelligence": 15,
+  "wisdom": 13,
+  "charisma": 10
+}

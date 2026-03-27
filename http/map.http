@@ -1,0 +1,20 @@
+### Get full world map (public — no auth needed)
+# Returns terrain grid + all visible POIs (towns, landmarks)
+GET {{host}}/map
+
+### Get full world map (authenticated — includes your discoveries)
+GET {{host}}/map
+Authorization: Bearer {{token}}
+
+### Get all named regions (forests, mountains, swamps, deserts)
+GET {{host}}/map/regions
+
+### Get cell info — Thornhaven (starting town at 25,24)
+GET {{host}}/map/cell/25/24
+
+### Get cell info — ocean tile (0,0)
+GET {{host}}/map/cell/0/0
+
+### Get cell info — authenticated (shows your discoveries)
+GET {{host}}/map/cell/25/24
+Authorization: Bearer {{token}}

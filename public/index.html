@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgebound — A REST API Fantasy RPG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #d4a44c;
+      --gold-glow: #e8c36a;
+      --gold-dim: #a07830;
+      --gold-subtle: rgba(212, 164, 76, 0.08);
+      --gold-border: rgba(212, 164, 76, 0.15);
+      --bg: #0c0d12;
+      --bg-surface: #13141b;
+      --bg-card: #191a23;
+      --bg-elevated: #1f2029;
+      --bg-code: #0f1017;
+      --border: #25262f;
+      --border-light: #2c2d38;
+      --text: #d4d4dc;
+      --text-bright: #ededf2;
+      --text-muted: #6e6f80;
+      --text-dim: #4a4b5a;
+      --get: #34d399;
+      --get-bg: rgba(52, 211, 153, 0.1);
+      --post: #60a5fa;
+      --post-bg: rgba(96, 165, 250, 0.1);
+      --put: #fbbf24;
+      --delete: #f87171;
+      --sidebar-w: 240px;
+      --nav-h: 56px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── TOP NAV ─── */
+    .topnav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--nav-h);
+      background: rgba(12, 13, 18, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 1.5rem;
+    }
+    .topnav-logo {
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.15rem;
+      color: var(--gold); text-decoration: none; letter-spacing: 0.03em;
+    }
+    .topnav-links {
+      list-style: none; display: flex; gap: 1.75rem; margin-left: 3rem;
+    }
+    .topnav-links a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.8rem;
+      font-weight: 500; transition: color 0.15s; letter-spacing: 0.01em;
+    }
+    .topnav-links a:hover { color: var(--text-bright); }
+    .topnav-links a.active { color: var(--gold); }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 2rem; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 900px 700px at 25% 45%, rgba(212, 164, 76, 0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 700px 600px at 75% 55%, rgba(212, 164, 76, 0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 500px 400px at 50% 10%, rgba(212, 164, 76, 0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z' fill='none' stroke='rgba(212,164,76,0.06)' stroke-width='0.75'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 720px; }
+    .hero h1 {
+      font-family: 'Cinzel', serif; font-weight: 900;
+      font-size: clamp(3rem, 7.5vw, 5rem);
+      color: var(--gold);
+      text-shadow: 0 0 40px rgba(212, 164, 76, 0.35), 0 0 80px rgba(212, 164, 76, 0.15), 0 0 120px rgba(212, 164, 76, 0.05);
+      letter-spacing: 0.04em; margin-bottom: 0.75rem;
+    }
+    .hero .tagline {
+      font-size: 1.15rem; color: var(--text-muted);
+      max-width: 520px; margin: 0 auto 2.5rem; line-height: 1.7;
+    }
+    .hero .tagline strong { color: var(--text-bright); font-weight: 600; }
+
+    .quicklinks {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1rem; max-width: 600px; margin: 0 auto 3rem; text-align: left;
+    }
+    .quicklink {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.15rem 1.25rem;
+      text-decoration: none; color: var(--text);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .quicklink:hover { border-color: var(--gold-dim); background: var(--bg-elevated); }
+    .quicklink-icon { font-size: 1.25rem; margin-bottom: 0.5rem; display: block; }
+    .quicklink-title {
+      font-weight: 600; font-size: 0.85rem; color: var(--text-bright);
+      margin-bottom: 0.2rem;
+    }
+    .quicklink-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.875rem;
+      color: var(--bg); background: var(--gold);
+      padding: 0.7rem 1.75rem; border-radius: 8px;
+      text-decoration: none; transition: opacity 0.15s, transform 0.15s;
+    }
+    .hero-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .scroll-hint {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      color: var(--text-dim); font-size: 0.7rem; letter-spacing: 0.15em;
+      text-transform: uppercase; animation: fade-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes fade-pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+
+    /* ─── DOCS LAYOUT ─── */
+    .docs-layout {
+      display: flex;
+      padding-top: var(--nav-h);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: sticky; top: var(--nav-h);
+      width: var(--sidebar-w); min-width: var(--sidebar-w);
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto; padding: 1.5rem 0 2rem;
+      border-right: 1px solid var(--border);
+      background: var(--bg-surface);
+    }
+    .sidebar::-webkit-scrollbar { width: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .sidebar-section { margin-bottom: 1.5rem; }
+    .sidebar-heading {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-dim);
+      padding: 0 1.25rem; margin-bottom: 0.5rem;
+    }
+    .sidebar a {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.35rem 1.25rem; font-size: 0.8rem;
+      color: var(--text-muted); text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+      border-left: 2px solid transparent;
+    }
+    .sidebar a:hover { color: var(--text-bright); background: rgba(255,255,255,0.02); }
+    .sidebar a.active { color: var(--gold); border-left-color: var(--gold); background: var(--gold-subtle); }
+    .sidebar .method-sm {
+      font-family: 'Fira Code', monospace; font-size: 0.6rem; font-weight: 600;
+      min-width: 32px; text-align: center; padding: 1px 4px;
+      border-radius: 3px; color: #fff; flex-shrink: 0;
+    }
+    .sidebar .method-sm.get { background: var(--get); }
+    .sidebar .method-sm.post { background: var(--post); }
+
+    /* Main content */
+    .docs-main {
+      flex: 1; min-width: 0;
+      padding: 2.5rem 0;
+    }
+
+    /* ─── ENDPOINT SECTION (two-column) ─── */
+    .endpoint-section {
+      padding: 2.5rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .endpoint-section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--gold-dim); margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 700;
+      color: var(--text-bright); margin-bottom: 0.5rem;
+    }
+    .section-desc {
+      font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem;
+      max-width: 640px; line-height: 1.7;
+    }
+
+    .endpoint-block {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2rem; margin-bottom: 2.5rem;
+      padding-bottom: 2.5rem; border-bottom: 1px solid var(--border);
+    }
+    .endpoint-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+    /* Left: info */
+    .ep-info {}
+    .ep-method-path {
+      display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;
+    }
+    .method-badge {
+      font-family: 'Fira Code', monospace; font-weight: 600; font-size: 0.7rem;
+      padding: 0.2rem 0.55rem; border-radius: 4px; color: #fff;
+      letter-spacing: 0.02em;
+    }
+    .method-badge.get { background: var(--get); }
+    .method-badge.post { background: var(--post); }
+    .method-badge.put { background: var(--put); }
+    .method-badge.delete { background: var(--delete); }
+
+    .ep-path {
+      font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--text-bright);
+    }
+    .auth-chip {
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 0.15rem 0.5rem;
+      border-radius: 3px; background: var(--gold-subtle);
+      border: 1px solid var(--gold-border); color: var(--gold);
+      margin-left: 0.5rem;
+    }
+
+    .ep-desc {
+      font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.65;
+    }
+
+    .params-table {
+      width: 100%; border-collapse: collapse; font-size: 0.8rem;
+    }
+    .params-table th {
+      text-align: left; font-weight: 600; font-size: 0.65rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-dim); padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .params-table td {
+      padding: 0.55rem 0; border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .params-table td:first-child { padding-right: 1rem; }
+    .param-name {
+      font-family: 'Fira Code', monospace; font-size: 0.78rem; color: var(--text-bright);
+    }
+    .param-type {
+      font-family: 'Fira Code', monospace; font-size: 0.72rem; color: var(--text-dim);
+    }
+    .param-req {
+      font-size: 0.6rem; font-weight: 700; color: var(--gold); margin-left: 0.35rem;
+    }
+
+    /* Right: code */
+    .ep-code {}
+    .code-label {
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 0.5rem;
+    }
+    pre {
+      background: var(--bg-code); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 1rem 1.15rem; overflow-x: auto;
+      font-family: 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.65;
+      margin-bottom: 1rem;
+    }
+    pre .comment { color: var(--text-dim); }
+    pre .str { color: var(--gold-glow); }
+    pre .key { color: var(--get); }
+    pre .num { color: #c084fc; }
+    pre .method-get { color: var(--get); font-weight: 600; }
+    pre .method-post { color: var(--post); font-weight: 600; }
+
+    .note {
+      background: var(--gold-subtle); border: 1px solid var(--gold-border);
+      border-radius: 6px; padding: 0.65rem 0.85rem;
+      font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;
+    }
+    .note code {
+      font-family: 'Fira Code', monospace; font-size: 0.74rem;
+      background: rgba(255,255,255,0.05); padding: 0.1rem 0.3rem; border-radius: 3px;
+    }
+
+    /* ─── REFERENCE TABLES ─── */
+    .ref-table {
+      width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 1.5rem;
+    }
+    .ref-table th {
+      text-align: left; font-weight: 600; font-size: 0.65rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-dim); padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border); background: var(--bg-card);
+    }
+    .ref-table td {
+      padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .ref-table tr:hover td { background: rgba(255,255,255,0.01); }
+    .ref-table code {
+      font-family: 'Fira Code', monospace; font-size: 0.75rem;
+      background: rgba(255,255,255,0.04); padding: 0.1rem 0.35rem; border-radius: 3px;
+      color: var(--gold);
+    }
+    .ref-table .bonus { color: var(--get); font-weight: 500; }
+    .ref-table .no-bonus { color: var(--text-dim); }
+
+    /* ─── QUICKSTART ─── */
+    .quickstart-steps { counter-reset: step; }
+    .qs-step {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2rem; margin-bottom: 2rem; padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .qs-step:last-child { border-bottom: none; }
+    .qs-step-info { counter-increment: step; }
+    .qs-step-info::before {
+      content: 'STEP ' counter(step);
+      display: block; font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 0.12em; color: var(--gold-dim); margin-bottom: 0.65rem;
+    }
+    .qs-step-title {
+      font-weight: 700; font-size: 1rem; color: var(--text-bright); margin-bottom: 0.35rem;
+    }
+    .qs-step-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border); padding: 2rem;
+      text-align: center; color: var(--text-dim); font-size: 0.78rem;
+    }
+    footer span { color: var(--gold); font-family: 'Cinzel', serif; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .endpoint-block, .qs-step { grid-template-columns: 1fr; }
+      .endpoint-section { padding: 2rem 1.5rem; }
+      .quicklinks { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <div class="topnav">
+    <a href="#" class="topnav-logo">Forgebound</a>
+    <ul class="topnav-links">
+      <li><a href="#quickstart">Quickstart</a></li>
+      <li><a href="#api">API Reference</a></li>
+      <li><a href="#reference">Game Data</a></li>
+      <li><a href="/map.html">World Map</a></li>
+    </ul>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Forgebound</h1>
+      <p class="tagline">
+        A <strong>fantasy RPG</strong> played entirely through <strong>REST API</strong> calls.
+        Create characters, fight monsters, and explore a shared world &mdash;
+        then build your own client to play it.
+      </p>
+      <div class="quicklinks">
+        <a href="#quickstart" class="quicklink">
+          <span class="quicklink-icon">&#9889;</span>
+          <div class="quicklink-title">Quickstart</div>
+          <div class="quicklink-desc">First character in 3 requests</div>
+        </a>
+        <a href="#api" class="quicklink">
+          <span class="quicklink-icon">&#128214;</span>
+          <div class="quicklink-title">API Reference</div>
+          <div class="quicklink-desc">Every endpoint documented</div>
+        </a>
+        <a href="#reference" class="quicklink">
+          <span class="quicklink-icon">&#9876;</span>
+          <div class="quicklink-title">Game Data</div>
+          <div class="quicklink-desc">Races, classes, point buy</div>
+        </a>
+      </div>
+      <a href="#quickstart" class="hero-cta">Get Started &rarr;</a>
+    </div>
+    <div class="scroll-hint">&#9660; scroll</div>
+  </section>
+
+  <!-- DOCS -->
+  <div class="docs-layout" id="docs-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Getting Started</div>
+        <a href="#quickstart">Quickstart</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Authentication</div>
+        <a href="#ep-register"><span class="method-sm post">POST</span> Register</a>
+        <a href="#ep-login"><span class="method-sm post">POST</span> Login</a>
+        <a href="#ep-me"><span class="method-sm get">GET</span> My Profile</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Game Data</div>
+        <a href="#ep-races"><span class="method-sm get">GET</span> Races</a>
+        <a href="#ep-classes"><span class="method-sm get">GET</span> Classes</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Characters</div>
+        <a href="#ep-create-char"><span class="method-sm post">POST</span> Create Character</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">World Map</div>
+        <a href="#ep-map"><span class="method-sm get">GET</span> World Map</a>
+        <a href="#ep-map-cell"><span class="method-sm get">GET</span> Cell Info</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Reference</div>
+        <a href="#ref-races">Races &amp; Bonuses</a>
+        <a href="#ref-classes">Classes</a>
+        <a href="#ref-pointbuy">Point Buy Table</a>
+        <a href="#ref-derived">Derived Stats</a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="docs-main">
+
+      <!-- QUICKSTART -->
+      <div class="endpoint-section" id="quickstart">
+        <div class="section-label">Getting Started</div>
+        <div class="section-title">Quickstart</div>
+        <div class="section-desc">From zero to adventurer in three API calls. All endpoints use JSON bodies and return JSON responses.</div>
+
+        <div class="quickstart-steps">
+          <div class="qs-step">
+            <div class="qs-step-info">
+              <div class="qs-step-title">Create an Account</div>
+              <div class="qs-step-desc">Register with an email and password. This creates your account in the Forgebound world.</div>
+            </div>
+            <div class="qs-step-code">
+              <div class="code-label">Request</div>
+              <pre><span class="method-post">POST</span> /api/auth/register
+
+{
+  <span class="key">"email"</span>: <span class="str">"hero@example.com"</span>,
+  <span class="key">"password"</span>: <span class="str">"your-secret-password"</span>
+}</pre>
+            </div>
+          </div>
+
+          <div class="qs-step">
+            <div class="qs-step-info">
+              <div class="qs-step-title">Log In</div>
+              <div class="qs-step-desc">Authenticate and receive an access token. Include this token as a <code style="font-family:'Fira Code',monospace;font-size:0.8rem;background:rgba(255,255,255,0.06);padding:0.1rem 0.3rem;border-radius:3px;">Bearer</code> token in the <code style="font-family:'Fira Code',monospace;font-size:0.8rem;background:rgba(255,255,255,0.06);padding:0.1rem 0.3rem;border-radius:3px;">Authorization</code> header for all authenticated endpoints.</div>
+            </div>
+            <div class="qs-step-code">
+              <div class="code-label">Request</div>
+              <pre><span class="method-post">POST</span> /api/auth/login
+
+{
+  <span class="key">"email"</span>: <span class="str">"hero@example.com"</span>,
+  <span class="key">"password"</span>: <span class="str">"your-secret-password"</span>
+}</pre>
+              <div class="code-label">Response</div>
+              <pre>{
+  <span class="key">"accessToken"</span>: <span class="str">"eyJhbG..."</span>,
+  <span class="key">"refreshToken"</span>: <span class="str">"v1.MDA..."</span>,
+  <span class="key">"expiresIn"</span>: <span class="num">3600</span>
+}</pre>
+            </div>
+          </div>
+
+          <div class="qs-step">
+            <div class="qs-step-info">
+              <div class="qs-step-title">Create a Character</div>
+              <div class="qs-step-desc">Choose a race, a class, and distribute 27 points across six ability scores using D&amp;D 5e point buy rules. The server applies racial bonuses and computes your HP and AC.</div>
+            </div>
+            <div class="qs-step-code">
+              <div class="code-label">Request</div>
+              <pre><span class="method-post">POST</span> /api/characters
+Authorization: Bearer &lt;token&gt;
+
+{
+  <span class="key">"name"</span>: <span class="str">"Thorin Ironfist"</span>,
+  <span class="key">"raceId"</span>: <span class="str">"dwarf"</span>,
+  <span class="key">"classId"</span>: <span class="str">"warrior"</span>,
+  <span class="key">"strength"</span>: <span class="num">15</span>,
+  <span class="key">"dexterity"</span>: <span class="num">10</span>,
+  <span class="key">"constitution"</span>: <span class="num">14</span>,
+  <span class="key">"intelligence"</span>: <span class="num">8</span>,
+  <span class="key">"wisdom"</span>: <span class="num">12</span>,
+  <span class="key">"charisma"</span>: <span class="num">8</span>
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUTH ENDPOINTS -->
+      <div class="endpoint-section" id="api">
+        <div class="section-label">Authentication</div>
+        <div class="section-title">Auth</div>
+        <div class="section-desc">Register and authenticate players. Authenticated endpoints require a Bearer token in the Authorization header.</div>
+
+        <div class="endpoint-block" id="ep-register">
+          <div class="ep-info">
+            <div class="ep-method-path">
+              <span class="method-badge post">POST</span>
+              <span class="ep-path">/api/auth/register</span>
+            </div>
+            <p class="ep-desc">Create a new player account.</p>
+            <table class="params-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr>
+                <td><span class="param-name">email</span><span class="param-req">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Valid email address</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">password</span><span class="param-req">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>8&ndash;128 characters</td>
+              </tr>
+            </table>
+          </div>
+          <div class="ep-code">
+            <div class="code-label">Request</div>
+            <pre><span class="method-post">POST</span> /api/auth/register
+Content-Type: application/json
+
+{
+  <span class="key">"email"</span>: <span class="str">"hero@example.com"</span>,
+  <span class="key">"password"</span>: <span class="str">"your-secret-password"</span>
+}</pre>
+            <div class="code-label">Response <span style="color:var(--get)">200</span></div>
+            <pre>{
+  <span class="key">"id"</span>: <span class="str">"550e8400-e29b-..."</span>,
+  <span class="key">"email"</span>: <span class="str">"hero@example.com"</span>
+}</pre>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-login">
+          <div class="ep-info">
+            <div class="ep-method-path">
+              <span class="method-badge post">POST</span>
+              <span class="ep-path">/api/auth/login</span>
+            </div>
+            <p class="ep-desc">Authenticate and receive access and refresh tokens.</p>
+            <table class="params-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr>
+                <td><span class="param-name">email</span><span class="param-req">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Your email</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">password</span><span class="param-req">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Your password</td>
+              </tr>
+            </table>
+          </div>
+          <div class="ep-code">
+            <div class="code-label">Response <span style="color:var(--get)">200</span></div>
+            <pre>{
+  <span class="key">"accessToken"</span>: <span class="str">"eyJhbGciOi..."</span>,
+  <span class="key">"refreshToken"</span>: <span class="str">"v1.MDAyN..."</span>,
+  <span class="key">"expiresIn"</span>: <span class="num">3600</span>,
+  <span class="key">"user"</span>: {
+    <span class="key">"id"</span>: <span class="str">"550e8400-e29b-..."</span>,
+    <span class="key">"email"</span>: <span class="str">"hero@example.com"</span>
+  }
+}</pre>
+            <div class="note">Use <code>accessToken</code> as <code>Authorization: Bearer &lt;token&gt;</code> for all authenticated endpoints.</div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-me">
+          <div class="ep-info">
+            <div class="ep-method-path">
+              <span class="method-badge get">GET</span>
+              <span class="ep-path">/api/auth/me</span>
+              <span class="auth-chip">Auth</span>
+            </div>
+            <p class="ep-desc">Get the currently authenticated player's profile.</p>
+          </div>
+          <div class="ep-code">
+            <div class="code-label">Response <span style="color:var(--get)">200</span></div>
+            <pre>{
+  <span class="key">"id"</span>: <span class="str">"550e8400-e29b-..."</span>,
+  <span class="key">"email"</span>: <span class="str">"hero@example.com"</span>,
+  <span class="key">"createdAt"</span>: <span class="str">"2026-03-27T12:00:00Z"</span>
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME DATA ENDPOINTS -->
+      <div class="endpoint-section">
+        <div class="section-label">Game Data</div>
+        <div class="section-title">Races &amp; Classes</div>
+        <div class="section-desc">Query available races and classes. These endpoints are public and do not require authentication.</div>
+
+        <div class="endpoint-block" id="ep-races">
+          <div class="ep-info">
+            <div class="ep-method-path">
+              <span class="method-badge get">GET</span>
+              <span class="ep-path">/api/game/races</span>
+            </div>
+            <p class="ep-desc">List all playable races with their stat bonuses. Use the <code style="font-family:'Fira Code',monospace;font-size:0.78rem;background:rgba(255,255,255,0.05);padding:0.1rem 0.3rem;border-radius:3px;">id</code> field as the <code style="font-family:'Fira Code',monospace;font-size:0.78rem;background:rgba(255,255,255,0.05);padding:0.1rem 0.3rem;border-radius:3px;">raceId</code> when creating a character.</p>
+          </div>
+          <div class="ep-code">
+            <div class="code-label">Response <span style="color:var(--get)">200</span></div>
+            <pre>[
+  {
+    <span class="key">"id"</span>: <span class="str">"dwarf"</span>,
+    <span class="key">"name"</span>: <span class="str">"Dwarf"</span>,
+    <span class="key">"description"</span>: <span class="str">"Stout and hardy..."</span>,
+    <span class="key">"bonus_strength"</span>: <span class="num">1</span>,
+    <span class="key">"bonus_dexterity"</span>: <span class="num">0</span>,
+    <span class="key">"bonus_constitution"</span>: <span class="num">2</span>,
+    <span class="key">"bonus_intelligence"</span>: <span class="num">0</span>,
+    <span class="key">"bonus_wisdom"</span>: <span class="num">0</span>,
+    <span class="key">"bonus_charisma"</span>: <span class="num">0</span>
+  },
+  <span class="comment">// ... 4 more races</span>
+]</pre>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-classes">
+          <div class="ep-info">
+            <div class="ep-method-path">
+              <span class="method-badge get">GET</span>
+              <span class="ep-path">/api/game/classes</span>
+            </div>
+            <p class="ep-desc">List all playable classes. Use the <code style="font-family:'Fira Code',monospace;font-size:0.78rem;background:rgba(255,255,255,0.05);padding:0.1rem 0.3rem;border-radius:3px;">id</code> field as the <code style="font-family:'Fira Code',monospace;font-size:0.78rem;background:rgba(255,255,255,0.05);padding:0.1rem 0.3rem;border-radius:3px;">classId</code> when creating a character.</p>
+          </div>
+          <div class="ep-code">
+            <div class="code-label">Response <span style="color:var(--get)">200</span></div>
+            <pre>[
+  {
+    <span class="key">"id"</span>: <span class="str">"warrior"</span>,
+    <span class="key">"name"</span>: <span class="str">"Warrior"</span>,
+    <span class="key">"description"</span>: <span class="str">"A master of martial combat..."</span>
+  },
+  <span class="comment">// ... 4 more classes</span>
+]</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHARACTER ENDPOINT -->
+      <div class="endpoint-section">
+        <div class="section-label">Characters</div>
+        <div class="section-title">Character Creation</div>
+        <div class="section-desc">Create your adventurer. Each account can have one character. Ability scores use D&amp;D 5e point buy &mdash; 27 points, scores from 8 to 15.</div>
+
+        <div class="endpoint-block" id="ep-create-char">
+          <div class="ep-info">
+            <div class="ep-method-path">
+              <span class="method-badge post">POST</span>
+              <span class="ep-path">/api/characters</span>
+              <span class="auth-chip">Auth</span>
+            </div>
+            <p class="ep-desc">Create a new character. Ability scores are base values before racial bonuses. The server validates point buy cost, applies racial bonuses, and computes derived stats.</p>
+            <table class="params-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr>
+                <td><span class="param-name">name</span><span class="param-req">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>2&ndash;30 chars, letters/numbers/spaces</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">raceId</span><span class="param-req">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td><code>human</code> <code>elf</code> <code>dwarf</code> <code>halfling</code> <code>orc</code></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">classId</span><span class="param-req">required</span></td>
+                <td><span class="param-type">string</span></td>
+                <td><code>warrior</code> <code>mage</code> <code>rogue</code> <code>cleric</code> <code>ranger</code></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">strength</span><span class="param-req">required</span></td>
+                <td><span class="param-type">int</span></td>
+                <td>8&ndash;15 (before racial bonus)</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">dexterity</span><span class="param-req">required</span></td>
+                <td><span class="param-type">int</span></td>
+                <td>8&ndash;15</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">constitution</span><span class="param-req">required</span></td>
+                <td><span class="param-type">int</span></td>
+                <td>8&ndash;15</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">intelligence</span><span class="param-req">required</span></td>
+                <td><span class="param-type">int</span></td>
+                <td>8&ndash;15</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">wisdom</span><span class="param-req">required</span></td>
+                <td><span class="param-type">int</span></td>
+                <td>8&ndash;15</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">charisma</span><span class="param-req">required</span></td>
+                <td><span class="param-type">int</span></td>
+                <td>8&ndash;15</td>
+              </tr>
+            </table>
+          </div>
+          <div class="ep-code">
+            <div class="code-label">Request</div>
+            <pre><span class="method-post">POST</span> /api/characters
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  <span class="key">"name"</span>: <span class="str">"Thorin Ironfist"</span>,
+  <span class="key">"raceId"</span>: <span class="str">"dwarf"</span>,
+  <span class="key">"classId"</span>: <span class="str">"warrior"</span>,
+  <span class="key">"strength"</span>: <span class="num">15</span>,
+  <span class="key">"dexterity"</span>: <span class="num">10</span>,
+  <span class="key">"constitution"</span>: <span class="num">14</span>,
+  <span class="key">"intelligence"</span>: <span class="num">8</span>,
+  <span class="key">"wisdom"</span>: <span class="num">12</span>,
+  <span class="key">"charisma"</span>: <span class="num">8</span>
+}</pre>
+            <div class="code-label">Response <span style="color:var(--get)">201</span></div>
+            <pre><span class="comment">// Racial bonuses applied (Dwarf: +1 STR, +2 CON)</span>
+{
+  <span class="key">"id"</span>: <span class="str">"550e8400-e29b-..."</span>,
+  <span class="key">"name"</span>: <span class="str">"Thorin Ironfist"</span>,
+  <span class="key">"race_id"</span>: <span class="str">"dwarf"</span>,
+  <span class="key">"class_id"</span>: <span class="str">"warrior"</span>,
+  <span class="key">"level"</span>: <span class="num">1</span>,
+  <span class="key">"xp"</span>: <span class="num">0</span>,
+  <span class="key">"hp"</span>: <span class="num">13</span>,
+  <span class="key">"max_hp"</span>: <span class="num">13</span>,
+  <span class="key">"ac"</span>: <span class="num">10</span>,
+  <span class="key">"strength"</span>: <span class="num">16</span>,    <span class="comment">// 15 + 1</span>
+  <span class="key">"dexterity"</span>: <span class="num">10</span>,
+  <span class="key">"constitution"</span>: <span class="num">16</span>,  <span class="comment">// 14 + 2</span>
+  <span class="key">"intelligence"</span>: <span class="num">8</span>,
+  <span class="key">"wisdom"</span>: <span class="num">12</span>,
+  <span class="key">"charisma"</span>: <span class="num">8</span>
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORLD MAP -->
+      <div class="endpoint-section" id="api-map">
+        <div class="section-label">World Map</div>
+        <div class="section-title">Explore the World</div>
+        <div class="section-desc">The world is a 50&times;50 grid of terrain cells. Towns and landmarks are always visible. Hidden points of interest are revealed when your character walks onto them. <a href="/map.html" style="color:var(--gold)">View the interactive map &rarr;</a></div>
+
+        <div class="endpoint-block" id="ep-map">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/map</code>
+          </div>
+          <div class="endpoint-desc">
+            Returns the full terrain grid and all visible POIs (towns &amp; landmarks). If you include an auth token, your discovered hidden POIs are included too.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Optional</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "width": 50,
+  "height": 50,
+  "terrain": [["ocean", "ocean", ...], ...],
+  "pois": [
+    {
+      "id": "thornhaven",
+      "name": "Thornhaven",
+      "type": "town",
+      "category": "town",
+      "x": 25,
+      "y": 24,
+      "terrain": "plains",
+      "description": "A bustling trade hub..."
+    }
+  ],
+  "discoveries": []
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-map-cell">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/map/cell/:x/:y</code>
+          </div>
+          <div class="endpoint-desc">
+            Returns terrain and POI info for a specific cell. Useful for checking what&rsquo;s at a coordinate without downloading the whole map.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Optional</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Example: GET /api/map/cell/25/24</div>
+              <pre>{
+  "x": 25,
+  "y": 24,
+  "terrain": "plains",
+  "poi": {
+    "id": "thornhaven",
+    "name": "Thornhaven",
+    "type": "town",
+    "category": "town",
+    "description": "A bustling trade hub..."
+  }
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REFERENCE -->
+      <div class="endpoint-section" id="reference">
+        <div class="section-label">Reference</div>
+        <div class="section-title">Game Data</div>
+        <div class="section-desc">Reference tables for character creation.</div>
+
+        <div id="ref-races" style="margin-bottom:2.5rem">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.75rem;">Races &amp; Stat Bonuses</h3>
+          <table class="ref-table">
+            <tr><th>ID</th><th>Race</th><th>STR</th><th>DEX</th><th>CON</th><th>INT</th><th>WIS</th><th>CHA</th></tr>
+            <tr><td><code>human</code></td><td>Human</td><td class="bonus">+1</td><td class="bonus">+1</td><td class="bonus">+1</td><td class="bonus">+1</td><td class="bonus">+1</td><td class="bonus">+1</td></tr>
+            <tr><td><code>elf</code></td><td>Elf</td><td class="no-bonus">&mdash;</td><td class="bonus">+2</td><td class="no-bonus">&mdash;</td><td class="bonus">+1</td><td class="no-bonus">&mdash;</td><td class="no-bonus">&mdash;</td></tr>
+            <tr><td><code>dwarf</code></td><td>Dwarf</td><td class="bonus">+1</td><td class="no-bonus">&mdash;</td><td class="bonus">+2</td><td class="no-bonus">&mdash;</td><td class="no-bonus">&mdash;</td><td class="no-bonus">&mdash;</td></tr>
+            <tr><td><code>halfling</code></td><td>Halfling</td><td class="no-bonus">&mdash;</td><td class="bonus">+2</td><td class="no-bonus">&mdash;</td><td class="no-bonus">&mdash;</td><td class="no-bonus">&mdash;</td><td class="bonus">+1</td></tr>
+            <tr><td><code>orc</code></td><td>Orc</td><td class="bonus">+2</td><td class="no-bonus">&mdash;</td><td class="bonus">+1</td><td class="no-bonus">&mdash;</td><td class="no-bonus">&mdash;</td><td class="no-bonus">&mdash;</td></tr>
+          </table>
+        </div>
+
+        <div id="ref-classes" style="margin-bottom:2.5rem">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.75rem;">Classes</h3>
+          <table class="ref-table">
+            <tr><th>ID</th><th>Class</th><th>Description</th></tr>
+            <tr><td><code>warrior</code></td><td>Warrior</td><td>A master of martial combat, skilled with weapons and armor.</td></tr>
+            <tr><td><code>mage</code></td><td>Mage</td><td>A spellcaster who wields arcane magic to devastating effect.</td></tr>
+            <tr><td><code>rogue</code></td><td>Rogue</td><td>A cunning trickster who uses stealth and guile.</td></tr>
+            <tr><td><code>cleric</code></td><td>Cleric</td><td>A holy warrior who channels divine power to heal and smite.</td></tr>
+            <tr><td><code>ranger</code></td><td>Ranger</td><td>A wilderness survivor skilled in tracking and ranged combat.</td></tr>
+          </table>
+        </div>
+
+        <div id="ref-pointbuy" style="margin-bottom:2.5rem">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.35rem;">Point Buy Cost Table</h3>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem;">You have <strong style="color:var(--gold)">27 points</strong> to distribute. All abilities start at 8. Higher scores cost progressively more.</p>
+          <table class="ref-table" style="max-width:400px;">
+            <tr><th>Score</th><th>Cost</th><th>Score</th><th>Cost</th></tr>
+            <tr><td>8</td><td>0</td><td>12</td><td>4</td></tr>
+            <tr><td>9</td><td>1</td><td>13</td><td>5</td></tr>
+            <tr><td>10</td><td>2</td><td>14</td><td>7</td></tr>
+            <tr><td>11</td><td>3</td><td>15</td><td>9</td></tr>
+          </table>
+          <div class="note" style="margin-top:0.75rem;max-width:500px;">Scores must be 8&ndash;15 before racial bonuses. After bonuses, a score can exceed 15. Total cost must be &le; 27.</div>
+        </div>
+
+        <div id="ref-derived">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.75rem;">Derived Stats</h3>
+          <table class="ref-table" style="max-width:550px;">
+            <tr><th>Stat</th><th>Formula</th><th>Example</th></tr>
+            <tr><td>Ability Modifier</td><td><code>floor((score - 10) / 2)</code></td><td>Score 16 &rarr; +3</td></tr>
+            <tr><td>HP (Hit Points)</td><td><code>10 + CON modifier</code></td><td>CON 16 &rarr; 13 HP</td></tr>
+            <tr><td>AC (Armor Class)</td><td><code>10 + DEX modifier</code></td><td>DEX 14 &rarr; 12 AC</td></tr>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>Forgebound</span> &mdash; forged in REST, tempered in adventure.
+  </footer>
+
+</body>
+</html>

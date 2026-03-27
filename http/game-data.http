@@ -1,0 +1,5 @@
+### List all races (public — no auth needed)
+GET {{host}}/game/races
+
+### List all classes (public — no auth needed)
+GET {{host}}/game/classes

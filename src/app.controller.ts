@@ -1,12 +1,28 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Public } from './common/decorators/public.decorator';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
+  @Public()
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getWelcome() {
+    return {
+      name: 'Forgebound API',
+      version: '0.1.0',
+      endpoints: {
+        auth: {
+          register: 'POST /api/auth/register',
+          login: 'POST /api/auth/login',
+          me: 'GET /api/auth/me',
+        },
+        gameData: {
+          races: 'GET /api/game/races',
+          classes: 'GET /api/game/classes',
+        },
+        characters: {
+          create: 'POST /api/characters',
+        },
+      },
+    };
   }
 }

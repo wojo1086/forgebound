@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Map — Forgebound</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #d4a44c;
+      --gold-glow: #e8c36a;
+      --gold-dim: #a07830;
+      --bg: #0c0d12;
+      --bg-surface: #13141b;
+      --bg-card: #191a23;
+      --bg-elevated: #1f2029;
+      --border: #25262f;
+      --border-light: #2c2d38;
+      --text: #d4d4dc;
+      --text-bright: #ededf2;
+      --text-muted: #6e6f80;
+      --nav-h: 56px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ─── TOP NAV ─── */
+    .topnav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--nav-h);
+      background: rgba(12, 13, 18, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 1.5rem;
+    }
+    .topnav-logo {
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.15rem;
+      color: var(--gold); text-decoration: none; letter-spacing: 0.03em;
+    }
+    .topnav-links {
+      list-style: none; display: flex; gap: 1.75rem; margin-left: 3rem;
+    }
+    .topnav-links a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.8rem;
+      font-weight: 500; transition: color 0.15s; letter-spacing: 0.01em;
+    }
+    .topnav-links a:hover { color: var(--text-bright); }
+    .topnav-links a.active { color: var(--gold); }
+
+    /* ─── MAP LAYOUT ─── */
+    .map-page {
+      margin-top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      display: flex;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .map-sidebar {
+      width: 320px;
+      min-width: 320px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-header {
+      padding: 1.25rem 1.25rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-header h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: var(--gold);
+      margin-bottom: 0.25rem;
+    }
+    .sidebar-header p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.25rem;
+    }
+
+    /* Legend */
+    .legend { margin-bottom: 1.5rem; }
+    .legend h3 {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+    .legend-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text);
+    }
+    .legend-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.05);
+      flex-shrink: 0;
+    }
+
+    /* Cell info panel */
+    .cell-info { display: none; }
+    .cell-info.active { display: block; }
+    .cell-info h3 {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+    .cell-detail {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .cell-coords {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .cell-terrain {
+      font-size: 0.85rem;
+      color: var(--text-bright);
+      font-weight: 600;
+      text-transform: capitalize;
+      margin-bottom: 0.25rem;
+    }
+    .poi-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      margin-bottom: 0.25rem;
+    }
+    .poi-type {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+    }
+    .poi-desc {
+      font-size: 0.8rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .poi-level {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--gold-dim);
+    }
+
+    /* Region info in cell detail */
+    .cell-region {
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.6rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      border-left: 3px solid var(--gold-dim);
+    }
+    .cell-region-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      margin-bottom: 0.15rem;
+    }
+    .cell-region-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Toggle controls */
+    .sidebar-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 0;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .toggle-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0; width: 0; height: 0;
+    }
+    .toggle-slider {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      left: 2px; bottom: 2px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: rgba(212, 164, 76, 0.2);
+      border-color: var(--gold-dim);
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(16px);
+      background: var(--gold);
+    }
+    .toggle-label {
+      font-size: 0.8rem;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Region list */
+    .region-list { margin-top: 1.5rem; }
+    .region-list h3 {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .region-list h3 .chevron {
+      font-size: 0.6rem;
+      transition: transform 0.15s;
+    }
+    .region-list h3.collapsed .chevron {
+      transform: rotate(-90deg);
+    }
+    .region-list-items { }
+    .region-list-items.hidden { display: none; }
+    .region-list-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.1s;
+      font-size: 0.78rem;
+    }
+    .region-list-item:hover { background: var(--bg-card); }
+    .region-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .region-list-name { color: var(--text-bright); }
+    .region-list-terrain {
+      margin-left: auto;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: capitalize;
+    }
+
+    /* POI list */
+    .poi-list { margin-top: 1.5rem; }
+    .poi-list h3 {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+    .poi-list-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.1s;
+      font-size: 0.8rem;
+    }
+    .poi-list-item:hover { background: var(--bg-card); }
+    .poi-marker-sm {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .poi-marker-sm.town { background: var(--gold); }
+    .poi-marker-sm.landmark { background: #60a5fa; }
+    .poi-list-name { color: var(--text-bright); }
+    .poi-list-type {
+      margin-left: auto;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: capitalize;
+    }
+
+    /* ─── MAP CANVAS ─── */
+    .map-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+    }
+    .map-container.grabbing { cursor: grabbing; }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      image-rendering: pixelated;
+    }
+
+    /* Zoom controls */
+    .map-controls {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      z-index: 10;
+    }
+    .map-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-surface);
+      color: var(--text);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s, border-color 0.1s;
+    }
+    .map-btn:hover {
+      background: var(--bg-elevated);
+      border-color: var(--border-light);
+    }
+
+    .map-coords-display {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: rgba(12, 13, 18, 0.85);
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Tooltip */
+    .map-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-bright);
+      z-index: 100;
+      display: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .map-tooltip .tt-name {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      font-size: 0.8rem;
+    }
+    .map-tooltip .tt-type {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: capitalize;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<nav class="topnav">
+  <a href="/" class="topnav-logo">Forgebound</a>
+  <ul class="topnav-links">
+    <li><a href="/#quickstart">Quickstart</a></li>
+    <li><a href="/#api">API Reference</a></li>
+    <li><a href="/map.html" class="active">World Map</a></li>
+  </ul>
+</nav>
+
+<div class="map-page">
+  <!-- Sidebar -->
+  <aside class="map-sidebar">
+    <div class="sidebar-header">
+      <h2>World of Forgebound</h2>
+      <p>100 &times; 100 grid &middot; Click a cell for details</p>
+    </div>
+    <div class="sidebar-content">
+      <!-- Region toggle -->
+      <div class="sidebar-toggle">
+        <label class="toggle-switch">
+          <input type="checkbox" id="regionToggle">
+          <span class="toggle-slider"></span>
+        </label>
+        <label class="toggle-label" for="regionToggle">Show Regions</label>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <h3>Terrain</h3>
+        <div class="legend-grid">
+          <div class="legend-item"><span class="legend-swatch" style="background:#1a3a5c"></span> Ocean</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#5a9bb5"></span> Coast</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#7aaa5a"></span> Plains</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#2d6b3f"></span> Forest</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#7a7a7a"></span> Mountain</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#5a6b4a"></span> Swamp</div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#c4a74a"></span> Desert</div>
+        </div>
+      </div>
+
+      <!-- Cell info (shown on click) -->
+      <div class="cell-info" id="cellInfo">
+        <h3>Selected Cell</h3>
+        <div class="cell-detail">
+          <div class="cell-coords" id="cellCoords"></div>
+          <div class="cell-terrain" id="cellTerrain"></div>
+          <div id="cellPoi"></div>
+        </div>
+      </div>
+
+      <!-- Region list -->
+      <div class="region-list" id="regionList" style="display:none">
+        <h3 id="regionListToggle"><span class="chevron">&#x25BC;</span> Named Regions</h3>
+        <div class="region-list-items" id="regionListItems"></div>
+      </div>
+
+      <!-- POI list -->
+      <div class="poi-list" id="poiList">
+        <h3>Towns &amp; Landmarks</h3>
+        <div id="poiListItems"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Map -->
+  <div class="map-container" id="mapContainer">
+    <canvas id="mapCanvas"></canvas>
+    <div class="map-tooltip" id="tooltip"></div>
+    <div class="map-coords-display" id="coordsDisplay">0, 0</div>
+    <div class="map-controls">
+      <button class="map-btn" id="zoomIn" title="Zoom in">+</button>
+      <button class="map-btn" id="zoomOut" title="Zoom out">&minus;</button>
+      <button class="map-btn" id="zoomFit" title="Fit to view">&#x2922;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(async function() {
+  const CELL_BASE = 14;
+  const TERRAIN_COLORS = {
+    ocean:    '#1a3a5c',
+    coast:    '#5a9bb5',
+    plains:   '#7aaa5a',
+    forest:   '#2d6b3f',
+    mountain: '#7a7a7a',
+    swamp:    '#5a6b4a',
+    desert:   '#c4a74a',
+  };
+  const TERRAIN_BORDERS = {
+    ocean:    '#15304d',
+    coast:    '#4d8aa0',
+    plains:   '#6a994d',
+    forest:   '#245c34',
+    mountain: '#6a6a6a',
+    swamp:    '#4d5c3f',
+    desert:   '#b0953f',
+  };
+
+  // Fetch map data from API
+  let mapData;
+  try {
+    const res = await fetch('/api/map');
+    mapData = await res.json();
+  } catch (e) {
+    document.getElementById('mapContainer').innerHTML =
+      '<p style="padding:2rem;color:var(--text-muted)">Failed to load map data. Is the server running?</p>';
+    return;
+  }
+
+  const terrain = mapData.terrain;
+  const pois = mapData.pois || [];
+  const W = mapData.width;
+  const H = mapData.height;
+
+  // Fetch regions
+  let regions = [];
+  try {
+    const rRes = await fetch('/api/map/regions');
+    regions = await rRes.json();
+  } catch (e) {
+    console.warn('Could not load regions:', e);
+  }
+
+  // Build POI lookup by "x,y"
+  const poiMap = {};
+  for (const p of pois) {
+    poiMap[`${p.x},${p.y}`] = p;
+  }
+
+  // --- Region flood-fill computation ---
+  // For each region: flood-fill from center through matching terrain within radius
+  // Then extract border cells (region cells adjacent to non-region cells)
+  let showRegions = false;
+  const regionCellMap = {}; // "x,y" -> region
+  const regionData = []; // { region, cells: Set, borderCells: Set }
+
+  function computeRegions() {
+    for (const r of regions) {
+      const cells = new Set();
+      const visited = new Set();
+      const queue = [`${r.centerX},${r.centerY}`];
+      visited.add(queue[0]);
+
+      while (queue.length > 0) {
+        const key = queue.shift();
+        const [cx, cy] = key.split(',').map(Number);
+
+        // Check bounds
+        if (cx < 0 || cx >= W || cy < 0 || cy >= H) continue;
+
+        // Check terrain match
+        const t = terrain[cy][cx];
+        if (!r.terrains.includes(t)) continue;
+
+        // Check within radius (Manhattan-ish: use Euclidean)
+        const dx = cx - r.centerX;
+        const dy = cy - r.centerY;
+        if (Math.sqrt(dx * dx + dy * dy) > r.radius) continue;
+
+        cells.add(key);
+
+        // Expand to 4-neighbors
+        const neighbors = [
+          `${cx - 1},${cy}`, `${cx + 1},${cy}`,
+          `${cx},${cy - 1}`, `${cx},${cy + 1}`
+        ];
+        for (const nk of neighbors) {
+          if (!visited.has(nk)) {
+            visited.add(nk);
+            queue.push(nk);
+          }
+        }
+      }
+
+      // Find border cells: cells in region where at least one 4-neighbor is NOT in region
+      const borderCells = new Set();
+      for (const key of cells) {
+        const [cx, cy] = key.split(',').map(Number);
+        const neighbors = [
+          `${cx - 1},${cy}`, `${cx + 1},${cy}`,
+          `${cx},${cy - 1}`, `${cx},${cy + 1}`
+        ];
+        for (const nk of neighbors) {
+          if (!cells.has(nk)) {
+            borderCells.add(key);
+            break;
+          }
+        }
+      }
+
+      // Map cells to region (first region wins if overlap)
+      for (const key of cells) {
+        if (!regionCellMap[key]) {
+          regionCellMap[key] = r;
+        }
+      }
+
+      regionData.push({ region: r, cells, borderCells });
+    }
+  }
+  computeRegions();
+
+  // Canvas setup
+  const canvas = document.getElementById('mapCanvas');
+  const ctx = canvas.getContext('2d');
+  const container = document.getElementById('mapContainer');
+  const tooltip = document.getElementById('tooltip');
+  const coordsDisplay = document.getElementById('coordsDisplay');
+
+  let cellSize = CELL_BASE;
+  let offsetX = 0, offsetY = 0;
+  let isDragging = false, dragStartX, dragStartY, dragOffsetX, dragOffsetY;
+
+  function resize() {
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    draw();
+  }
+
+  function fitToView() {
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    cellSize = Math.floor(Math.min(cw / W, ch / H));
+    cellSize = Math.max(cellSize, 4);
+    offsetX = Math.floor((cw - W * cellSize) / 2);
+    offsetY = Math.floor((ch - H * cellSize) / 2);
+    draw();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#0a0b10';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Calculate visible range
+    const startCol = Math.max(0, Math.floor(-offsetX / cellSize));
+    const endCol = Math.min(W, Math.ceil((canvas.width - offsetX) / cellSize));
+    const startRow = Math.max(0, Math.floor(-offsetY / cellSize));
+    const endRow = Math.min(H, Math.ceil((canvas.height - offsetY) / cellSize));
+
+    // Draw terrain
+    for (let y = startRow; y < endRow; y++) {
+      for (let x = startCol; x < endCol; x++) {
+        const t = terrain[y][x];
+        const px = offsetX + x * cellSize;
+        const py = offsetY + y * cellSize;
+
+        ctx.fillStyle = TERRAIN_COLORS[t] || '#333';
+        ctx.fillRect(px, py, cellSize, cellSize);
+
+        // Grid lines (subtle)
+        if (cellSize >= 8) {
+          ctx.strokeStyle = TERRAIN_BORDERS[t] || '#222';
+          ctx.lineWidth = 0.5;
+          ctx.strokeRect(px + 0.5, py + 0.5, cellSize - 1, cellSize - 1);
+        }
+      }
+    }
+
+    // Draw region overlays
+    if (showRegions) {
+      for (const rd of regionData) {
+        const color = rd.region.color;
+
+        // Semi-transparent fill
+        ctx.fillStyle = color + '25'; // ~15% opacity
+        for (const key of rd.cells) {
+          const [cx, cy] = key.split(',').map(Number);
+          if (cx < startCol || cx >= endCol || cy < startRow || cy >= endRow) continue;
+          const px = offsetX + cx * cellSize;
+          const py = offsetY + cy * cellSize;
+          ctx.fillRect(px, py, cellSize, cellSize);
+        }
+
+        // Border edges — draw lines on edges between region and non-region
+        ctx.strokeStyle = color;
+        ctx.lineWidth = Math.max(1.5, cellSize * 0.15);
+        ctx.lineCap = 'round';
+        for (const key of rd.borderCells) {
+          const [cx, cy] = key.split(',').map(Number);
+          if (cx < startCol - 1 || cx > endCol || cy < startRow - 1 || cy > endRow) continue;
+          const px = offsetX + cx * cellSize;
+          const py = offsetY + cy * cellSize;
+
+          // Check each of 4 edges
+          if (!rd.cells.has(`${cx},${cy - 1}`)) {
+            // Top edge
+            ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + cellSize, py); ctx.stroke();
+          }
+          if (!rd.cells.has(`${cx},${cy + 1}`)) {
+            // Bottom edge
+            ctx.beginPath(); ctx.moveTo(px, py + cellSize); ctx.lineTo(px + cellSize, py + cellSize); ctx.stroke();
+          }
+          if (!rd.cells.has(`${cx - 1},${cy}`)) {
+            // Left edge
+            ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py + cellSize); ctx.stroke();
+          }
+          if (!rd.cells.has(`${cx + 1},${cy}`)) {
+            // Right edge
+            ctx.beginPath(); ctx.moveTo(px + cellSize, py); ctx.lineTo(px + cellSize, py + cellSize); ctx.stroke();
+          }
+        }
+
+        // Region name label at center
+        if (cellSize >= 10) {
+          const labelX = offsetX + rd.region.centerX * cellSize + cellSize / 2;
+          const labelY = offsetY + rd.region.centerY * cellSize + cellSize / 2;
+          // Only draw if center is visible
+          if (labelX > -100 && labelX < canvas.width + 100 && labelY > -50 && labelY < canvas.height + 50) {
+            ctx.save();
+            const fontSize = Math.max(9, Math.min(16, cellSize * 0.8));
+            ctx.font = `700 ${fontSize}px Cinzel, serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            // Shadow for readability
+            ctx.shadowColor = 'rgba(0,0,0,0.9)';
+            ctx.shadowBlur = 6;
+            ctx.fillStyle = color;
+            ctx.fillText(rd.region.name, labelX, labelY);
+            // Second pass for crispness
+            ctx.shadowBlur = 2;
+            ctx.fillText(rd.region.name, labelX, labelY);
+            ctx.restore();
+          }
+        }
+      }
+    }
+
+    // Draw POI markers
+    for (const p of pois) {
+      if (p.x < startCol || p.x >= endCol || p.y < startRow || p.y >= endRow) continue;
+      const px = offsetX + p.x * cellSize + cellSize / 2;
+      const py = offsetY + p.y * cellSize + cellSize / 2;
+      const r = Math.max(3, cellSize * 0.35);
+
+      if (p.category === 'town') {
+        // Gold diamond for towns
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(Math.PI / 4);
+        ctx.fillStyle = '#d4a44c';
+        ctx.shadowColor = 'rgba(212, 164, 76, 0.6)';
+        ctx.shadowBlur = cellSize >= 10 ? 6 : 3;
+        ctx.fillRect(-r, -r, r * 2, r * 2);
+        ctx.restore();
+
+        // Town name label (at higher zoom)
+        if (cellSize >= 16) {
+          ctx.save();
+          ctx.font = `600 ${Math.max(9, cellSize * 0.65)}px Inter, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#ededf2';
+          ctx.shadowColor = 'rgba(0,0,0,0.8)';
+          ctx.shadowBlur = 4;
+          ctx.fillText(p.name, px, py - r - 4);
+          ctx.restore();
+        }
+      } else {
+        // Blue circle for landmarks
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(96, 165, 250, 0.8)';
+        ctx.fill();
+        ctx.strokeStyle = '#60a5fa';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        if (cellSize >= 20) {
+          ctx.save();
+          ctx.font = `500 ${Math.max(8, cellSize * 0.55)}px Inter, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#b0c8f0';
+          ctx.shadowColor = 'rgba(0,0,0,0.8)';
+          ctx.shadowBlur = 4;
+          ctx.fillText(p.name, px, py - r - 3);
+          ctx.restore();
+        }
+      }
+    }
+  }
+
+  // Coordinate from mouse position
+  function cellFromMouse(e) {
+    const rect = container.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const x = Math.floor((mx - offsetX) / cellSize);
+    const y = Math.floor((my - offsetY) / cellSize);
+    return { x, y, mx, my };
+  }
+
+  // Pan
+  container.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragOffsetX = offsetX;
+    dragOffsetY = offsetY;
+    container.classList.add('grabbing');
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      offsetX = dragOffsetX + (e.clientX - dragStartX);
+      offsetY = dragOffsetY + (e.clientY - dragStartY);
+      draw();
+    }
+    // Update coords display + tooltip
+    const { x, y, mx, my } = cellFromMouse(e);
+    if (x >= 0 && x < W && y >= 0 && y < H) {
+      const region = regionCellMap[`${x},${y}`];
+      coordsDisplay.textContent = `${x}, ${y} · ${terrain[y][x]}${region ? ' · ' + region.name : ''}`;
+      const poi = poiMap[`${x},${y}`];
+      if (poi && !isDragging) {
+        tooltip.innerHTML = `<div class="tt-name">${poi.name}</div><div class="tt-type">${poi.category} · ${poi.type || poi.category}</div>`;
+        tooltip.style.display = 'block';
+        tooltip.style.left = (mx + 16) + 'px';
+        tooltip.style.top = (my - 10) + 'px';
+      } else if (region && showRegions && !isDragging) {
+        tooltip.innerHTML = `<div class="tt-name" style="color:${region.color}">${region.name}</div><div class="tt-type">${region.terrains[0]}</div>`;
+        tooltip.style.display = 'block';
+        tooltip.style.left = (mx + 16) + 'px';
+        tooltip.style.top = (my - 10) + 'px';
+      } else {
+        tooltip.style.display = 'none';
+      }
+    } else {
+      coordsDisplay.textContent = '—';
+      tooltip.style.display = 'none';
+    }
+  });
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    container.classList.remove('grabbing');
+  });
+
+  // Click to select cell
+  container.addEventListener('click', (e) => {
+    const { x, y } = cellFromMouse(e);
+    showCellInfo(x, y);
+  });
+
+  // Zoom (mouse wheel)
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const rect = container.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    const oldSize = cellSize;
+    if (e.deltaY < 0) {
+      cellSize = Math.min(60, cellSize + Math.max(1, Math.floor(cellSize * 0.15)));
+    } else {
+      cellSize = Math.max(3, cellSize - Math.max(1, Math.floor(cellSize * 0.15)));
+    }
+
+    // Zoom toward cursor
+    const scale = cellSize / oldSize;
+    offsetX = mx - scale * (mx - offsetX);
+    offsetY = my - scale * (my - offsetY);
+    draw();
+  }, { passive: false });
+
+  // Zoom buttons
+  document.getElementById('zoomIn').addEventListener('click', () => {
+    const cx = canvas.width / 2, cy = canvas.height / 2;
+    const oldSize = cellSize;
+    cellSize = Math.min(60, cellSize + Math.max(1, Math.floor(cellSize * 0.25)));
+    const scale = cellSize / oldSize;
+    offsetX = cx - scale * (cx - offsetX);
+    offsetY = cy - scale * (cy - offsetY);
+    draw();
+  });
+  document.getElementById('zoomOut').addEventListener('click', () => {
+    const cx = canvas.width / 2, cy = canvas.height / 2;
+    const oldSize = cellSize;
+    cellSize = Math.max(3, cellSize - Math.max(1, Math.floor(cellSize * 0.25)));
+    const scale = cellSize / oldSize;
+    offsetX = cx - scale * (cx - offsetX);
+    offsetY = cy - scale * (cy - offsetY);
+    draw();
+  });
+  document.getElementById('zoomFit').addEventListener('click', fitToView);
+
+  // Populate POI list in sidebar
+  function buildPoiList() {
+    const items = document.getElementById('poiListItems');
+    const sorted = [...pois].sort((a, b) => {
+      if (a.category === 'town' && b.category !== 'town') return -1;
+      if (a.category !== 'town' && b.category === 'town') return 1;
+      return a.name.localeCompare(b.name);
+    });
+    let html = '';
+    for (const p of sorted) {
+      html += `<div class="poi-list-item" data-x="${p.x}" data-y="${p.y}">
+        <span class="poi-marker-sm ${p.category}"></span>
+        <span class="poi-list-name">${p.name}</span>
+        <span class="poi-list-type">${p.type || p.category}</span>
+      </div>`;
+    }
+    items.innerHTML = html;
+
+    // Click to pan to POI
+    items.querySelectorAll('.poi-list-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const x = parseInt(el.dataset.x);
+        const y = parseInt(el.dataset.y);
+        cellSize = Math.max(cellSize, 20);
+        offsetX = canvas.width / 2 - x * cellSize - cellSize / 2;
+        offsetY = canvas.height / 2 - y * cellSize - cellSize / 2;
+        draw();
+        showCellInfo(x, y);
+      });
+    });
+  }
+
+  // Region toggle
+  const regionToggle = document.getElementById('regionToggle');
+  const regionListEl = document.getElementById('regionList');
+  regionToggle.addEventListener('change', () => {
+    showRegions = regionToggle.checked;
+    regionListEl.style.display = showRegions ? 'block' : 'none';
+    draw();
+  });
+
+  // Region list collapse toggle
+  const regionListToggle = document.getElementById('regionListToggle');
+  const regionListItems = document.getElementById('regionListItems');
+  regionListToggle.addEventListener('click', () => {
+    regionListToggle.classList.toggle('collapsed');
+    regionListItems.classList.toggle('hidden');
+  });
+
+  // Build region list in sidebar
+  function buildRegionList() {
+    const items = document.getElementById('regionListItems');
+    const sorted = [...regions].sort((a, b) => a.name.localeCompare(b.name));
+    let html = '';
+    for (const r of sorted) {
+      html += `<div class="region-list-item" data-region-id="${r.id}" data-x="${r.centerX}" data-y="${r.centerY}">
+        <span class="region-swatch" style="background:${r.color}"></span>
+        <span class="region-list-name">${r.name}</span>
+        <span class="region-list-terrain">${r.terrains[0]}</span>
+      </div>`;
+    }
+    items.innerHTML = html;
+
+    // Click to pan to region center
+    items.querySelectorAll('.region-list-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const x = parseInt(el.dataset.x);
+        const y = parseInt(el.dataset.y);
+        cellSize = Math.max(cellSize, 14);
+        offsetX = canvas.width / 2 - x * cellSize - cellSize / 2;
+        offsetY = canvas.height / 2 - y * cellSize - cellSize / 2;
+        draw();
+
+        // Show cell info for the region center
+        showCellInfo(x, y);
+      });
+    });
+  }
+
+  // Reusable cell info display
+  function showCellInfo(x, y) {
+    if (x < 0 || x >= W || y < 0 || y >= H) return;
+
+    const cellInfo = document.getElementById('cellInfo');
+    const cellCoords = document.getElementById('cellCoords');
+    const cellTerrain = document.getElementById('cellTerrain');
+    const cellPoi = document.getElementById('cellPoi');
+
+    cellInfo.classList.add('active');
+    cellCoords.textContent = `(${x}, ${y})`;
+    cellTerrain.textContent = terrain[y][x];
+
+    let html = '';
+
+    // Region info
+    const regionKey = `${x},${y}`;
+    const region = regionCellMap[regionKey];
+    if (region) {
+      html += `<div class="cell-region">
+        <div class="cell-region-name" style="color:${region.color}">${region.name}</div>
+        <div class="cell-region-desc">${region.description}</div>
+      </div>`;
+    }
+
+    const poi = poiMap[`${x},${y}`];
+    if (poi) {
+      html += `<div class="poi-name">${poi.name}</div>`;
+      html += `<div class="poi-type">${poi.category} · ${poi.type || poi.category}</div>`;
+      if (poi.description) html += `<div class="poi-desc">${poi.description}</div>`;
+      if (poi.level_min != null) html += `<div class="poi-level">Level ${poi.level_min}–${poi.level_max}</div>`;
+    } else if (!region) {
+      html += '<div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem">No point of interest here.</div>';
+    }
+
+    cellPoi.innerHTML = html;
+  }
+
+  // Init
+  window.addEventListener('resize', resize);
+  resize();
+  fitToView();
+  buildPoiList();
+  buildRegionList();
+})();
+</script>
+
+</body>
+</html>
