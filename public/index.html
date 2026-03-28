@@ -373,6 +373,7 @@
       <li><a href="#api">API Reference</a></li>
       <li><a href="#reference">Game Data</a></li>
       <li><a href="/map.html">World Map</a></li>
+      <li><a href="https://discord.gg/qPgsa5xqe3" target="_blank" rel="noopener">Discord</a></li>
     </ul>
   </div>
 
@@ -400,6 +401,11 @@
           <span class="quicklink-icon">&#9876;</span>
           <div class="quicklink-title">Game Data</div>
           <div class="quicklink-desc">Races, classes, point buy</div>
+        </a>
+        <a href="https://discord.gg/qPgsa5xqe3" target="_blank" rel="noopener" class="quicklink">
+          <span class="quicklink-icon">&#128172;</span>
+          <div class="quicklink-title">Discord</div>
+          <div class="quicklink-desc">Join the community</div>
         </a>
       </div>
       <a href="#quickstart" class="hero-cta">Get Started &rarr;</a>
@@ -481,6 +487,13 @@
         <div class="sidebar-heading">Combat</div>
         <a href="#ep-combat-status"><span class="method-sm get">GET</span> Combat Status</a>
         <a href="#ep-combat-action"><span class="method-sm post">POST</span> Combat Action</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Dungeons</div>
+        <a href="#ep-dungeon-status"><span class="method-sm get">GET</span> Dungeon Status</a>
+        <a href="#ep-dungeon-enter"><span class="method-sm post">POST</span> Enter Dungeon</a>
+        <a href="#ep-dungeon-advance"><span class="method-sm post">POST</span> Advance Room</a>
+        <a href="#ep-dungeon-leave"><span class="method-sm post">POST</span> Leave Dungeon</a>
       </div>
       <div class="sidebar-section">
         <div class="sidebar-heading">Reference</div>
@@ -1870,6 +1883,108 @@ Content-Type: application/json
             <strong>Hit rolls:</strong> d20 + modifier vs target AC. Natural 20 = critical (2&times; damage). Natural 1 = miss.<br>
             <strong>While in combat:</strong> You cannot travel, rest, shop, or change equipment.
           </div>
+        </div>
+      </div>
+
+      <!-- DUNGEONS -->
+      <div class="endpoint-section" id="dungeons">
+        <div class="section-label">Dungeons</div>
+        <div class="section-title">Dungeon System</div>
+        <div class="section-desc">
+          Multi-room instanced dungeons at POI locations. Each dungeon generates random rooms (combat, treasure, trap, rest)
+          with a boss at the end. Progress is saved between sessions. Completed dungeons reset after 24 hours.
+        </div>
+
+        <p style="margin:1rem 0"><strong>Dungeon-Eligible POI Types:</strong></p>
+        <table class="ref-table" style="margin-bottom:1.5rem">
+          <tr><th>Category</th><th>POI Types</th><th>Rooms</th></tr>
+          <tr><td>Landmarks</td><td><code>dungeon</code>, <code>ruins</code>, <code>mine</code>, <code>fortress</code></td><td>5&ndash;8</td></tr>
+          <tr><td>Hidden</td><td><code>ancient_tomb</code>, <code>secret_cave</code>, <code>smuggler_den</code></td><td>3&ndash;5</td></tr>
+        </table>
+
+        <p style="margin:1rem 0"><strong>Room Types:</strong></p>
+        <table class="ref-table" style="margin-bottom:1.5rem">
+          <tr><th>Type</th><th>Weight</th><th>Description</th></tr>
+          <tr><td><code>combat</code></td><td>40%</td><td>Fight a monster themed to the dungeon type</td></tr>
+          <tr><td><code>treasure</code></td><td>20%</td><td>Gold + 2 loot rolls (rarity-weighted)</td></tr>
+          <tr><td><code>trap</code></td><td>20%</td><td>DEX-based avoidance check. 15% max HP damage on fail</td></tr>
+          <tr><td><code>rest</code></td><td>20%</td><td>Restore 30% HP and mana (guaranteed 1 per 5+ room dungeon)</td></tr>
+          <tr><td><code>boss</code></td><td>Always last</td><td>Powerful monster from dungeon's boss pool. Completing this finishes the dungeon</td></tr>
+        </table>
+
+        <p style="margin:1rem 0"><strong>Completion Bonus:</strong> 50 + 25&times;level XP and 30 + 15&times;level gold on top of normal combat rewards.</p>
+
+        <!-- GET /dungeons/status -->
+        <div class="endpoint-card" id="ep-dungeon-status">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <span class="path">/api/dungeons/status</span>
+          </div>
+          <p>Returns current dungeon state or <code>{ "inDungeon": false }</code>.</p>
+          <pre><code>// Example response (in dungeon)
+{
+  "inDungeon": true,
+  "dungeonId": "uuid",
+  "poiId": "shadowfang-caverns",
+  "poiName": "Shadowfang Caverns",
+  "dungeonLevel": 5,
+  "currentRoom": 2,
+  "totalRooms": 6,
+  "completed": false,
+  "rooms": [
+    { "index": 0, "type": "combat", "cleared": true, "log": ["..."] },
+    { "index": 1, "type": "trap", "cleared": true, "log": ["..."] },
+    { "index": 2, "type": "treasure", "cleared": false, "log": [] },
+    { "index": 3, "type": "rest", "cleared": false, "log": [] },
+    { "index": 4, "type": "combat", "cleared": false, "log": [] },
+    { "index": 5, "type": "boss", "cleared": false, "log": [] }
+  ]
+}</code></pre>
+        </div>
+
+        <!-- POST /dungeons/enter -->
+        <div class="endpoint-card" id="ep-dungeon-enter">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <span class="path">/api/dungeons/enter</span>
+          </div>
+          <p>Enter a dungeon at the given POI. Must be at the POI location. Resumes progress if dungeon is incomplete.</p>
+          <pre><code>{ "poiId": "shadowfang-caverns" }</code></pre>
+          <p style="margin-top:0.5rem"><strong>Guards:</strong> Not in combat, not traveling, not already in another dungeon, POI type must be dungeon-eligible, 24h cooldown after completion.</p>
+        </div>
+
+        <!-- POST /dungeons/advance -->
+        <div class="endpoint-card" id="ep-dungeon-advance">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <span class="path">/api/dungeons/advance</span>
+          </div>
+          <p>Advance to the next room. Non-combat rooms (trap, treasure, rest) resolve immediately. Combat and boss rooms start a fight &mdash; use <code>POST /api/combat/action</code> to battle.</p>
+          <pre><code>// Trap room response
+{ "roomIndex": 1, "roomType": "trap", "status": "cleared",
+  "trapType": "poison_dart", "avoided": false,
+  "log": ["Poison darts shoot from the walls!", "The trap deals 8 damage!"] }
+
+// Combat room response
+{ "roomIndex": 2, "roomType": "combat", "status": "combat_started",
+  "message": "A Strong Wolf lurks in the shadows!",
+  "monster": { "name": "Strong Wolf", "level": 5, "hp": 30, "maxHp": 30, "type": "beast" } }
+
+// Boss room response
+{ "roomIndex": 5, "roomType": "boss", "status": "combat_started",
+  "message": "The final chamber! A powerful Elder Bone Golem awaits!",
+  "monster": { "name": "Elder Bone Golem", "level": 5, "hp": 120, "maxHp": 120, "type": "undead" } }</code></pre>
+        </div>
+
+        <!-- POST /dungeons/leave -->
+        <div class="endpoint-card" id="ep-dungeon-leave">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <span class="path">/api/dungeons/leave</span>
+          </div>
+          <p>Leave the dungeon. Progress is saved &mdash; re-enter the same POI to resume. Cannot leave while in combat.</p>
+          <pre><code>{ "message": "You retreat from the dungeon. Progress saved (3/6 rooms).",
+  "progressSaved": true }</code></pre>
         </div>
       </div>
 

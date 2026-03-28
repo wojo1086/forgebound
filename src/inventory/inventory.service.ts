@@ -166,6 +166,9 @@ export class InventoryService {
     if (character.in_combat) {
       throw new ConflictException('Cannot change equipment while in combat.');
     }
+    if (character.in_dungeon) {
+      throw new ConflictException('Cannot change equipment while in a dungeon.');
+    }
 
     const item = await this.getItemDef(dto.itemId);
 
@@ -291,6 +294,9 @@ export class InventoryService {
 
     if (character.in_combat) {
       throw new ConflictException('Cannot change equipment while in combat.');
+    }
+    if (character.in_dungeon) {
+      throw new ConflictException('Cannot change equipment while in a dungeon.');
     }
 
     const rows = await this.getInventoryRows(character.id);

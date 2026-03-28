@@ -275,6 +275,37 @@ export class DatabaseBootstrap implements OnModuleInit {
       END $$;
     `);
 
+    // Dungeons: active_dungeons + dungeon_rooms tables + in_dungeon flag
+    await client.query(`
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS in_dungeon boolean NOT NULL DEFAULT false;
+
+      CREATE TABLE IF NOT EXISTS active_dungeons (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        character_id uuid NOT NULL UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
+        poi_id varchar(60) NOT NULL REFERENCES pois(id),
+        dungeon_level int NOT NULL,
+        current_room int NOT NULL DEFAULT 0,
+        total_rooms int NOT NULL,
+        completed boolean NOT NULL DEFAULT false,
+        completed_at timestamptz DEFAULT NULL,
+        created_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      CREATE TABLE IF NOT EXISTS dungeon_rooms (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        dungeon_id uuid NOT NULL REFERENCES active_dungeons(id) ON DELETE CASCADE,
+        room_index int NOT NULL,
+        room_type varchar(20) NOT NULL CHECK (room_type IN ('combat','treasure','trap','rest','boss')),
+        cleared boolean NOT NULL DEFAULT false,
+        room_data jsonb NOT NULL DEFAULT '{}',
+        result_log jsonb NOT NULL DEFAULT '[]',
+        UNIQUE(dungeon_id, room_index)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_active_dungeons_character ON active_dungeons(character_id);
+      CREATE INDEX IF NOT EXISTS idx_dungeon_rooms_dungeon ON dungeon_rooms(dungeon_id);
+    `);
+
     this.logger.log('Tables verified');
   }
 
@@ -396,6 +427,70 @@ export class DatabaseBootstrap implements OnModuleInit {
         IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'combats_delete_own') THEN
           CREATE POLICY combats_delete_own ON active_combats FOR DELETE
             USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+      END $$;
+    `);
+
+    // Active dungeons RLS
+    await client.query(`
+      ALTER TABLE active_dungeons ENABLE ROW LEVEL SECURITY;
+
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'dungeons_select_own') THEN
+          CREATE POLICY dungeons_select_own ON active_dungeons FOR SELECT
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'dungeons_insert_own') THEN
+          CREATE POLICY dungeons_insert_own ON active_dungeons FOR INSERT
+            WITH CHECK (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'dungeons_update_own') THEN
+          CREATE POLICY dungeons_update_own ON active_dungeons FOR UPDATE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'dungeons_delete_own') THEN
+          CREATE POLICY dungeons_delete_own ON active_dungeons FOR DELETE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+      END $$;
+    `);
+
+    // Dungeon rooms RLS
+    await client.query(`
+      ALTER TABLE dungeon_rooms ENABLE ROW LEVEL SECURITY;
+
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'drooms_select_own') THEN
+          CREATE POLICY drooms_select_own ON dungeon_rooms FOR SELECT
+            USING (dungeon_id IN (
+              SELECT id FROM active_dungeons WHERE character_id IN (
+                SELECT id FROM characters WHERE user_id = auth.uid()
+              )
+            ));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'drooms_insert_own') THEN
+          CREATE POLICY drooms_insert_own ON dungeon_rooms FOR INSERT
+            WITH CHECK (dungeon_id IN (
+              SELECT id FROM active_dungeons WHERE character_id IN (
+                SELECT id FROM characters WHERE user_id = auth.uid()
+              )
+            ));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'drooms_update_own') THEN
+          CREATE POLICY drooms_update_own ON dungeon_rooms FOR UPDATE
+            USING (dungeon_id IN (
+              SELECT id FROM active_dungeons WHERE character_id IN (
+                SELECT id FROM characters WHERE user_id = auth.uid()
+              )
+            ));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'drooms_delete_own') THEN
+          CREATE POLICY drooms_delete_own ON dungeon_rooms FOR DELETE
+            USING (dungeon_id IN (
+              SELECT id FROM active_dungeons WHERE character_id IN (
+                SELECT id FROM characters WHERE user_id = auth.uid()
+              )
+            ));
         END IF;
       END $$;
     `);

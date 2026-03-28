@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -39,6 +41,7 @@ import {
   RESPAWN_MANA_FRACTION,
 } from '../common/constants/combat.constants';
 import { CombatAction } from './dto/combat-action.dto';
+import type { DungeonService } from '../dungeons/dungeon.service';
 import monstersData = require('../data/monsters.json');
 
 /* ─── Types ─── */
@@ -123,12 +126,19 @@ export class CombatService implements OnModuleInit {
   private monstersById = new Map<string, MonsterDef>();
   private monstersList: MonsterDef[] = [];
 
+  private dungeonService: DungeonService | null = null;
+
   constructor(
     private supabaseService: SupabaseService,
     private inventoryService: InventoryService,
     private mapService: MapService,
     private levelingService: LevelingService,
   ) {}
+
+  /** Called by DungeonModule to set the dungeon service (avoids circular dep) */
+  setDungeonService(ds: DungeonService) {
+    this.dungeonService = ds;
+  }
 
   onModuleInit() {
     for (const m of monstersData as MonsterDef[]) {
@@ -760,6 +770,19 @@ export class CombatService implements OnModuleInit {
     // Delete combat row
     await supabase.from('active_combats').delete().eq('id', combat.id);
 
+    // Dungeon integration: mark room cleared, check completion
+    let dungeonResult: any = null;
+    if (combat.source === 'dungeon' && this.dungeonService) {
+      dungeonResult =
+        await this.dungeonService.onDungeonCombatVictory(character.id);
+
+      if (dungeonResult.dungeonCompleted) {
+        log.push(
+          `Dungeon complete! Bonus: ${dungeonResult.completionBonus.xp} XP, ${dungeonResult.completionBonus.gold} gold.`,
+        );
+      }
+    }
+
     return {
       xpGained: combat.monster_xp_reward,
       goldGained: combat.monster_gold_reward,
@@ -772,6 +795,7 @@ export class CombatService implements OnModuleInit {
             newSpells: xpResult.newSpells,
           }
         : null,
+      dungeon: dungeonResult,
       player: {
         hp: playerHp,
         mana: playerMana,
@@ -824,6 +848,9 @@ export class CombatService implements OnModuleInit {
       `You lost ${goldLost} gold and ${xpLost} XP. You awake at ${nearestTown.name}.`,
     );
 
+    // If in dungeon, also clear dungeon state (progress saved for return)
+    const isDungeon = combat.source === 'dungeon';
+
     await supabase
       .from('characters')
       .update({
@@ -838,16 +865,25 @@ export class CombatService implements OnModuleInit {
         travel_eta: null,
         travel_step_times: null,
         in_combat: false,
+        in_dungeon: false,
       })
       .eq('id', character.id);
 
     // Delete combat row
     await supabase.from('active_combats').delete().eq('id', combat.id);
 
+    // Notify dungeon service of defeat (keeps dungeon progress for return)
+    if (isDungeon && this.dungeonService) {
+      await this.dungeonService.onDungeonCombatDefeat(character.id);
+    }
+
     return {
       goldLost,
       xpLost,
       respawnTown: nearestTown.name,
+      dungeonProgress: isDungeon
+        ? 'Dungeon progress saved. You can return after respawning.'
+        : undefined,
       player: {
         hp: respawnHp,
         mana: respawnMana,
@@ -971,6 +1007,41 @@ export class CombatService implements OnModuleInit {
       monsterType: scaled.type,
       source,
     };
+  }
+
+  /**
+   * Start a combat from within a dungeon room.
+   */
+  async startDungeonCombat(
+    characterId: string,
+    monsterId: string,
+    level: number,
+  ): Promise<CombatStartResult> {
+    return this.startCombat(characterId, monsterId, level, 'dungeon');
+  }
+
+  /**
+   * Get monster definitions filtered by types and max tier.
+   * Used by DungeonService for room generation.
+   */
+  getMonstersByTypes(
+    types: string[],
+    maxTier: string = 'normal',
+  ): MonsterDef[] {
+    const tierOrder = ['normal', 'elite', 'boss'];
+    const maxTierIdx = tierOrder.indexOf(maxTier);
+
+    let pool = this.monstersList.filter((m) => {
+      const tierIdx = tierOrder.indexOf(m.tier);
+      return tierIdx >= 0 && tierIdx <= maxTierIdx;
+    });
+
+    if (types.length > 0) {
+      const typed = pool.filter((m) => types.includes(m.type));
+      if (typed.length > 0) pool = typed;
+    }
+
+    return pool;
   }
 
   /* ═══════════════════════════════════════════════

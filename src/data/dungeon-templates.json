@@ -1,0 +1,44 @@
+{
+  "dungeon": {
+    "name": "Cavern",
+    "monsterTypes": ["beast", "undead", "aberration"],
+    "trapTypes": ["pit", "rockfall", "poison_dart"],
+    "bossPool": ["cave-bear", "bone-golem", "sand-wurm", "hydra"]
+  },
+  "ruins": {
+    "name": "Ruins",
+    "monsterTypes": ["undead", "construct", "elemental"],
+    "trapTypes": ["poison_dart", "magic_rune", "collapsing_floor"],
+    "bossPool": ["lich", "revenant", "stone-guardian", "shadow-lord"]
+  },
+  "mine": {
+    "name": "Mine",
+    "monsterTypes": ["beast", "construct", "aberration"],
+    "trapTypes": ["cave_in", "gas_leak", "tripwire"],
+    "bossPool": ["iron-sentinel", "stone-guardian", "giant-king"]
+  },
+  "fortress": {
+    "name": "Fortress",
+    "monsterTypes": ["humanoid", "construct"],
+    "trapTypes": ["arrow_trap", "portcullis", "alarm"],
+    "bossPool": ["dark-knight", "orc-berserker", "vampire-lord", "giant-king"]
+  },
+  "ancient_tomb": {
+    "name": "Tomb",
+    "monsterTypes": ["undead"],
+    "trapTypes": ["poison_dart", "curse", "collapsing_floor"],
+    "bossPool": ["lich", "wraith", "revenant", "vampire-lord"]
+  },
+  "secret_cave": {
+    "name": "Cave",
+    "monsterTypes": ["beast", "aberration"],
+    "trapTypes": ["pit", "rockfall", "web"],
+    "bossPool": ["cave-bear", "sand-wurm", "hydra"]
+  },
+  "smuggler_den": {
+    "name": "Den",
+    "monsterTypes": ["humanoid"],
+    "trapTypes": ["tripwire", "alarm", "poison_dart"],
+    "bossPool": ["pirate-captain", "bandit-leader", "assassin"]
+  }
+}

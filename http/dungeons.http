@@ -1,0 +1,198 @@
+## Run auth.http → Login first to populate {{token}}
+
+###
+## ─── Dungeon Status ───
+###
+
+### Check dungeon status
+GET {{host}}/dungeons/status
+Authorization: Bearer {{token}}
+
+###
+## ─── Enter Dungeon ───
+###
+
+### Enter a visible landmark dungeon
+POST {{host}}/dungeons/enter
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "poiId": "shadowfang-caverns"
+}
+
+### Enter a ruins dungeon
+POST {{host}}/dungeons/enter
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "poiId": "sunken-citadel"
+}
+
+### Enter a mine dungeon
+POST {{host}}/dungeons/enter
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "poiId": "ironveil-mines"
+}
+
+###
+## ─── Advance Through Rooms ───
+###
+
+### Advance to the next room
+POST {{host}}/dungeons/advance
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Advance again (repeat as needed)
+POST {{host}}/dungeons/advance
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+## ─── Leave Dungeon ───
+###
+
+### Leave dungeon (progress saved)
+POST {{host}}/dungeons/leave
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+## ─── Combat in Dungeon ───
+###
+
+### Attack dungeon monster (must be in dungeon combat)
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "attack"
+}
+
+### Cast spell in dungeon combat
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "cast",
+  "spellId": "fireball"
+}
+
+### Use health potion in dungeon combat
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "use_item",
+  "itemId": "health-potion"
+}
+
+###
+## ─── Error Cases ───
+###
+
+### Enter dungeon when not at POI location — should fail (400)
+POST {{host}}/dungeons/enter
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "poiId": "the-gullet"
+}
+
+### Enter a non-dungeon POI — should fail (400)
+POST {{host}}/dungeons/enter
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "poiId": "thornhaven"
+}
+
+### Advance when not in dungeon — should fail (409)
+POST {{host}}/dungeons/advance
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Leave when not in dungeon — should fail (409)
+POST {{host}}/dungeons/leave
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Try to travel while in dungeon — should fail (409)
+POST {{host}}/travel/start
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "destinationX": 50,
+  "destinationY": 50
+}
+
+### Try to rest while in dungeon — should fail (409)
+POST {{host}}/rest/camp
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{}
+
+### Try to shop while in dungeon — should fail (409)
+GET {{host}}/shops/thornhaven
+Authorization: Bearer {{token}}
+
+###
+## ─── Workflow: Full Dungeon Run ───
+###
+
+### 1. Travel to dungeon location first
+POST {{host}}/travel/start
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "destinationX": 78,
+  "destinationY": 36
+}
+
+### 2. Check travel status (wait for arrival)
+GET {{host}}/travel/status
+Authorization: Bearer {{token}}
+
+### 3. Enter the dungeon
+POST {{host}}/dungeons/enter
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "poiId": "shadowfang-caverns"
+}
+
+### 4. Check dungeon status
+GET {{host}}/dungeons/status
+Authorization: Bearer {{token}}
+
+### 5. Advance through rooms (repeat)
+POST {{host}}/dungeons/advance
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### 6. Fight monsters with combat actions
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "attack"
+}
+
+### 7. Check combat status
+GET {{host}}/combat/status
+Authorization: Bearer {{token}}

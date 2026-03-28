@@ -283,9 +283,12 @@ export class TravelService {
     const { character: resolved } = await this.resolveTravel(character);
     character = resolved;
 
-    // Reject if in combat
+    // Reject if in combat or dungeon
     if (character.in_combat) {
       throw new ConflictException('Cannot move while in combat.');
+    }
+    if (character.in_dungeon) {
+      throw new ConflictException('Cannot move while in a dungeon.');
     }
 
     // Reject if currently traveling
@@ -360,9 +363,12 @@ export class TravelService {
     const { character: resolved } = await this.resolveTravel(character);
     character = resolved;
 
-    // Reject if in combat
+    // Reject if in combat or dungeon
     if (character.in_combat) {
       throw new ConflictException('Cannot travel while in combat.');
+    }
+    if (character.in_dungeon) {
+      throw new ConflictException('Cannot travel while in a dungeon.');
     }
 
     // Reject if currently traveling
@@ -597,6 +603,7 @@ export class TravelService {
       charisma: character.charisma,
       position: { x: character.pos_x, y: character.pos_y },
       inCombat: character.in_combat ?? false,
+      inDungeon: character.in_dungeon ?? false,
       createdAt: character.created_at,
     };
   }

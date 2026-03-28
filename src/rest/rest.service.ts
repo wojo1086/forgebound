@@ -105,6 +105,9 @@ export class RestService {
     if (character.in_combat) {
       throw new ConflictException('Cannot rest while in combat.');
     }
+    if (character.in_dungeon) {
+      throw new ConflictException('Cannot rest while in a dungeon.');
+    }
   }
 
   /* ─── Public API ─── */
