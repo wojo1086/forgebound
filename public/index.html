@@ -347,6 +347,35 @@
     }
     .qs-step-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
 
+    /* ─── CHANGELOG ─── */
+    .changelog-entry { margin-bottom: 2rem; }
+    .changelog-entry:last-child { margin-bottom: 0; }
+    .changelog-date {
+      font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 0.25rem;
+    }
+    .changelog-version {
+      font-size: 1.1rem; font-weight: 700; color: var(--text-bright);
+      margin-bottom: 0.5rem; font-family: 'Cinzel', serif;
+    }
+    .changelog-tag {
+      display: inline-block; font-size: 0.65rem; font-weight: 600;
+      padding: 0.15em 0.5em; border-radius: 4px; margin-right: 0.35rem;
+      text-transform: uppercase; letter-spacing: 0.04em; vertical-align: middle;
+    }
+    .tag-new { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+    .tag-improved { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+    .tag-fixed { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+    .tag-balance { background: rgba(192, 132, 252, 0.15); color: #c084fc; }
+    .changelog-list { list-style: none; padding: 0; }
+    .changelog-list li {
+      font-size: 0.85rem; color: var(--text); line-height: 1.7;
+      padding-left: 1rem; position: relative;
+    }
+    .changelog-list li::before {
+      content: '\2022'; position: absolute; left: 0; color: var(--gold-dim);
+    }
+
     /* ─── FOOTER ─── */
     footer {
       border-top: 1px solid var(--border); padding: 2rem;
@@ -373,6 +402,7 @@
       <li><a href="#api">API Reference</a></li>
       <li><a href="#reference">Game Data</a></li>
       <li><a href="/map.html">World Map</a></li>
+      <li><a href="#changelog">Changelog</a></li>
       <li><a href="https://discord.gg/qPgsa5xqe3" target="_blank" rel="noopener">Discord</a></li>
     </ul>
   </div>
@@ -501,6 +531,10 @@
         <a href="#ref-classes">Classes</a>
         <a href="#ref-pointbuy">Point Buy Table</a>
         <a href="#ref-derived">Derived Stats</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Changelog</div>
+        <a href="#changelog">Update History</a>
       </div>
     </aside>
 
@@ -2045,6 +2079,84 @@ Content-Type: application/json
             <strong>Mana per level by class:</strong> Mage 12, Cleric 10, Ranger 7, Rogue 5, Warrior 3.
           </div>
         </div>
+      </div>
+
+      <!-- CHANGELOG -->
+      <div class="endpoint-section" id="changelog">
+        <div class="section-label">Changelog</div>
+        <div class="section-title">Update History</div>
+        <div class="section-desc">A transparent log of everything added, changed, and fixed in Forgebound.</div>
+
+        <div class="changelog-entry">
+          <div class="changelog-date">March 28, 2026</div>
+          <div class="changelog-version">v0.5.0 &mdash; Dungeons</div>
+          <ul class="changelog-list">
+            <li><span class="changelog-tag tag-new">New</span> Multi-room dungeon system at POI locations (dungeon, ruins, mine, fortress, ancient tomb, secret cave, smuggler den)</li>
+            <li><span class="changelog-tag tag-new">New</span> Random room generation &mdash; combat, treasure, trap, rest, and boss rooms</li>
+            <li><span class="changelog-tag tag-new">New</span> Dungeon progress saved between sessions &mdash; leave and return anytime</li>
+            <li><span class="changelog-tag tag-new">New</span> Trap rooms with DEX-based avoidance checks</li>
+            <li><span class="changelog-tag tag-new">New</span> Treasure rooms with gold and rarity-weighted loot drops</li>
+            <li><span class="changelog-tag tag-new">New</span> Rest rooms restore 30% HP and mana mid-dungeon</li>
+            <li><span class="changelog-tag tag-new">New</span> Boss encounters at the final room with completion bonus XP and gold</li>
+            <li><span class="changelog-tag tag-new">New</span> 24-hour cooldown on completed dungeons before re-entry</li>
+            <li><span class="changelog-tag tag-new">New</span> 7 themed dungeon templates with unique monster pools, trap types, and boss rosters</li>
+            <li><span class="changelog-tag tag-improved">Improved</span> Combat system now integrates with dungeons &mdash; victory clears rooms, defeat preserves progress</li>
+          </ul>
+        </div>
+
+        <div class="changelog-entry">
+          <div class="changelog-date">March 27, 2026</div>
+          <div class="changelog-version">v0.4.0 &mdash; Combat</div>
+          <ul class="changelog-list">
+            <li><span class="changelog-tag tag-new">New</span> Turn-based combat system with d20 attack rolls, crits, and fumbles</li>
+            <li><span class="changelog-tag tag-new">New</span> 65 monsters across 9 types &mdash; beasts, undead, humanoids, elementals, constructs, and more</li>
+            <li><span class="changelog-tag tag-new">New</span> Monster scaling &mdash; level-1 base stats adapt to any area level on the fly</li>
+            <li><span class="changelog-tag tag-new">New</span> Random encounters during travel based on terrain (swamp 10%, mountain 12%, forest 8%, etc.)</li>
+            <li><span class="changelog-tag tag-new">New</span> Guaranteed combat at ambush sites and smuggler dens</li>
+            <li><span class="changelog-tag tag-new">New</span> Monster abilities that unlock at higher levels</li>
+            <li><span class="changelog-tag tag-new">New</span> Tier-based loot rolls &mdash; normal: 1 roll, elite: 2, boss: 3</li>
+            <li><span class="changelog-tag tag-new">New</span> Flee mechanic with DEX-based escape chance (40% base, 15&ndash;85% range)</li>
+            <li><span class="changelog-tag tag-new">New</span> Death penalty &mdash; lose 10% gold and 10% XP (can't de-level), respawn at nearest town</li>
+            <li><span class="changelog-tag tag-new">New</span> In-combat guards prevent traveling, resting, shopping, and equipment changes during fights</li>
+          </ul>
+        </div>
+
+        <div class="changelog-entry">
+          <div class="changelog-date">March 26, 2026</div>
+          <div class="changelog-version">v0.3.0 &mdash; Leveling &amp; Spells</div>
+          <ul class="changelog-list">
+            <li><span class="changelog-tag tag-new">New</span> XP and leveling system (levels 1&ndash;20) with XP gained from travel and combat</li>
+            <li><span class="changelog-tag tag-new">New</span> Stat allocation &mdash; spend unspent points on any ability score</li>
+            <li><span class="changelog-tag tag-new">New</span> HP and mana scaling per level based on class</li>
+            <li><span class="changelog-tag tag-new">New</span> Spell system with class-specific spell lists (damage, healing, buffs)</li>
+            <li><span class="changelog-tag tag-new">New</span> Spells unlock automatically at level thresholds</li>
+          </ul>
+        </div>
+
+        <div class="changelog-entry">
+          <div class="changelog-date">March 25, 2026</div>
+          <div class="changelog-version">v0.2.0 &mdash; Exploration</div>
+          <ul class="changelog-list">
+            <li><span class="changelog-tag tag-new">New</span> 100&times;100 world map with 7 terrain types</li>
+            <li><span class="changelog-tag tag-new">New</span> A* pathfinding travel system with terrain-based travel times</li>
+            <li><span class="changelog-tag tag-new">New</span> 12 towns, 14 landmarks, and ~500 hidden POIs to discover</li>
+            <li><span class="changelog-tag tag-new">New</span> Inventory system with equipment slots, backpack, and carry weight</li>
+            <li><span class="changelog-tag tag-new">New</span> Shop system at towns with restocking inventory</li>
+            <li><span class="changelog-tag tag-new">New</span> Rest system &mdash; camping in the wild or staying at an inn</li>
+          </ul>
+        </div>
+
+        <div class="changelog-entry">
+          <div class="changelog-date">March 24, 2026</div>
+          <div class="changelog-version">v0.1.0 &mdash; Launch</div>
+          <ul class="changelog-list">
+            <li><span class="changelog-tag tag-new">New</span> Character creation with 5 races and 5 classes</li>
+            <li><span class="changelog-tag tag-new">New</span> Point-buy stat allocation (27 points)</li>
+            <li><span class="changelog-tag tag-new">New</span> Authentication via Supabase (register, login, JWT tokens)</li>
+            <li><span class="changelog-tag tag-new">New</span> Full API documentation site</li>
+          </ul>
+        </div>
+
       </div>
 
     </main>
