@@ -17,6 +17,8 @@ import {
 } from '../common/constants/game.constants';
 import { CLASS_MANA_BASE } from '../common/constants/spells.constants';
 import { STARTING_GOLD } from '../common/constants/shop.constants';
+import { LevelingService } from '../leveling/leveling.service';
+import { STAT_CAP } from '../common/constants/leveling.constants';
 
 @Injectable()
 export class CharactersService {
@@ -24,6 +26,7 @@ export class CharactersService {
     private supabaseService: SupabaseService,
     private inventoryService: InventoryService,
     private spellsService: SpellsService,
+    private levelingService: LevelingService,
   ) {}
 
   async create(userId: string, dto: CreateCharacterDto) {
@@ -121,6 +124,86 @@ export class CharactersService {
     }
 
     return data;
+  }
+
+  /** Allocate an unspent stat point to an ability score */
+  async allocateStat(userId: string, stat: string) {
+    const supabase = this.supabaseService.getClient();
+
+    const { data: character, error } = await supabase
+      .from('characters')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !character) {
+      throw new NotFoundException('No character found. Create one first.');
+    }
+
+    if (character.unspent_stat_points <= 0) {
+      throw new BadRequestException(
+        'No unspent stat points available. Level up to earn more.',
+      );
+    }
+
+    const currentValue = character[stat];
+    if (currentValue >= STAT_CAP) {
+      throw new BadRequestException(
+        `${stat} is already at the maximum of ${STAT_CAP}.`,
+      );
+    }
+
+    // Build update
+    const updateData: Record<string, any> = {
+      [stat]: currentValue + 1,
+      unspent_stat_points: character.unspent_stat_points - 1,
+    };
+
+    // Recalculate derived stats if CON or INT changed
+    if (stat === 'constitution') {
+      const newMaxHp = this.levelingService.getMaxHp(
+        character.level,
+        character.class_id,
+        currentValue + 1,
+      );
+      const hpDelta = newMaxHp - character.max_hp;
+      updateData.max_hp = newMaxHp;
+      updateData.hp = Math.min(character.hp + hpDelta, newMaxHp);
+    }
+
+    if (stat === 'intelligence') {
+      const newMaxMana = this.levelingService.getMaxMana(
+        character.level,
+        character.class_id,
+        currentValue + 1,
+      );
+      const manaDelta = newMaxMana - character.max_mana;
+      updateData.max_mana = newMaxMana;
+      updateData.mana = Math.min(character.mana + manaDelta, newMaxMana);
+    }
+
+    const { error: updateErr } = await supabase
+      .from('characters')
+      .update(updateData)
+      .eq('id', character.id);
+
+    if (updateErr) throw new BadRequestException(updateErr.message);
+
+    const statName = stat.charAt(0).toUpperCase() + stat.slice(1);
+    return {
+      allocated: stat,
+      newValue: currentValue + 1,
+      unspentStatPoints: character.unspent_stat_points - 1,
+      message: `${statName} increased to ${currentValue + 1}.`,
+      ...(stat === 'constitution' ? {
+        maxHp: updateData.max_hp,
+        hp: updateData.hp,
+      } : {}),
+      ...(stat === 'intelligence' ? {
+        maxMana: updateData.max_mana,
+        mana: updateData.mana,
+      } : {}),
+    };
   }
 
   private calculatePointBuyCost(dto: CreateCharacterDto): number {

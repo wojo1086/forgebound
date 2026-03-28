@@ -1,0 +1,107 @@
+## Run auth.http → Login first to populate {{token}}
+
+###
+## ─── Character Info (XP & Level) ───
+###
+
+### Get character — includes xp, xpToNextLevel, unspentStatPoints
+GET {{host}}/characters/me
+Authorization: Bearer {{token}}
+
+###
+## ─── Stat Allocation ───
+###
+
+### Allocate a stat point to strength
+POST {{host}}/characters/allocate-stat
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "stat": "strength"
+}
+
+### Allocate a stat point to constitution (recalculates max HP)
+POST {{host}}/characters/allocate-stat
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "stat": "constitution"
+}
+
+### Allocate a stat point to intelligence (recalculates max mana)
+POST {{host}}/characters/allocate-stat
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "stat": "intelligence"
+}
+
+### Allocate a stat point to dexterity
+POST {{host}}/characters/allocate-stat
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "stat": "dexterity"
+}
+
+### Allocate a stat point to wisdom
+POST {{host}}/characters/allocate-stat
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "stat": "wisdom"
+}
+
+### Allocate a stat point to charisma
+POST {{host}}/characters/allocate-stat
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "stat": "charisma"
+}
+
+###
+## ─── Error Cases ───
+###
+
+### Invalid stat name — should fail (400)
+POST {{host}}/characters/allocate-stat
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "stat": "luck"
+}
+
+### No unspent points — should fail (400) if already spent all
+POST {{host}}/characters/allocate-stat
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "stat": "strength"
+}
+
+###
+## ─── XP Gain (via travel) ───
+###
+
+### Travel to a new town to earn XP (discovery + town visit + distance)
+POST {{host}}/travel/start
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "destinationX": 74,
+  "destinationY": 71
+}
+
+### Check travel status — will show XP gain when travel resolves
+GET {{host}}/travel/status
+Authorization: Bearer {{token}}

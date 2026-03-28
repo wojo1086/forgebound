@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CharactersService } from './characters.service';
 import { CreateCharacterDto } from './dto/create-character.dto';
+import { AllocateStatDto } from './dto/allocate-stat.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { TravelService } from '../travel/travel.service';
 import { ThrottleTier } from '../common/decorators/throttle-tier.decorator';
@@ -28,5 +29,18 @@ export class CharactersController {
     @Body() dto: CreateCharacterDto,
   ) {
     return this.charactersService.create(user.id, dto);
+  }
+
+  /**
+   * POST /api/characters/allocate-stat
+   * Spend an unspent stat point to increase an ability score.
+   */
+  @ThrottleTier('gameplay')
+  @Post('allocate-stat')
+  allocateStat(
+    @CurrentUser() user: { id: string },
+    @Body() dto: AllocateStatDto,
+  ) {
+    return this.charactersService.allocateStat(user.id, dto.stat);
   }
 }

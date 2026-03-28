@@ -4,9 +4,10 @@ import { CharactersService } from './characters.service';
 import { TravelModule } from '../travel/travel.module';
 import { InventoryModule } from '../inventory/inventory.module';
 import { SpellsModule } from '../spells/spells.module';
+import { LevelingModule } from '../leveling/leveling.module';
 
 @Module({
-  imports: [TravelModule, InventoryModule, SpellsModule],
+  imports: [TravelModule, InventoryModule, SpellsModule, LevelingModule],
   controllers: [CharactersController],
   providers: [CharactersService],
 })

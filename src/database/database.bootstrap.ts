@@ -206,6 +206,7 @@ export class DatabaseBootstrap implements OnModuleInit {
     // Add gold column to characters (idempotent)
     await client.query(`
       ALTER TABLE characters ADD COLUMN IF NOT EXISTS gold int NOT NULL DEFAULT 100;
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS unspent_stat_points int NOT NULL DEFAULT 0;
     `);
 
     // Shop stock table — per-player per-town item stock with restock timer

@@ -8,6 +8,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { MapService } from '../map/map.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { SpellsService } from '../spells/spells.service';
+import { LevelingService } from '../leveling/leveling.service';
 import { carryCapacity } from '../common/constants/inventory.constants';
 import { findPath, computeStepTimes, Coordinate } from './pathfinding';
 import {
@@ -15,6 +16,12 @@ import {
   IMPASSABLE_TERRAIN,
   TERRAIN_TRAVEL_COSTS,
 } from '../common/constants/travel.constants';
+import {
+  DISCOVERY_XP,
+  TOWN_FIRST_VISIT_XP,
+  TRAVEL_XP_PER_CELL,
+  xpForNextLevel,
+} from '../common/constants/leveling.constants';
 
 @Injectable()
 export class TravelService {
@@ -23,6 +30,7 @@ export class TravelService {
     private mapService: MapService,
     private inventoryService: InventoryService,
     private spellsService: SpellsService,
+    private levelingService: LevelingService,
   ) {}
 
   /** Fetch the character for a user, or throw 404 */
@@ -44,13 +52,13 @@ export class TravelService {
 
   /**
    * Resolve travel if it has completed.
-   * Returns { character, discoveries } with the updated character.
+   * Returns { character, discoveries, xp } with the updated character.
    */
   async resolveTravel(character: any) {
     const discoveries: any[] = [];
 
     if (!character.travel_eta) {
-      return { character, discoveries };
+      return { character, discoveries, xp: undefined };
     }
 
     const eta = new Date(character.travel_eta).getTime();
@@ -58,7 +66,7 @@ export class TravelService {
 
     if (now < eta) {
       // Still traveling
-      return { character, discoveries };
+      return { character, discoveries, xp: undefined };
     }
 
     // Travel is complete — resolve it
@@ -93,7 +101,26 @@ export class TravelService {
 
     if (error) throw new BadRequestException(error.message);
 
-    return { character: updated, discoveries };
+    // Calculate and grant XP
+    const xp = await this.grantTravelXp(
+      updated,
+      discoveries,
+      path.length - 1,
+      destination,
+    );
+
+    // Re-fetch character if XP was granted (level/stats may have changed)
+    let finalCharacter = updated;
+    if (xp) {
+      const { data: refreshed } = await supabase
+        .from('characters')
+        .select('*, race:races(id, name), class:classes(id, name)')
+        .eq('id', updated.id)
+        .single();
+      if (refreshed) finalCharacter = refreshed;
+    }
+
+    return { character: finalCharacter, discoveries, xp };
   }
 
   /**
@@ -121,7 +148,7 @@ export class TravelService {
   /** Get full character data with travel status resolved if needed */
   async getMe(userId: string) {
     let character = await this.getCharacter(userId);
-    const { character: resolved, discoveries } =
+    const { character: resolved, discoveries, xp } =
       await this.resolveTravel(character);
     character = resolved;
 
@@ -170,19 +197,41 @@ export class TravelService {
       carryCapacity: carryCapacity(character.strength),
       travel: this.buildTravelStatus(character),
       discoveries: discoveries.length > 0 ? discoveries : undefined,
+      xp: xp ? {
+        xpGained: xp.xpGained,
+        totalXp: xp.totalXp,
+        levelUp: xp.leveledUp ? {
+          newLevel: xp.newLevel,
+          hpGained: xp.hpGained,
+          manaGained: xp.manaGained,
+          newSpells: xp.newSpells,
+          statPointsGained: xp.statPointsGained,
+        } : undefined,
+      } : undefined,
     };
   }
 
   /** Get current travel status */
   async getStatus(userId: string) {
     let character = await this.getCharacter(userId);
-    const { character: resolved, discoveries } =
+    const { character: resolved, discoveries, xp } =
       await this.resolveTravel(character);
     character = resolved;
 
     return {
       ...this.buildTravelStatus(character),
       discoveries: discoveries.length > 0 ? discoveries : undefined,
+      xp: xp ? {
+        xpGained: xp.xpGained,
+        totalXp: xp.totalXp,
+        levelUp: xp.leveledUp ? {
+          newLevel: xp.newLevel,
+          hpGained: xp.hpGained,
+          manaGained: xp.manaGained,
+          newSpells: xp.newSpells,
+          statPointsGained: xp.statPointsGained,
+        } : undefined,
+      } : undefined,
     };
   }
 
@@ -374,12 +423,77 @@ export class TravelService {
 
     if (error) throw new BadRequestException(error.message);
 
+    // Grant XP for partial travel
+    const xp = await this.grantTravelXp(
+      character,
+      discoveries,
+      progressIdx,
+      landingCell,
+    );
+
     return {
       cancelled: true,
       position: landingCell,
       cellsTraversed: progressIdx,
       discoveries: discoveries.length > 0 ? discoveries : undefined,
+      xp: xp ? {
+        xpGained: xp.xpGained,
+        totalXp: xp.totalXp,
+        levelUp: xp.leveledUp ? {
+          newLevel: xp.newLevel,
+          hpGained: xp.hpGained,
+          manaGained: xp.manaGained,
+          newSpells: xp.newSpells,
+          statPointsGained: xp.statPointsGained,
+        } : undefined,
+      } : undefined,
     };
+  }
+
+  /**
+   * Calculate and grant XP from travel: discovery XP + town first-visit + distance.
+   * Returns the XP grant result, or undefined if no XP earned.
+   */
+  private async grantTravelXp(
+    character: any,
+    discoveries: any[],
+    cellsTraveled: number,
+    destination: Coordinate,
+  ) {
+    let totalXp = 0;
+
+    // XP from hidden POI discoveries
+    for (const disc of discoveries) {
+      const xpAmount = DISCOVERY_XP[disc.type] ?? 0;
+      totalXp += xpAmount;
+    }
+
+    // XP from town first-visit at destination
+    const destPoi = await this.mapService.getPOIAt(destination.x, destination.y);
+    if (destPoi && destPoi.type === 'town') {
+      const supabase = this.supabaseService.getClient();
+      const { data: existing } = await supabase
+        .from('player_discoveries')
+        .select('id')
+        .eq('user_id', character.user_id)
+        .eq('poi_id', destPoi.id)
+        .maybeSingle();
+
+      if (!existing) {
+        // First visit to this town
+        await supabase
+          .from('player_discoveries')
+          .insert({ user_id: character.user_id, poi_id: destPoi.id });
+        totalXp += TOWN_FIRST_VISIT_XP;
+      }
+    }
+
+    // XP from distance traveled
+    totalXp += cellsTraveled * TRAVEL_XP_PER_CELL;
+
+    if (totalXp <= 0) return undefined;
+
+    return this.levelingService.grantXp(character.id, totalXp);
   }
 
   /** Build travel status object from a character row */
@@ -418,6 +532,8 @@ export class TravelService {
       class: character.class,
       level: character.level,
       xp: character.xp,
+      xpToNextLevel: xpForNextLevel(character.level),
+      unspentStatPoints: character.unspent_stat_points ?? 0,
       hp: character.hp,
       maxHp: character.max_hp,
       ac: character.ac,
