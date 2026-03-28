@@ -1,0 +1,210 @@
+## Run auth.http → Login first to populate {{token}}
+
+### Get spellbook (learned spells + mana)
+GET {{host}}/spells
+Authorization: Bearer {{token}}
+
+###
+## ─── Auto-learnable spells (level 1-3) ───
+###
+
+### Learn Mana Surge (mage, spell level 2, char level 3 required)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "mana-surge"
+}
+
+### Learn Arcane Intellect (mage, spell level 2, char level 3 required)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "arcane-intellect"
+}
+
+### Learn Fireball (mage, spell level 3, char level 5 required)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "fireball"
+}
+
+### Learn Lightning Bolt (mage, spell level 3, char level 5 required)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "lightning-bolt"
+}
+
+### Learn Teleport (mage, spell level 3, char level 5 required)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "teleport"
+}
+
+### Learn Greater Heal (cleric, spell level 3, char level 5 required)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "greater-heal"
+}
+
+### Learn Berserker Rage (warrior, spell level 3, char level 5 required)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "berserker-rage"
+}
+
+### Learn Wind Walk (ranger, spell level 3, char level 5 required)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "wind-walk"
+}
+
+###
+## ─── Scroll-only spells (level 4-5) — learn endpoint should REJECT these ───
+###
+
+### Try to learn Counterspell via /learn — should fail (spell level 4, needs scroll)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "counterspell"
+}
+
+### Try to learn Blizzard via /learn — should fail (spell level 5, needs scroll)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "blizzard"
+}
+
+### Try to learn Holy Nova via /learn — should fail (spell level 4, needs scroll)
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "holy-nova"
+}
+
+###
+## ─── Casting spells ───
+###
+
+### Cast Heal (cleric starting spell — heals 25 HP)
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "heal"
+}
+
+### Cast Nature's Blessing (ranger starting spell — heals 15 HP)
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "natures-blessing"
+}
+
+### Cast Battle Cry (warrior starting spell — buff strength +2)
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "battle-cry"
+}
+
+### Cast Bless (cleric starting spell — buff wisdom +2)
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "bless"
+}
+
+### Cast Mana Surge (mage — restore 30 mana, 0 cost, requires learning first)
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "mana-surge"
+}
+
+### Cast Teleport (mage — teleport to town, requires learning first)
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "teleport"
+}
+
+### Cast Arcane Intellect (mage — buff intelligence +2, requires learning first)
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "arcane-intellect"
+}
+
+###
+## ─── Error cases ───
+###
+
+### Cast a combat spell — should fail outside of battle
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "magic-missile"
+}
+
+### Try to learn a spell for the wrong class
+POST {{host}}/spells/learn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "fireball"
+}
+
+### Try to cast a spell you haven't learned
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "blizzard"
+}

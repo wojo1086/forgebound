@@ -199,6 +199,11 @@ export class TravelService {
       );
     }
 
+    // Reject if currently resting
+    if (character.rest_until && new Date(character.rest_until).getTime() > Date.now()) {
+      throw new ConflictException('Cannot travel while resting. Stop resting first.');
+    }
+
     const dir = DIRECTIONS[direction];
     if (!dir) {
       throw new BadRequestException(`Invalid direction: ${direction}`);
@@ -264,6 +269,11 @@ export class TravelService {
       throw new ConflictException(
         `Already traveling. Arrives at ${eta.toISOString()}`,
       );
+    }
+
+    // Reject if currently resting
+    if (character.rest_until && new Date(character.rest_until).getTime() > Date.now()) {
+      throw new ConflictException('Cannot travel while resting. Stop resting first.');
     }
 
     // Reject if already there

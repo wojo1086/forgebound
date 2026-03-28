@@ -196,6 +196,13 @@ export class DatabaseBootstrap implements OnModuleInit {
       ALTER TABLE characters ADD COLUMN IF NOT EXISTS max_mana int NOT NULL DEFAULT 0;
     `);
 
+    // Add rest columns to characters (idempotent)
+    await client.query(`
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS rest_started_at timestamptz DEFAULT NULL;
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS rest_until timestamptz DEFAULT NULL;
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS rest_type varchar(10) DEFAULT NULL;
+    `);
+
     // Update CHECK constraints for existing databases (idempotent)
     await client.query(`
       DO $$ BEGIN

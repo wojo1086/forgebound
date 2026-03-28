@@ -426,6 +426,8 @@
         <div class="sidebar-heading">Game Data</div>
         <a href="#ep-races"><span class="method-sm get">GET</span> Races</a>
         <a href="#ep-classes"><span class="method-sm get">GET</span> Classes</a>
+        <a href="#ep-items"><span class="method-sm get">GET</span> Items</a>
+        <a href="#ep-spells-catalog"><span class="method-sm get">GET</span> Spells</a>
       </div>
       <div class="sidebar-section">
         <div class="sidebar-heading">Characters</div>
@@ -442,6 +444,28 @@
         <a href="#ep-travel-go"><span class="method-sm post">POST</span> Travel To</a>
         <a href="#ep-travel-status"><span class="method-sm get">GET</span> Travel Status</a>
         <a href="#ep-travel-cancel"><span class="method-sm post">POST</span> Cancel Travel</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Inventory</div>
+        <a href="#ep-inventory"><span class="method-sm get">GET</span> Inventory</a>
+        <a href="#ep-inv-pickup"><span class="method-sm post">POST</span> Pick Up</a>
+        <a href="#ep-inv-drop"><span class="method-sm post">POST</span> Drop</a>
+        <a href="#ep-inv-equip"><span class="method-sm post">POST</span> Equip</a>
+        <a href="#ep-inv-unequip"><span class="method-sm post">POST</span> Unequip</a>
+        <a href="#ep-inv-use"><span class="method-sm post">POST</span> Use Item</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Spells</div>
+        <a href="#ep-spellbook"><span class="method-sm get">GET</span> Spellbook</a>
+        <a href="#ep-spell-learn"><span class="method-sm post">POST</span> Learn Spell</a>
+        <a href="#ep-spell-cast"><span class="method-sm post">POST</span> Cast Spell</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Rest</div>
+        <a href="#ep-rest-camp"><span class="method-sm post">POST</span> Camp</a>
+        <a href="#ep-rest-inn"><span class="method-sm post">POST</span> Rest at Inn</a>
+        <a href="#ep-rest-status"><span class="method-sm get">GET</span> Rest Status</a>
+        <a href="#ep-rest-stop"><span class="method-sm post">POST</span> Stop Resting</a>
       </div>
       <div class="sidebar-section">
         <div class="sidebar-heading">Reference</div>
@@ -677,6 +701,74 @@ Content-Type: application/json
   },
   <span class="comment">// ... 4 more classes</span>
 ]</pre>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-items">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/game/items</code>
+          </div>
+          <div class="endpoint-desc">
+            List all item definitions in the game. Includes weapons, armor, consumables, and spell scrolls. No auth required.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: None (Public)</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>[
+  {
+    "id": "iron-sword",
+    "name": "Iron Sword",
+    "type": "weapon",
+    "rarity": "common",
+    "weight": 3,
+    "value": 15,
+    "effectType": null,
+    "effectValue": null,
+    "bonusStrength": 2,
+    "bonusDexterity": 0,
+    ...
+  },
+  // ... more items
+]</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-spells-catalog">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/game/spells</code>
+          </div>
+          <div class="endpoint-desc">
+            List all spell definitions. Sorted by class restriction, spell level, then name. Useful for seeing what spells exist and their requirements.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: None (Public)</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>[
+  {
+    "id": "fireball",
+    "name": "Fireball",
+    "school": "evocation",
+    "spell_level": 3,
+    "mana_cost": 25,
+    "level_required": 5,
+    "class_restriction": "mage",
+    "target_type": "area",
+    "effect_type": "damage",
+    "effect_value": 30,
+    "damage_type": "fire"
+  },
+  // ... ~40 more spells
+]</pre>
+            </div>
           </div>
         </div>
       </div>
@@ -1012,6 +1104,418 @@ Content-Type: application/json
             <tr><td>Mountain</td><td>45s</td><td style="color:var(--get)">Yes</td></tr>
             <tr><td>Ocean</td><td>&mdash;</td><td style="color:var(--delete)">No</td></tr>
           </table>
+        </div>
+      </div>
+
+      <!-- INVENTORY -->
+      <div class="endpoint-section" id="inventory">
+        <div class="section-label">Inventory</div>
+        <div class="section-title">Items &amp; Equipment</div>
+        <div class="section-desc">Manage your character&rsquo;s inventory. Pick up items, equip weapons and armor, use consumables like potions and spell scrolls. Equipment modifies your effective stats. Weight is tracked against your carry capacity (based on Strength).</div>
+
+        <div class="endpoint-block" id="ep-inventory">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/inventory</code>
+          </div>
+          <div class="endpoint-desc">
+            Returns your full inventory: all items, equipped gear, effective stats with bonuses, total weight, and carry capacity.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "items": [
+    {
+      "id": "iron-sword",
+      "name": "Iron Sword",
+      "type": "weapon",
+      "rarity": "common",
+      "quantity": 1,
+      "equipped": true,
+      "slot": "weapon"
+    }
+  ],
+  "equipment": {
+    "weapon": { "id": "iron-sword", "name": "Iron Sword" },
+    "armor": null,
+    "helmet": null,
+    ...
+  },
+  "effectiveStats": { "strength": 12, "dexterity": 10, ... },
+  "weight": 5,
+  "carryCapacity": 150
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-inv-pickup">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/inventory/pick-up</code>
+          </div>
+          <div class="endpoint-desc">
+            Add an item to your inventory. Items are defined in the game data catalog. Checks weight capacity before adding.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "itemId": "health-potion",
+  "quantity": 3
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "picked_up": "Health Potion",
+  "quantity": 3,
+  "totalWeight": 1.5,
+  "carryCapacity": 150
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-inv-drop">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/inventory/drop</code>
+          </div>
+          <div class="endpoint-desc">
+            Remove an item from your inventory. Cannot drop equipped items &mdash; unequip first.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "itemId": "health-potion",
+  "quantity": 1
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-inv-equip">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/inventory/equip</code>
+          </div>
+          <div class="endpoint-desc">
+            Equip an item from your inventory. The item must be in your inventory and the correct type for the slot. Equipping to an occupied slot automatically unequips the previous item.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "itemId": "iron-sword",
+  "slot": "weapon"
+}</pre>
+            </div>
+          </div>
+          <div class="endpoint-desc" style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">
+            Slots: <code>weapon</code>, <code>armor</code>, <code>helmet</code>, <code>shield</code>, <code>leggings</code>, <code>boots</code>, <code>gloves</code>, <code>ring1</code>, <code>ring2</code>, <code>amulet</code>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-inv-unequip">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/inventory/unequip</code>
+          </div>
+          <div class="endpoint-desc">
+            Unequip an item from a slot, returning it to your inventory.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "slot": "weapon"
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-inv-use">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/inventory/use</code>
+          </div>
+          <div class="endpoint-desc">
+            Use a consumable item. Potions restore HP or mana, spell scrolls teach you new spells permanently. The item is consumed on use.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "itemId": "health-potion"
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "used": "Health Potion",
+  "effect": "Restored 25 HP. HP: 38/38."
+}</pre>
+            </div>
+          </div>
+          <div class="endpoint-desc" style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">
+            Consumable types: health potions (restore HP), mana potions (restore mana), spell scrolls (learn a spell)
+          </div>
+        </div>
+      </div>
+
+      <!-- SPELLS -->
+      <div class="endpoint-section" id="spells">
+        <div class="section-label">Spells</div>
+        <div class="section-title">Magic &amp; Spellcasting</div>
+        <div class="section-desc">Your character starts with class-specific spells and can learn more as they level up. Spells at level 1&ndash;3 can be learned by study; level 4&ndash;5 spells require spell scrolls (consumable items). Casting costs mana. Some spells are usable outside combat (healing, buffs, teleport), while damage spells are reserved for battle.</div>
+
+        <div class="endpoint-block" id="ep-spellbook">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/spells</code>
+          </div>
+          <div class="endpoint-desc">
+            Returns your spellbook: current mana, max mana, and all learned spells with their details.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "mana": 80,
+  "maxMana": 100,
+  "spells": [
+    {
+      "id": "magic-missile",
+      "name": "Magic Missile",
+      "school": "evocation",
+      "spellLevel": 1,
+      "manaCost": 8,
+      "effectType": "damage",
+      "effectValue": 10,
+      "damageType": "arcane",
+      "targetType": "enemy",
+      "levelRequired": 1,
+      "classRestriction": "mage"
+    }
+  ]
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-spell-learn">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/spells/learn</code>
+          </div>
+          <div class="endpoint-desc">
+            Learn a new spell by study. Only works for spells at spell level 1&ndash;3. Higher-level spells require using a spell scroll item via <code>/api/inventory/use</code>. You must meet the spell&rsquo;s level requirement and class restriction.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "spellId": "fireball"
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "learned": "Fireball",
+  "message": "You have learned Fireball!",
+  "spell": {
+    "id": "fireball",
+    "name": "Fireball",
+    "school": "evocation",
+    "spellLevel": 3,
+    "manaCost": 25
+  }
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-spell-cast">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/spells/cast</code>
+          </div>
+          <div class="endpoint-desc">
+            Cast a learned spell. Deducts mana and applies the effect. Healing spells restore HP, buff spells increase stats temporarily, Teleport returns you to town. Damage spells can only be cast in combat. Cannot cast while resting.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "spellId": "heal"
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "cast": "Heal",
+  "manaCost": 10,
+  "effect": { "type": "heal_hp", "value": 25 },
+  "result": "Heal restored 25 HP. HP: 38/38. Mana: 70/80"
+}</pre>
+            </div>
+          </div>
+          <div class="endpoint-desc" style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">
+            Castable effects: <code>heal_hp</code>, <code>restore_mana</code>, <code>teleport_town</code>, <code>buff_strength</code>, <code>buff_dexterity</code>, <code>buff_constitution</code>, <code>buff_intelligence</code>, <code>buff_wisdom</code>, <code>buff_charisma</code>, <code>buff_max_hp</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- REST -->
+      <div class="endpoint-section" id="rest">
+        <div class="section-label">Rest</div>
+        <div class="section-title">Rest &amp; Recovery</div>
+        <div class="section-desc">Recover HP and mana by resting. Camp anywhere for slow time-based regeneration, or visit a town inn for instant full restoration. While resting, you cannot travel, cast spells, or take other actions. You can stop resting early to collect partial recovery.</div>
+
+        <div class="endpoint-block" id="ep-rest-camp">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/rest/camp</code>
+          </div>
+          <div class="endpoint-desc">
+            Set up camp and rest. HP and mana regenerate at 0.5/second (30/minute). Duration auto-calculates to fill HP and mana, capped at 10 minutes. You can specify a custom duration in seconds (10&ndash;600). Cannot camp if already at full HP and mana.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request (optional duration)</div>
+              <pre>{
+  "duration": 60
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "resting": true,
+  "type": "camp",
+  "duration": 60,
+  "hpRegen": 30,
+  "manaRegen": 30,
+  "startedAt": "2026-03-28T12:00:00.000Z",
+  "until": "2026-03-28T12:01:00.000Z"
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-rest-inn">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/rest/inn</code>
+          </div>
+          <div class="endpoint-desc">
+            Rest at a town inn for instant full HP and mana restoration. Your character must be at a tile that contains a town POI. No body required.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "rested": true,
+  "type": "inn",
+  "hp": 38,
+  "maxHp": 38,
+  "mana": 100,
+  "maxMana": 100,
+  "location": "Thornhaven"
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-rest-status">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/rest/status</code>
+          </div>
+          <div class="endpoint-desc">
+            Check your current rest progress. If resting, shows elapsed time, HP and mana recovered so far, and when rest completes. If not resting, indicates idle state.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response (while camping)</div>
+              <pre>{
+  "resting": true,
+  "type": "camp",
+  "elapsed": 30,
+  "hpRecovered": 15,
+  "manaRecovered": 15,
+  "currentHp": 28,
+  "currentMana": 65,
+  "until": "2026-03-28T12:01:00.000Z"
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-rest-stop">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/rest/stop</code>
+          </div>
+          <div class="endpoint-desc">
+            Stop resting early. You keep whatever HP and mana you&rsquo;ve regenerated so far based on elapsed time. Returns a summary of recovery.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "stopped": true,
+  "elapsed": 30,
+  "hpRecovered": 15,
+  "manaRecovered": 15,
+  "hp": 28,
+  "maxHp": 38,
+  "mana": 65,
+  "maxMana": 100
+}</pre>
+            </div>
+          </div>
         </div>
       </div>
 

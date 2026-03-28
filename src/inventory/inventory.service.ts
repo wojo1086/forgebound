@@ -458,6 +458,57 @@ export class InventoryService {
         }
         break;
       }
+      case 'learn_spell': {
+        // Spell ID derived from item ID: "scroll-of-fireball" → "fireball"
+        const spellId = item.id.replace('scroll-of-', '');
+
+        // Verify spell exists
+        const spellResult = await supabase
+          .from('spells')
+          .select('*')
+          .eq('id', spellId)
+          .single();
+        if (spellResult.error || !spellResult.data) {
+          throw new BadRequestException('This scroll contains an unknown spell.');
+        }
+        const spell = spellResult.data;
+
+        // Class restriction check
+        if (spell.class_restriction && spell.class_restriction !== character.class_id) {
+          throw new BadRequestException(
+            `Only the ${spell.class_restriction} class can learn ${spell.name}.`,
+          );
+        }
+
+        // Level requirement check
+        if (character.level < spell.level_required) {
+          throw new BadRequestException(
+            `You must be level ${spell.level_required} to learn ${spell.name}. You are level ${character.level}.`,
+          );
+        }
+
+        // Already known check
+        const knownResult = await supabase
+          .from('character_spells')
+          .select('id')
+          .eq('character_id', character.id)
+          .eq('spell_id', spellId)
+          .maybeSingle();
+        if (knownResult.data) {
+          throw new BadRequestException(`You already know ${spell.name}.`);
+        }
+
+        // Learn the spell
+        const insertResult = await supabase
+          .from('character_spells')
+          .insert({ character_id: character.id, spell_id: spellId });
+        if (insertResult.error) {
+          throw new BadRequestException(insertResult.error.message);
+        }
+
+        effectMessage = `You read the scroll and learned ${spell.name}!`;
+        break;
+      }
       default:
         throw new BadRequestException(
           `Unknown effect type: ${item.effect_type}`,

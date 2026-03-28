@@ -1,0 +1,95 @@
+## Run auth.http → Login first to populate {{token}}
+
+###
+## ─── Camping (anywhere, time-based regen) ───
+###
+
+### Start camping (auto-duration — recovers until full or 10 min max)
+POST {{host}}/rest/camp
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{}
+
+### Start camping with custom duration (60 seconds)
+POST {{host}}/rest/camp
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "duration": 60
+}
+
+### Start camping with short duration (30 seconds)
+POST {{host}}/rest/camp
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "duration": 30
+}
+
+###
+## ─── Rest Status ───
+###
+
+### Check rest progress
+GET {{host}}/rest/status
+Authorization: Bearer {{token}}
+
+###
+## ─── Stop Resting ───
+###
+
+### Stop resting early (partial recovery)
+POST {{host}}/rest/stop
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+## ─── Inn (instant full restore, town only) ───
+###
+
+### Rest at an inn (must be at a town)
+POST {{host}}/rest/inn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+## ─── Error Cases ───
+###
+
+### Try to camp when already at full HP/mana — should fail
+POST {{host}}/rest/camp
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{}
+
+### Try to rest at inn when not at a town — should fail
+POST {{host}}/rest/inn
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### Try to travel while resting — should fail (409 Conflict)
+POST {{host}}/travel/move
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "direction": "north"
+}
+
+### Try to cast a spell while resting — should fail (409 Conflict)
+POST {{host}}/spells/cast
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "spellId": "heal"
+}
+
+### Try to stop resting when not resting — should fail
+POST {{host}}/rest/stop
+Content-Type: application/json
+Authorization: Bearer {{token}}

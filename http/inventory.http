@@ -1,0 +1,180 @@
+## Run auth.http → Login first to populate {{token}}
+
+### Get full inventory (equipment + backpack + weight)
+GET {{host}}/inventory
+Authorization: Bearer {{token}}
+
+### Pick up a Health Potion
+POST {{host}}/inventory/pick-up
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "health-potion",
+  "quantity": 3
+}
+
+### Pick up a Mana Potion
+POST {{host}}/inventory/pick-up
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "mana-potion",
+  "quantity": 3
+}
+
+### Pick up an Iron Longsword
+POST {{host}}/inventory/pick-up
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "iron-longsword",
+  "quantity": 1
+}
+
+### Equip Iron Longsword to weapon slot
+POST {{host}}/inventory/equip
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "iron-longsword"
+}
+
+### Unequip weapon slot
+POST {{host}}/inventory/unequip
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "slot": "weapon"
+}
+
+### Drop an item from backpack
+POST {{host}}/inventory/drop
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "health-potion",
+  "quantity": 1
+}
+
+### Use a Health Potion
+POST {{host}}/inventory/use
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "health-potion"
+}
+
+### Use a Mana Potion
+POST {{host}}/inventory/use
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "mana-potion"
+}
+
+###
+## ─── Spell Scrolls (learn level 4-5 spells via items) ───
+###
+
+### Pick up a Scroll of Counterspell (mage, level 4)
+POST {{host}}/inventory/pick-up
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-counterspell",
+  "quantity": 1
+}
+
+### Use Scroll of Counterspell — should learn Counterspell
+POST {{host}}/inventory/use
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-counterspell"
+}
+
+### Pick up a Scroll of Blizzard (mage, level 5)
+POST {{host}}/inventory/pick-up
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-blizzard",
+  "quantity": 1
+}
+
+### Use Scroll of Blizzard — should learn Blizzard
+POST {{host}}/inventory/use
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-blizzard"
+}
+
+### Pick up a Scroll of Holy Nova (cleric, level 4)
+POST {{host}}/inventory/pick-up
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-holy-nova",
+  "quantity": 1
+}
+
+### Use Scroll of Holy Nova — should learn Holy Nova (or fail if wrong class)
+POST {{host}}/inventory/use
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-holy-nova"
+}
+
+### Pick up a Scroll of Resurrection (cleric, level 5)
+POST {{host}}/inventory/pick-up
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-resurrection",
+  "quantity": 1
+}
+
+### Use Scroll of Resurrection — should learn Resurrection (or fail if wrong class)
+POST {{host}}/inventory/use
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-resurrection"
+}
+
+### Pick up a Scroll of Call Lightning (ranger, level 4)
+POST {{host}}/inventory/pick-up
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-call-lightning",
+  "quantity": 1
+}
+
+### Use Scroll of Call Lightning — should learn Call Lightning (or fail if wrong class)
+POST {{host}}/inventory/use
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "scroll-of-call-lightning"
+}

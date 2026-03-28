@@ -2,8 +2,10 @@ import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { MapService } from './map.service';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { ThrottleTier } from '../common/decorators/throttle-tier.decorator';
 
 @Controller('map')
+@ThrottleTier('public')
 export class MapController {
   constructor(private mapService: MapService) {}
 

@@ -3,3 +3,9 @@ GET {{host}}/game/races
 
 ### List all classes (public — no auth needed)
 GET {{host}}/game/classes
+
+### List all items (public — no auth needed)
+GET {{host}}/game/items
+
+### List all spells (public — no auth needed)
+GET {{host}}/game/spells

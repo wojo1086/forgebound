@@ -37,6 +37,10 @@ export const CLASS_MANA_BASE: Record<string, number> = {
   ranger: 60,
 };
 
+/** Spells at or below this level can be learned via /spells/learn.
+ *  Higher-level spells require spell scroll items. */
+export const AUTO_LEARN_MAX_LEVEL = 3;
+
 /** Spells granted automatically at character creation */
 export const STARTING_SPELLS: Record<string, string[]> = {
   warrior: ['battle-cry'],

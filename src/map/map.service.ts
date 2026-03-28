@@ -103,6 +103,18 @@ export class MapService {
     return this.terrain[y][x];
   }
 
+  /** Get the POI at a given coordinate (any type), or null */
+  async getPOIAt(x: number, y: number) {
+    const supabase = this.supabaseService.getClient();
+    const { data } = await supabase
+      .from('pois')
+      .select('*')
+      .eq('x', x)
+      .eq('y', y)
+      .maybeSingle();
+    return data;
+  }
+
   /** Check if a hidden POI exists at a cell and discover it for the player */
   async discoverCell(x: number, y: number, userId: string) {
     const supabase = this.supabaseService.getClient();

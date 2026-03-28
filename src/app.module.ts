@@ -12,6 +12,7 @@ import { MapModule } from './map/map.module';
 import { TravelModule } from './travel/travel.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { SpellsModule } from './spells/spells.module';
+import { RestModule } from './rest/rest.module';
 import { DatabaseModule } from './database/database.module';
 import { SupabaseAuthGuard } from './auth/auth.guard';
 import { ForgeboundThrottlerGuard } from './common/guards/throttler.guard';
@@ -34,6 +35,7 @@ import { AppController } from './app.controller';
     TravelModule,
     InventoryModule,
     SpellsModule,
+    RestModule,
   ],
   controllers: [AppController],
   providers: [

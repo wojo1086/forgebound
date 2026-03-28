@@ -1,10 +1,12 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import {
+  AUTO_LEARN_MAX_LEVEL,
   CLASS_MANA_BASE,
   STARTING_SPELLS,
 } from '../common/constants/spells.constants';
@@ -89,6 +91,13 @@ export class SpellsService {
       throw new BadRequestException(`You already know ${spell.name}.`);
     }
 
+    // Spell level gate — powerful spells require scrolls
+    if (spell.spell_level > AUTO_LEARN_MAX_LEVEL) {
+      throw new BadRequestException(
+        `${spell.name} is too powerful to learn through study alone. You need a Scroll of ${spell.name}.`,
+      );
+    }
+
     // Insert
     const { error } = await supabase.from('character_spells').insert({
       character_id: character.id,
@@ -107,6 +116,12 @@ export class SpellsService {
   /** Cast a spell */
   async castSpell(userId: string, spellId: string) {
     const character = await this.getCharacter(userId);
+
+    // Reject if currently resting
+    if (character.rest_until && new Date(character.rest_until).getTime() > Date.now()) {
+      throw new ConflictException('Cannot cast spells while resting. Stop resting first.');
+    }
+
     const spell = await this.getSpellDef(spellId);
 
     // Must know the spell

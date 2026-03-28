@@ -1,8 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import { GameDataService } from './game-data.service';
 import { Public } from '../common/decorators/public.decorator';
+import { ThrottleTier } from '../common/decorators/throttle-tier.decorator';
 
 @Controller('game')
+@ThrottleTier('public')
 export class GameDataController {
   constructor(private gameDataService: GameDataService) {}
 

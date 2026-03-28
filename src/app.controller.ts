@@ -1,7 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { Public } from './common/decorators/public.decorator';
+import { ThrottleTier } from './common/decorators/throttle-tier.decorator';
 
 @Controller()
+@ThrottleTier('public')
 export class AppController {
   @Public()
   @Get()
