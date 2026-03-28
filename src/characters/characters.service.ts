@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { SpellsService } from '../spells/spells.service';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import {
   ABILITIES,
@@ -14,12 +15,14 @@ import {
   abilityModifier,
   Ability,
 } from '../common/constants/game.constants';
+import { CLASS_MANA_BASE } from '../common/constants/spells.constants';
 
 @Injectable()
 export class CharactersService {
   constructor(
     private supabaseService: SupabaseService,
     private inventoryService: InventoryService,
+    private spellsService: SpellsService,
   ) {}
 
   async create(userId: string, dto: CreateCharacterDto) {
@@ -59,6 +62,7 @@ export class CharactersService {
     const finalScores = this.applyRacialBonuses(dto, race);
     const maxHp = 10 + abilityModifier(finalScores.constitution);
     const ac = 10 + abilityModifier(finalScores.dexterity);
+    const maxMana = CLASS_MANA_BASE[dto.classId] ?? 20;
 
     const { data, error } = await supabase
       .from('characters')
@@ -78,6 +82,8 @@ export class CharactersService {
         intelligence: finalScores.intelligence,
         wisdom: finalScores.wisdom,
         charisma: finalScores.charisma,
+        mana: maxMana,
+        max_mana: maxMana,
         pos_x: 50,
         pos_y: 50,
       })
@@ -93,8 +99,9 @@ export class CharactersService {
       throw new BadRequestException(error.message);
     }
 
-    // Grant class-based starting equipment
+    // Grant class-based starting equipment and spells
     await this.inventoryService.grantStartingEquipment(data.id, dto.classId);
+    await this.spellsService.grantStartingSpells(data.id, dto.classId);
 
     return data;
   }

@@ -406,6 +406,20 @@ export class InventoryService {
         effectMessage = `Restored ${healed} HP. HP: ${newHp}/${character.max_hp}`;
         break;
       }
+      case 'restore_mana': {
+        if (character.mana >= character.max_mana) {
+          throw new BadRequestException('Already at full mana.');
+        }
+        const restored = Math.min(item.effect_value, character.max_mana - character.mana);
+        const newMana = character.mana + restored;
+        const { error } = await supabase
+          .from('characters')
+          .update({ mana: newMana })
+          .eq('id', character.id);
+        if (error) throw new BadRequestException(error.message);
+        effectMessage = `Restored ${restored} mana. Mana: ${newMana}/${character.max_mana}`;
+        break;
+      }
       case 'boost_max_hp': {
         const newMaxHp = character.max_hp + item.effect_value;
         const newHp = character.hp + item.effect_value;

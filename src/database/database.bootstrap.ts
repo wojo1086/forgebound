@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
 import * as poisData from '../data/pois.json';
 import itemsData = require('../data/items.json');
+import spellsData = require('../data/spells.json');
 
 @Injectable()
 export class DatabaseBootstrap implements OnModuleInit {
@@ -157,6 +158,44 @@ export class DatabaseBootstrap implements OnModuleInit {
       CREATE INDEX IF NOT EXISTS idx_char_inv_slot ON character_inventory(character_id, slot) WHERE slot IS NOT NULL;
     `);
 
+    // Spells definition table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS spells (
+        id varchar(60) PRIMARY KEY,
+        name varchar(100) NOT NULL,
+        description text,
+        school varchar(20) NOT NULL CHECK (school IN (
+          'evocation','restoration','abjuration','conjuration',
+          'enchantment','necromancy','divination','transmutation'
+        )),
+        spell_level int NOT NULL DEFAULT 1,
+        mana_cost int NOT NULL DEFAULT 0,
+        cooldown_seconds int NOT NULL DEFAULT 0,
+        level_required int NOT NULL DEFAULT 1,
+        class_restriction varchar(20) DEFAULT NULL REFERENCES classes(id),
+        target_type varchar(10) NOT NULL CHECK (target_type IN ('self','enemy','ally','area')),
+        effect_type varchar(30) DEFAULT NULL,
+        effect_value int DEFAULT NULL,
+        damage_type varchar(20) DEFAULT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS character_spells (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        character_id uuid NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+        spell_id varchar(60) NOT NULL REFERENCES spells(id),
+        learned_at timestamptz NOT NULL DEFAULT now(),
+        UNIQUE(character_id, spell_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_char_spells_character ON character_spells(character_id);
+    `);
+
+    // Add mana columns to characters (idempotent)
+    await client.query(`
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS mana int NOT NULL DEFAULT 0;
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS max_mana int NOT NULL DEFAULT 0;
+    `);
+
     // Update CHECK constraints for existing databases (idempotent)
     await client.query(`
       DO $$ BEGIN
@@ -190,6 +229,8 @@ export class DatabaseBootstrap implements OnModuleInit {
       ALTER TABLE player_discoveries ENABLE ROW LEVEL SECURITY;
       ALTER TABLE items ENABLE ROW LEVEL SECURITY;
       ALTER TABLE character_inventory ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE spells ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE character_spells ENABLE ROW LEVEL SECURITY;
 
       DO $$ BEGIN
         IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'races_public_read') THEN
@@ -233,6 +274,21 @@ export class DatabaseBootstrap implements OnModuleInit {
         END IF;
         IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'inventory_delete_own') THEN
           CREATE POLICY inventory_delete_own ON character_inventory FOR DELETE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'spells_public_read') THEN
+          CREATE POLICY spells_public_read ON spells FOR SELECT USING (true);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'char_spells_select_own') THEN
+          CREATE POLICY char_spells_select_own ON character_spells FOR SELECT
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'char_spells_insert_own') THEN
+          CREATE POLICY char_spells_insert_own ON character_spells FOR INSERT
+            WITH CHECK (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'char_spells_delete_own') THEN
+          CREATE POLICY char_spells_delete_own ON character_spells FOR DELETE
             USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
         END IF;
       END $$;
@@ -368,5 +424,51 @@ export class DatabaseBootstrap implements OnModuleInit {
     }
 
     this.logger.log(`${items.length} items synced`);
+
+    // Seed spells (uses ON CONFLICT so new spells are added on restarts)
+    this.logger.log('Syncing spells...');
+    const spells = (spellsData as any[]).map((s: any) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description ?? null,
+      school: s.school,
+      spell_level: s.spellLevel ?? 1,
+      mana_cost: s.manaCost ?? 0,
+      cooldown_seconds: s.cooldownSeconds ?? 0,
+      level_required: s.levelRequired ?? 1,
+      class_restriction: s.classRestriction ?? null,
+      target_type: s.targetType,
+      effect_type: s.effectType ?? null,
+      effect_value: s.effectValue ?? null,
+      damage_type: s.damageType ?? null,
+    }));
+
+    const SPELL_COLS = 13;
+    for (let i = 0; i < spells.length; i += 50) {
+      const chunk = spells.slice(i, i + 50);
+      const values = chunk
+        .map(
+          (_, idx) =>
+            `(${Array.from({ length: SPELL_COLS }, (__, c) => `$${idx * SPELL_COLS + c + 1}`).join(', ')})`,
+        )
+        .join(', ');
+
+      const params = chunk.flatMap((s) => [
+        s.id, s.name, s.description, s.school, s.spell_level,
+        s.mana_cost, s.cooldown_seconds, s.level_required, s.class_restriction,
+        s.target_type, s.effect_type, s.effect_value, s.damage_type,
+      ]);
+
+      await client.query(
+        `INSERT INTO spells (id, name, description, school, spell_level,
+          mana_cost, cooldown_seconds, level_required, class_restriction,
+          target_type, effect_type, effect_value, damage_type)
+         VALUES ${values}
+         ON CONFLICT (id) DO NOTHING`,
+        params,
+      );
+    }
+
+    this.logger.log(`${spells.length} spells synced`);
   }
 }

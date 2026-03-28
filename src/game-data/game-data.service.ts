@@ -48,4 +48,20 @@ export class GameDataService {
 
     return data;
   }
+
+  async getSpells() {
+    const { data, error } = await this.supabaseService
+      .getClient()
+      .from('spells')
+      .select('*')
+      .order('class_restriction')
+      .order('spell_level')
+      .order('name');
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }

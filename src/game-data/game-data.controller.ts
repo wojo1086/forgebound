@@ -23,4 +23,10 @@ export class GameDataController {
   getItems() {
     return this.gameDataService.getItems();
   }
+
+  @Public()
+  @Get('spells')
+  getSpells() {
+    return this.gameDataService.getSpells();
+  }
 }

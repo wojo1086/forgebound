@@ -7,6 +7,7 @@ import {
 import { SupabaseService } from '../supabase/supabase.service';
 import { MapService } from '../map/map.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { SpellsService } from '../spells/spells.service';
 import { carryCapacity } from '../common/constants/inventory.constants';
 import { findPath, computeStepTimes, Coordinate } from './pathfinding';
 import {
@@ -21,6 +22,7 @@ export class TravelService {
     private supabaseService: SupabaseService,
     private mapService: MapService,
     private inventoryService: InventoryService,
+    private spellsService: SpellsService,
   ) {}
 
   /** Fetch the character for a user, or throw 404 */
@@ -147,10 +149,23 @@ export class TravelService {
       }
     }
 
+    // Fetch learned spells
+    const learnedSpells = await this.spellsService.getLearnedSpells(character.id);
+    const spells = learnedSpells.map((row: any) => ({
+      id: row.spell.id,
+      name: row.spell.name,
+      school: row.spell.school,
+      spellLevel: row.spell.spell_level,
+      manaCost: row.spell.mana_cost,
+    }));
+
     return {
       ...this.formatCharacter(character),
+      mana: character.mana,
+      maxMana: character.max_mana,
       effectiveStats,
       equipment,
+      spells,
       carryCapacity: carryCapacity(character.strength),
       travel: this.buildTravelStatus(character),
       discoveries: discoveries.length > 0 ? discoveries : undefined,

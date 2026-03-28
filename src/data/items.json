@@ -142,6 +142,10 @@
   { "id": "ration",                   "name": "Ration",                   "description": "Dried meat and hardtack. Barely edible but nourishing.",           "type": "consumable", "rarity": "common",   "weight": 1.0,  "value": 2,    "levelRequired": 1,  "effectType": "heal_hp", "effectValue": 5 },
   { "id": "elven-bread",              "name": "Elven Bread",              "description": "A thin wafer of elven waybread, remarkably filling.",              "type": "consumable", "rarity": "uncommon", "weight": 0.3,  "value": 15,   "levelRequired": 1,  "effectType": "heal_hp", "effectValue": 15 },
 
+  { "id": "mana-potion",              "name": "Mana Potion",              "description": "A small blue vial that restores magical energy.",                   "type": "consumable", "rarity": "common",   "weight": 0.5,  "value": 15,   "levelRequired": 1,  "effectType": "restore_mana", "effectValue": 20 },
+  { "id": "greater-mana-potion",      "name": "Greater Mana Potion",      "description": "A larger flask of concentrated arcane liquid.",                     "type": "consumable", "rarity": "uncommon", "weight": 0.5,  "value": 75,   "levelRequired": 3,  "effectType": "restore_mana", "effectValue": 50 },
+  { "id": "supreme-mana-potion",      "name": "Supreme Mana Potion",      "description": "A brilliant azure elixir pulsing with raw magical power.",          "type": "consumable", "rarity": "rare",     "weight": 0.5,  "value": 250,  "levelRequired": 6,  "effectType": "restore_mana", "effectValue": 100 },
+
   { "id": "elixir-of-fortitude",     "name": "Elixir of Fortitude",     "description": "A thick amber elixir that permanently toughens the body.",          "type": "consumable", "rarity": "rare",     "weight": 0.5,  "value": 400,  "levelRequired": 5,  "effectType": "boost_max_hp", "effectValue": 5 },
   { "id": "greater-elixir-of-fortitude", "name": "Greater Elixir of Fortitude", "description": "A potent amber elixir that greatly fortifies the body.",    "type": "consumable", "rarity": "epic",     "weight": 0.5,  "value": 1200, "levelRequired": 10, "effectType": "boost_max_hp", "effectValue": 10 },
 
