@@ -161,6 +161,7 @@ export class TravelService {
 
     return {
       ...this.formatCharacter(character),
+      gold: character.gold,
       mana: character.mana,
       maxMana: character.max_mana,
       effectiveStats,

@@ -468,6 +468,12 @@
         <a href="#ep-rest-stop"><span class="method-sm post">POST</span> Stop Resting</a>
       </div>
       <div class="sidebar-section">
+        <div class="sidebar-heading">Shops</div>
+        <a href="#ep-shop-browse"><span class="method-sm get">GET</span> Browse Shop</a>
+        <a href="#ep-shop-buy"><span class="method-sm post">POST</span> Buy Item</a>
+        <a href="#ep-shop-sell"><span class="method-sm post">POST</span> Sell Item</a>
+      </div>
+      <div class="sidebar-section">
         <div class="sidebar-heading">Reference</div>
         <a href="#ref-races">Races &amp; Bonuses</a>
         <a href="#ref-classes">Classes</a>
@@ -1513,6 +1519,117 @@ Content-Type: application/json
   "maxHp": 38,
   "mana": 65,
   "maxMana": 100
+}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHOPS -->
+      <div class="endpoint-section" id="shops">
+        <div class="section-label">Shops</div>
+        <div class="section-title">Town Shops</div>
+        <div class="section-desc">Each town has a unique shop with themed inventory. Coastal towns sell jewelry and provisions, mountain forges offer heavy arms, and forest apothecaries stock the best potions. Stock is per-player and restocks on a timer. You must be physically at a town to use its shop. Characters start with 100 gold.</div>
+
+        <div class="endpoint-block" id="ep-shop-browse">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/shops/:townId</code>
+          </div>
+          <div class="endpoint-desc">
+            Browse a town shop&rsquo;s inventory. Shows all items for sale with current stock, prices, and your gold balance. Stock restocks automatically after the shop&rsquo;s restock timer elapses. You must be at the town.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Example: GET /api/shops/thornhaven</div>
+              <pre>{
+  "townId": "thornhaven",
+  "shop": "Thornhaven General Store",
+  "description": "A well-stocked shop...",
+  "restockMinutes": 30,
+  "gold": 100,
+  "items": [
+    {
+      "id": "health-potion",
+      "name": "Health Potion",
+      "type": "consumable",
+      "rarity": "common",
+      "price": 10,
+      "sellPrice": 5,
+      "levelRequired": 1,
+      "weight": 0.5,
+      "stock": 10,
+      "maxStock": 10
+    }
+  ]
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-shop-buy">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/shops/:townId/buy</code>
+          </div>
+          <div class="endpoint-desc">
+            Buy an item from a town shop. Deducts gold, decrements stock, and adds the item to your backpack. Validates gold, stock, level requirement, class restriction, and carry weight.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "itemId": "health-potion",
+  "quantity": 2
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "bought": "Health Potion",
+  "quantity": 2,
+  "totalCost": 20,
+  "gold": 80,
+  "message": "Purchased 2x Health Potion for 20g."
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-shop-sell">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/shops/:townId/sell</code>
+          </div>
+          <div class="endpoint-desc">
+            Sell an item from your backpack to a shop. Items sell for half their buy price (rounded down). Equipped items must be unequipped first. Quest items cannot be sold.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Request</div>
+              <pre>{
+  "itemId": "copper-dagger",
+  "quantity": 1
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Response</div>
+              <pre>{
+  "sold": "Copper Dagger",
+  "quantity": 1,
+  "unitPrice": 1,
+  "totalPrice": 1,
+  "gold": 101,
+  "message": "Sold 1x Copper Dagger for 1g."
 }</pre>
             </div>
           </div>

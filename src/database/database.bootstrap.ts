@@ -203,6 +203,27 @@ export class DatabaseBootstrap implements OnModuleInit {
       ALTER TABLE characters ADD COLUMN IF NOT EXISTS rest_type varchar(10) DEFAULT NULL;
     `);
 
+    // Add gold column to characters (idempotent)
+    await client.query(`
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS gold int NOT NULL DEFAULT 100;
+    `);
+
+    // Shop stock table — per-player per-town item stock with restock timer
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS shop_stock (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        character_id uuid NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+        town_id varchar(60) NOT NULL REFERENCES pois(id),
+        item_id varchar(60) NOT NULL REFERENCES items(id),
+        quantity int NOT NULL DEFAULT 0,
+        last_restock_at timestamptz NOT NULL DEFAULT now(),
+        UNIQUE(character_id, town_id, item_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_shop_stock_char_town
+        ON shop_stock(character_id, town_id);
+    `);
+
     // Update CHECK constraints for existing databases (idempotent)
     await client.query(`
       DO $$ BEGIN
@@ -296,6 +317,30 @@ export class DatabaseBootstrap implements OnModuleInit {
         END IF;
         IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'char_spells_delete_own') THEN
           CREATE POLICY char_spells_delete_own ON character_spells FOR DELETE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+      END $$;
+    `);
+
+    // Shop stock RLS
+    await client.query(`
+      ALTER TABLE shop_stock ENABLE ROW LEVEL SECURITY;
+
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'shop_stock_select_own') THEN
+          CREATE POLICY shop_stock_select_own ON shop_stock FOR SELECT
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'shop_stock_insert_own') THEN
+          CREATE POLICY shop_stock_insert_own ON shop_stock FOR INSERT
+            WITH CHECK (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'shop_stock_update_own') THEN
+          CREATE POLICY shop_stock_update_own ON shop_stock FOR UPDATE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'shop_stock_delete_own') THEN
+          CREATE POLICY shop_stock_delete_own ON shop_stock FOR DELETE
             USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
         END IF;
       END $$;

@@ -16,6 +16,7 @@ import {
   Ability,
 } from '../common/constants/game.constants';
 import { CLASS_MANA_BASE } from '../common/constants/spells.constants';
+import { STARTING_GOLD } from '../common/constants/shop.constants';
 
 @Injectable()
 export class CharactersService {
@@ -84,6 +85,7 @@ export class CharactersService {
         charisma: finalScores.charisma,
         mana: maxMana,
         max_mana: maxMana,
+        gold: STARTING_GOLD,
         pos_x: 50,
         pos_y: 50,
       })

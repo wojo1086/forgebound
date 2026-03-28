@@ -130,30 +130,8 @@ export class InventoryService {
       );
     }
 
-    // Upsert: increment quantity if already in backpack (slot IS NULL)
-    const existing = rows.find(
-      (r: any) => r.item_id === dto.itemId && r.slot === null,
-    );
-
-    const supabase = this.supabaseService.getClient();
-
-    if (existing) {
-      const { error } = await supabase
-        .from('character_inventory')
-        .update({ quantity: existing.quantity + dto.quantity })
-        .eq('id', existing.id);
-      if (error) throw new BadRequestException(error.message);
-    } else {
-      const { error } = await supabase
-        .from('character_inventory')
-        .insert({
-          character_id: character.id,
-          item_id: dto.itemId,
-          quantity: dto.quantity,
-          slot: null,
-        });
-      if (error) throw new BadRequestException(error.message);
-    }
+    // Add to backpack (upserts if item already exists)
+    await this.addToBackpack(character.id, dto.itemId, dto.quantity);
 
     return {
       pickedUp: item.name,
@@ -172,34 +150,7 @@ export class InventoryService {
       throw new BadRequestException('Quest items cannot be dropped.');
     }
 
-    const rows = await this.getInventoryRows(character.id);
-    const backpackRow = rows.find(
-      (r: any) => r.item_id === dto.itemId && r.slot === null,
-    );
-
-    if (!backpackRow) {
-      throw new BadRequestException(
-        `You don't have ${item.name} in your backpack. Equipped items must be unequipped first.`,
-      );
-    }
-
-    const supabase = this.supabaseService.getClient();
-
-    if (dto.quantity >= backpackRow.quantity) {
-      const { error } = await supabase
-        .from('character_inventory')
-        .delete()
-        .eq('id', backpackRow.id);
-      if (error) throw new BadRequestException(error.message);
-    } else {
-      const { error } = await supabase
-        .from('character_inventory')
-        .update({ quantity: backpackRow.quantity - dto.quantity })
-        .eq('id', backpackRow.id);
-      if (error) throw new BadRequestException(error.message);
-    }
-
-    const dropped = Math.min(dto.quantity, backpackRow.quantity);
+    const dropped = await this.removeFromBackpack(character.id, dto.itemId, dto.quantity);
     return {
       dropped: item.name,
       quantity: dropped,
@@ -562,6 +513,92 @@ export class InventoryService {
         );
       }
     }
+  }
+
+  /**
+   * Add items to a character's backpack (slot = null).
+   * Upserts: increments quantity if item already exists in backpack.
+   * Does NOT validate level, class, or weight — caller is responsible.
+   */
+  async addToBackpack(characterId: string, itemId: string, quantity: number) {
+    const supabase = this.supabaseService.getClient();
+
+    // Check for existing backpack row
+    const { data: existing } = await supabase
+      .from('character_inventory')
+      .select('id, quantity')
+      .eq('character_id', characterId)
+      .eq('item_id', itemId)
+      .is('slot', null)
+      .maybeSingle();
+
+    if (existing) {
+      const { error } = await supabase
+        .from('character_inventory')
+        .update({ quantity: existing.quantity + quantity })
+        .eq('id', existing.id);
+      if (error) throw new BadRequestException(error.message);
+    } else {
+      const { error } = await supabase
+        .from('character_inventory')
+        .insert({
+          character_id: characterId,
+          item_id: itemId,
+          quantity,
+          slot: null,
+        });
+      if (error) throw new BadRequestException(error.message);
+    }
+  }
+
+  /**
+   * Remove items from a character's backpack (slot = null).
+   * If quantity >= current, deletes the row. Otherwise decrements.
+   * Returns the actual quantity removed (capped at what they have).
+   * Throws if item not in backpack.
+   */
+  async removeFromBackpack(characterId: string, itemId: string, quantity: number): Promise<number> {
+    const supabase = this.supabaseService.getClient();
+
+    const { data: row } = await supabase
+      .from('character_inventory')
+      .select('id, quantity')
+      .eq('character_id', characterId)
+      .eq('item_id', itemId)
+      .is('slot', null)
+      .maybeSingle();
+
+    if (!row) {
+      throw new BadRequestException('Item not in backpack.');
+    }
+
+    const removed = Math.min(quantity, row.quantity);
+
+    if (quantity >= row.quantity) {
+      const { error } = await supabase
+        .from('character_inventory')
+        .delete()
+        .eq('id', row.id);
+      if (error) throw new BadRequestException(error.message);
+    } else {
+      const { error } = await supabase
+        .from('character_inventory')
+        .update({ quantity: row.quantity - quantity })
+        .eq('id', row.id);
+      if (error) throw new BadRequestException(error.message);
+    }
+
+    return removed;
+  }
+
+  /** Get all inventory rows for a character (used by shop service for weight checks) */
+  async getInventoryRowsForCharacter(characterId: string) {
+    return this.getInventoryRows(characterId);
+  }
+
+  /** Get carry weight for existing rows */
+  getCarryWeight(rows: any[]): number {
+    return this.computeCarryWeight(rows);
   }
 
   /** Get equipped items for a character (used by travel service) */

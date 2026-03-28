@@ -1,0 +1,137 @@
+## Run auth.http → Login first to populate {{token}}
+
+###
+## ─── Browse Shops ───
+###
+
+### Browse Thornhaven General Store (must be at 50,50)
+GET {{host}}/shops/thornhaven
+Authorization: Bearer {{token}}
+
+### Browse Ironpeak Forge (must be at 74,71)
+GET {{host}}/shops/ironpeak
+Authorization: Bearer {{token}}
+
+### Browse Tidecrest Trading Post (must be at 3,46)
+GET {{host}}/shops/tidecrest
+Authorization: Bearer {{token}}
+
+### Browse Pearlshore Curio Shop (must be at 91,73)
+GET {{host}}/shops/pearlshore
+Authorization: Bearer {{token}}
+
+### Browse Mosswood Apothecary (must be at 80,48)
+GET {{host}}/shops/mosswood
+Authorization: Bearer {{token}}
+
+###
+## ─── Buy Items ───
+###
+
+### Buy a health potion from Thornhaven
+POST {{host}}/shops/thornhaven/buy
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "health-potion",
+  "quantity": 2
+}
+
+### Buy a leather armor from Thornhaven
+POST {{host}}/shops/thornhaven/buy
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "leather-armor"
+}
+
+### Buy a steel longsword from Stormwatch
+POST {{host}}/shops/stormwatch/buy
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "steel-longsword"
+}
+
+###
+## ─── Sell Items ───
+###
+
+### Sell a health potion at Thornhaven
+POST {{host}}/shops/thornhaven/sell
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "health-potion",
+  "quantity": 1
+}
+
+### Sell a copper dagger at Thornhaven
+POST {{host}}/shops/thornhaven/sell
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "copper-dagger"
+}
+
+###
+## ─── Error Cases ───
+###
+
+### Try to browse a shop you're not at — should fail (400)
+GET {{host}}/shops/ironpeak
+Authorization: Bearer {{token}}
+
+### Try to buy an item not in this shop — should fail (400)
+POST {{host}}/shops/thornhaven/buy
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "plate-armor"
+}
+
+### Try to buy with insufficient gold — should fail (400)
+POST {{host}}/shops/thornhaven/buy
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "iron-longsword",
+  "quantity": 99
+}
+
+### Try to sell a quest item — should fail (400)
+POST {{host}}/shops/thornhaven/sell
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "ancient-relic"
+}
+
+### Try to sell an item you don't have — should fail (400)
+POST {{host}}/shops/thornhaven/sell
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "itemId": "steel-greatsword"
+}
+
+### Try to shop while traveling — should fail (409 Conflict)
+GET {{host}}/shops/thornhaven
+Authorization: Bearer {{token}}
+
+### Try to shop while resting — should fail (409 Conflict)
+GET {{host}}/shops/thornhaven
+Authorization: Bearer {{token}}
+
+### Try to browse a non-existent shop — should fail (404)
+GET {{host}}/shops/nonexistent-town
+Authorization: Bearer {{token}}

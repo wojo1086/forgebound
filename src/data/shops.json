@@ -1,0 +1,98 @@
+{
+  "thornhaven": {
+    "name": "Thornhaven General Store",
+    "description": "A well-stocked shop at the crossroads of the realm. Carries a bit of everything for the budding adventurer.",
+    "categories": ["weapon", "armor", "helmet", "shield", "boots", "gloves", "leggings", "consumable"],
+    "maxRarity": "uncommon",
+    "signatureItems": ["iron-longsword", "leather-armor", "health-potion"],
+    "restockMinutes": 30
+  },
+  "saltmere": {
+    "name": "Saltmere Provisions",
+    "description": "A modest supply shop near the docks. Good for rations and basic supplies.",
+    "categories": ["consumable", "ammunition", "ring"],
+    "maxRarity": "uncommon",
+    "signatureItems": ["ration", "elven-bread"],
+    "restockMinutes": 45
+  },
+  "tidecrest": {
+    "name": "Tidecrest Trading Post",
+    "description": "A bustling port bazaar where traders from across the sea unload exotic wares.",
+    "categories": ["weapon", "armor", "consumable", "ring", "amulet"],
+    "maxRarity": "rare",
+    "signatureItems": ["steel-short-sword", "mana-potion", "greater-health-potion"],
+    "restockMinutes": 30
+  },
+  "pearlshore": {
+    "name": "Pearlshore Curio Shop",
+    "description": "A quiet shop specializing in jewelry and rare trinkets pulled from the deep.",
+    "categories": ["ring", "amulet", "consumable"],
+    "maxRarity": "rare",
+    "signatureItems": ["ring-of-protection", "amulet-of-vitality"],
+    "restockMinutes": 60
+  },
+  "stormwatch": {
+    "name": "Stormwatch Armory",
+    "description": "A military outfitter supplying the garrison. Sturdy weapons and solid armor.",
+    "categories": ["weapon", "armor", "shield", "helmet", "ammunition"],
+    "maxRarity": "rare",
+    "signatureItems": ["steel-longsword", "chainmail", "steel-shield"],
+    "restockMinutes": 30
+  },
+  "goldfield": {
+    "name": "Goldfield Market",
+    "description": "A humble farmer's market selling provisions and raw materials.",
+    "categories": ["consumable", "material"],
+    "maxRarity": "uncommon",
+    "signatureItems": ["ration", "health-potion", "iron-ore"],
+    "restockMinutes": 45
+  },
+  "windhollow": {
+    "name": "Windhollow Outfitter",
+    "description": "A cozy shop specializing in travel gear \u2014 boots, gloves, and supplies for the road.",
+    "categories": ["boots", "gloves", "leggings", "consumable"],
+    "maxRarity": "uncommon",
+    "signatureItems": ["leather-boots", "leather-gloves", "health-potion"],
+    "restockMinutes": 45
+  },
+  "hearthstead": {
+    "name": "Hearthstead Hearth & Home",
+    "description": "A warm shop by the communal fire, offering comfort items and simple wares.",
+    "categories": ["consumable", "armor", "ring"],
+    "maxRarity": "uncommon",
+    "signatureItems": ["health-potion", "mana-potion", "cloth-robe"],
+    "restockMinutes": 45
+  },
+  "mosswood": {
+    "name": "Mosswood Apothecary",
+    "description": "A woodland shop fragrant with herbs. The best potions in the realm, plus ranger supplies.",
+    "categories": ["consumable", "weapon", "ammunition"],
+    "maxRarity": "rare",
+    "signatureItems": ["greater-health-potion", "greater-mana-potion", "hunting-bow"],
+    "restockMinutes": 30
+  },
+  "ferngate": {
+    "name": "Ferngate Waystation",
+    "description": "A roadside stop for travelers heading into the wilds. Basic arms and provisions.",
+    "categories": ["weapon", "consumable", "ammunition", "boots"],
+    "maxRarity": "uncommon",
+    "signatureItems": ["iron-short-sword", "copper-arrows", "health-potion"],
+    "restockMinutes": 45
+  },
+  "ironpeak": {
+    "name": "Ironpeak Forge",
+    "description": "The finest smithy in the land, nestled in the mountains. Heavy arms and master-forged armor.",
+    "categories": ["weapon", "armor", "helmet", "shield", "gloves", "leggings", "boots", "material"],
+    "maxRarity": "rare",
+    "signatureItems": ["steel-greatsword", "plate-armor", "plate-helm", "mithril-ore"],
+    "restockMinutes": 30
+  },
+  "driftholm": {
+    "name": "Driftholm Salvage",
+    "description": "A floating market of salvaged treasures. You never know what the sea might bring in.",
+    "categories": ["weapon", "ring", "amulet", "consumable"],
+    "maxRarity": "rare",
+    "signatureItems": ["enchanted-short-sword", "ring-of-protection", "enchanting-dust"],
+    "restockMinutes": 60
+  }
+}
