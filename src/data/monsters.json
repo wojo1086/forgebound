@@ -1,0 +1,1549 @@
+[
+  {
+    "id": "wolf",
+    "name": "Wolf",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 12,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 8,
+    "baseXp": 10,
+    "baseGold": 3,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Pack Howl", "damageMultiplier": 1.5, "damageType": "physical", "chance": 0.15, "minLevel": 3, "description": "The wolf howls, emboldening its attack." }
+    ],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "leather-armor", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 3 },
+      { "itemId": "ration", "weight": 25, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "plains", "mountain"],
+    "description": "A grey wolf with hungry eyes."
+  },
+  {
+    "id": "dire-wolf",
+    "name": "Dire Wolf",
+    "type": "beast",
+    "tier": "elite",
+    "baseHp": 25,
+    "baseDamageMin": 2,
+    "baseDamageMax": 5,
+    "baseAc": 10,
+    "baseXp": 20,
+    "baseGold": 6,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Savage Bite", "damageMultiplier": 2.0, "damageType": "physical", "chance": 0.20, "minLevel": 1, "description": "The dire wolf lunges with a bone-crushing bite." }
+    ],
+    "lootTable": [
+      { "itemId": "greater-health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "leather-boots", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-dagger", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "mountain"],
+    "description": "A massive wolf with scarred flanks and teeth like daggers."
+  },
+  {
+    "id": "bear",
+    "name": "Bear",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 18,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 9,
+    "baseXp": 12,
+    "baseGold": 4,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Maul", "damageMultiplier": 1.8, "damageType": "physical", "chance": 0.15, "minLevel": 4, "description": "The bear rears up and mauls with both paws." }
+    ],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "ration", "weight": 30, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "leather-gloves", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "mountain"],
+    "description": "A hulking brown bear defending its territory."
+  },
+  {
+    "id": "cave-bear",
+    "name": "Cave Bear",
+    "type": "beast",
+    "tier": "elite",
+    "baseHp": 35,
+    "baseDamageMin": 3,
+    "baseDamageMax": 7,
+    "baseAc": 11,
+    "baseXp": 25,
+    "baseGold": 8,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Crushing Blow", "damageMultiplier": 2.0, "damageType": "physical", "chance": 0.20, "minLevel": 1, "description": "The cave bear brings both paws down with devastating force." }
+    ],
+    "lootTable": [
+      { "itemId": "greater-health-potion", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-battle-axe", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "studded-leather-armor", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 3 }
+    ],
+    "preferredTerrains": ["mountain"],
+    "description": "An enormous pale bear that dwells in the deepest caverns."
+  },
+  {
+    "id": "giant-spider",
+    "name": "Giant Spider",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 10,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 7,
+    "baseXp": 8,
+    "baseGold": 2,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Venomous Bite", "damageMultiplier": 1.5, "damageType": "poison", "chance": 0.20, "minLevel": 2, "description": "The spider sinks venom-dripping fangs into its prey." }
+    ],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-dagger", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "swamp"],
+    "description": "A web-spinning horror the size of a large dog."
+  },
+  {
+    "id": "giant-scorpion",
+    "name": "Giant Scorpion",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 14,
+    "baseDamageMin": 1,
+    "baseDamageMax": 4,
+    "baseAc": 10,
+    "baseXp": 11,
+    "baseGold": 3,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Tail Sting", "damageMultiplier": 1.8, "damageType": "poison", "chance": 0.18, "minLevel": 3, "description": "The scorpion strikes with its venomous tail." }
+    ],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-spear", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 2 }
+    ],
+    "preferredTerrains": ["desert"],
+    "description": "A chitinous predator with pincers that can shear bone."
+  },
+  {
+    "id": "wild-boar",
+    "name": "Wild Boar",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 15,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 8,
+    "baseXp": 9,
+    "baseGold": 3,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Charge", "damageMultiplier": 1.6, "damageType": "physical", "chance": 0.15, "minLevel": 3, "description": "The boar lowers its tusks and charges headlong." }
+    ],
+    "lootTable": [
+      { "itemId": "ration", "weight": 35, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "plains"],
+    "description": "A bristle-backed boar with razor-sharp tusks."
+  },
+  {
+    "id": "viper",
+    "name": "Viper",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 6,
+    "baseDamageMin": 1,
+    "baseDamageMax": 2,
+    "baseAc": 7,
+    "baseXp": 6,
+    "baseGold": 1,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Lethal Venom", "damageMultiplier": 2.0, "damageType": "poison", "chance": 0.10, "minLevel": 4, "description": "The viper injects a lethal dose of venom." }
+    ],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "desert", "forest"],
+    "description": "A coiled serpent with glistening fangs."
+  },
+  {
+    "id": "mountain-lion",
+    "name": "Mountain Lion",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 14,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 9,
+    "baseXp": 11,
+    "baseGold": 4,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Pounce", "damageMultiplier": 1.7, "damageType": "physical", "chance": 0.15, "minLevel": 3, "description": "The lion leaps from above with claws extended." }
+    ],
+    "lootTable": [
+      { "itemId": "leather-boots", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-ring", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "plains"],
+    "description": "A tawny predator stalking silently through the rocks."
+  },
+  {
+    "id": "giant-rat",
+    "name": "Giant Rat",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 5,
+    "baseDamageMin": 1,
+    "baseDamageMax": 2,
+    "baseAc": 6,
+    "baseXp": 4,
+    "baseGold": 1,
+    "damageType": "physical",
+    "abilities": [],
+    "lootTable": [
+      { "itemId": "ration", "weight": 30, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-dagger", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "coast"],
+    "description": "A mangy rodent the size of a small dog."
+  },
+  {
+    "id": "crocodile",
+    "name": "Crocodile",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 16,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 10,
+    "baseXp": 12,
+    "baseGold": 4,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Death Roll", "damageMultiplier": 1.8, "damageType": "physical", "chance": 0.12, "minLevel": 4, "description": "The crocodile clamps down and rolls violently." }
+    ],
+    "lootTable": [
+      { "itemId": "leather-armor", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-spear", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "coast"],
+    "description": "An armored reptile lurking just beneath the waterline."
+  },
+  {
+    "id": "giant-bat",
+    "name": "Giant Bat",
+    "type": "beast",
+    "tier": "normal",
+    "baseHp": 8,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 7,
+    "baseXp": 7,
+    "baseGold": 2,
+    "damageType": "physical",
+    "abilities": [],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-arrows", "weight": 15, "minQuantity": 1, "maxQuantity": 3, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "swamp"],
+    "description": "A leathery-winged bat with a wingspan wider than a man is tall."
+  },
+  {
+    "id": "wyvern",
+    "name": "Wyvern",
+    "type": "beast",
+    "tier": "elite",
+    "baseHp": 40,
+    "baseDamageMin": 4,
+    "baseDamageMax": 8,
+    "baseAc": 12,
+    "baseXp": 35,
+    "baseGold": 15,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Tail Sting", "damageMultiplier": 1.5, "damageType": "poison", "chance": 0.20, "minLevel": 1, "description": "The wyvern lashes its barbed, venomous tail." },
+      { "name": "Wing Gust", "damageMultiplier": 1.3, "damageType": "physical", "chance": 0.15, "minLevel": 4, "description": "A powerful beat of its wings sends a shockwave forward." }
+    ],
+    "lootTable": [
+      { "itemId": "greater-health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "steel-longsword", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 4 },
+      { "itemId": "dragon-scale", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "enchanted-longsword", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 7 }
+    ],
+    "preferredTerrains": ["mountain", "plains"],
+    "description": "A two-legged drake circling overhead on tattered wings."
+  },
+  {
+    "id": "skeleton",
+    "name": "Skeleton",
+    "type": "undead",
+    "tier": "normal",
+    "baseHp": 8,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 7,
+    "baseXp": 7,
+    "baseGold": 2,
+    "damageType": "physical",
+    "abilities": [],
+    "lootTable": [
+      { "itemId": "copper-short-sword", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-arrows", "weight": 15, "minQuantity": 1, "maxQuantity": 5, "minLevel": 1 },
+      { "itemId": "iron-ore", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "desert", "mountain"],
+    "description": "Bleached bones held together by dark magic, rattling with every step."
+  },
+  {
+    "id": "skeleton-warrior",
+    "name": "Skeleton Warrior",
+    "type": "undead",
+    "tier": "normal",
+    "baseHp": 14,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 9,
+    "baseXp": 12,
+    "baseGold": 5,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Shield Bash", "damageMultiplier": 1.3, "damageType": "physical", "chance": 0.15, "minLevel": 3, "description": "The skeleton slams forward with its rusted shield." }
+    ],
+    "lootTable": [
+      { "itemId": "iron-short-sword", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-shield", "weight": 6, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-ore", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "desert", "mountain"],
+    "description": "An armored skeleton wielding sword and shield with eerie precision."
+  },
+  {
+    "id": "skeleton-archer",
+    "name": "Skeleton Archer",
+    "type": "undead",
+    "tier": "normal",
+    "baseHp": 10,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 7,
+    "baseXp": 10,
+    "baseGold": 4,
+    "damageType": "physical",
+    "abilities": [],
+    "lootTable": [
+      { "itemId": "shortbow", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-arrows", "weight": 20, "minQuantity": 2, "maxQuantity": 5, "minLevel": 1 },
+      { "itemId": "copper-bolts", "weight": 10, "minQuantity": 1, "maxQuantity": 3, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "desert", "mountain"],
+    "description": "A bony marksman that draws its bow with hollow, clicking fingers."
+  },
+  {
+    "id": "zombie",
+    "name": "Zombie",
+    "type": "undead",
+    "tier": "normal",
+    "baseHp": 16,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 6,
+    "baseXp": 8,
+    "baseGold": 2,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Infectious Grasp", "damageMultiplier": 1.4, "damageType": "shadow", "chance": 0.20, "minLevel": 2, "description": "The zombie clutches with rot-blackened hands." }
+    ],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "cloth-robe", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "ration", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp"],
+    "description": "A shambling corpse driven by insatiable hunger."
+  },
+  {
+    "id": "ghoul",
+    "name": "Ghoul",
+    "type": "undead",
+    "tier": "normal",
+    "baseHp": 14,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 8,
+    "baseXp": 12,
+    "baseGold": 5,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Paralyzing Touch", "damageMultiplier": 1.6, "damageType": "shadow", "chance": 0.18, "minLevel": 3, "description": "The ghoul's claws carry a numbing curse." }
+    ],
+    "lootTable": [
+      { "itemId": "greater-health-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "silver-ring", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "mountain"],
+    "description": "A hunched, clawed creature that feeds on the dead."
+  },
+  {
+    "id": "wraith",
+    "name": "Wraith",
+    "type": "undead",
+    "tier": "elite",
+    "baseHp": 22,
+    "baseDamageMin": 3,
+    "baseDamageMax": 6,
+    "baseAc": 10,
+    "baseXp": 22,
+    "baseGold": 10,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Life Drain", "damageMultiplier": 1.8, "damageType": "shadow", "chance": 0.22, "minLevel": 1, "description": "The wraith siphons the life force from its victim." }
+    ],
+    "lootTable": [
+      { "itemId": "greater-mana-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "silver-amulet", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "mountain"],
+    "description": "A tattered shade that drifts through walls and flesh alike."
+  },
+  {
+    "id": "spectre",
+    "name": "Spectre",
+    "type": "undead",
+    "tier": "normal",
+    "baseHp": 12,
+    "baseDamageMin": 2,
+    "baseDamageMax": 5,
+    "baseAc": 8,
+    "baseXp": 14,
+    "baseGold": 6,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Ethereal Touch", "damageMultiplier": 1.5, "damageType": "shadow", "chance": 0.15, "minLevel": 3, "description": "The spectre's hand passes through armor to grip the soul." }
+    ],
+    "lootTable": [
+      { "itemId": "mana-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "silver-ring", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "mountain"],
+    "description": "A translucent apparition flickering between this world and the next."
+  },
+  {
+    "id": "revenant",
+    "name": "Revenant",
+    "type": "undead",
+    "tier": "elite",
+    "baseHp": 30,
+    "baseDamageMin": 3,
+    "baseDamageMax": 6,
+    "baseAc": 11,
+    "baseXp": 28,
+    "baseGold": 12,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Undying Fury", "damageMultiplier": 2.0, "damageType": "shadow", "chance": 0.18, "minLevel": 1, "description": "Hatred beyond death fuels a devastating strike." },
+      { "name": "Soul Rend", "damageMultiplier": 1.5, "damageType": "shadow", "chance": 0.15, "minLevel": 5, "description": "The revenant tears at the target's very essence." }
+    ],
+    "lootTable": [
+      { "itemId": "enchanted-short-sword", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "greater-health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "ring-of-protection", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 }
+    ],
+    "preferredTerrains": ["swamp", "desert"],
+    "description": "A vengeful corpse risen with a singular, murderous purpose."
+  },
+  {
+    "id": "bone-golem",
+    "name": "Bone Golem",
+    "type": "undead",
+    "tier": "elite",
+    "baseHp": 40,
+    "baseDamageMin": 3,
+    "baseDamageMax": 7,
+    "baseAc": 13,
+    "baseXp": 30,
+    "baseGold": 14,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Bone Crush", "damageMultiplier": 1.8, "damageType": "physical", "chance": 0.20, "minLevel": 1, "description": "The golem smashes down with fists of fused bone." }
+    ],
+    "lootTable": [
+      { "itemId": "plate-helm", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "iron-ore", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "steel-ingot", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "steel-shield", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["desert", "mountain"],
+    "description": "A towering construct assembled from hundreds of skeletal remains."
+  },
+  {
+    "id": "lich",
+    "name": "Lich",
+    "type": "undead",
+    "tier": "boss",
+    "baseHp": 55,
+    "baseDamageMin": 5,
+    "baseDamageMax": 10,
+    "baseAc": 14,
+    "baseXp": 60,
+    "baseGold": 40,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Necrotic Bolt", "damageMultiplier": 1.8, "damageType": "shadow", "chance": 0.30, "minLevel": 1, "description": "A bolt of pure death energy streaks toward the target." },
+      { "name": "Frost Nova", "damageMultiplier": 1.5, "damageType": "ice", "chance": 0.20, "minLevel": 3, "description": "A wave of freezing energy erupts outward." },
+      { "name": "Dark Ritual", "damageMultiplier": 2.2, "damageType": "shadow", "chance": 0.12, "minLevel": 6, "description": "The lich channels forbidden magic for a devastating blast." }
+    ],
+    "lootTable": [
+      { "itemId": "crown-of-the-lich-king", "weight": 1, "minQuantity": 1, "maxQuantity": 1, "minLevel": 8 },
+      { "itemId": "staff-of-frost", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "supreme-mana-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 15, "minQuantity": 1, "maxQuantity": 2, "minLevel": 1 },
+      { "itemId": "scroll-of-resurrection", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 }
+    ],
+    "preferredTerrains": ["swamp", "mountain"],
+    "description": "An ancient sorcerer who traded mortality for eternal, undying power."
+  },
+  {
+    "id": "bandit",
+    "name": "Bandit",
+    "type": "humanoid",
+    "tier": "normal",
+    "baseHp": 10,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 8,
+    "baseXp": 8,
+    "baseGold": 8,
+    "damageType": "physical",
+    "abilities": [],
+    "lootTable": [
+      { "itemId": "copper-dagger", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "ration", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "leather-cap", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "plains", "coast"],
+    "description": "A desperate outlaw looking for easy coin."
+  },
+  {
+    "id": "bandit-leader",
+    "name": "Bandit Leader",
+    "type": "humanoid",
+    "tier": "elite",
+    "baseHp": 22,
+    "baseDamageMin": 2,
+    "baseDamageMax": 5,
+    "baseAc": 10,
+    "baseXp": 18,
+    "baseGold": 20,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Rally", "damageMultiplier": 1.5, "damageType": "physical", "chance": 0.15, "minLevel": 1, "description": "The leader rallies with a fierce battle cry." }
+    ],
+    "lootTable": [
+      { "itemId": "steel-dagger", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "studded-leather-armor", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "greater-health-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "gold-ring", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 3 }
+    ],
+    "preferredTerrains": ["forest", "plains"],
+    "description": "A scarred veteran who commands loyalty through fear and gold."
+  },
+  {
+    "id": "cultist",
+    "name": "Cultist",
+    "type": "humanoid",
+    "tier": "normal",
+    "baseHp": 10,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 7,
+    "baseXp": 9,
+    "baseGold": 5,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Shadow Bolt", "damageMultiplier": 1.5, "damageType": "shadow", "chance": 0.20, "minLevel": 2, "description": "A crackling bolt of dark energy flies from the cultist's hand." }
+    ],
+    "lootTable": [
+      { "itemId": "cloth-robe", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "wooden-amulet", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "mountain", "desert"],
+    "description": "A hooded fanatic muttering dark prayers."
+  },
+  {
+    "id": "cult-priest",
+    "name": "Cult Priest",
+    "type": "humanoid",
+    "tier": "elite",
+    "baseHp": 20,
+    "baseDamageMin": 2,
+    "baseDamageMax": 5,
+    "baseAc": 9,
+    "baseXp": 20,
+    "baseGold": 12,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Dark Heal", "damageMultiplier": 0, "damageType": "shadow", "chance": 0.15, "minLevel": 1, "description": "The priest channels dark energy to mend its wounds." },
+      { "name": "Shadow Bolt", "damageMultiplier": 1.6, "damageType": "shadow", "chance": 0.22, "minLevel": 1, "description": "A heavy bolt of shadow energy strikes the target." }
+    ],
+    "lootTable": [
+      { "itemId": "silver-amulet", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "greater-mana-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "scroll-of-holy-nova", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 }
+    ],
+    "preferredTerrains": ["swamp", "mountain"],
+    "description": "A sinister cleric who communes with entities beyond the veil."
+  },
+  {
+    "id": "pirate",
+    "name": "Pirate",
+    "type": "humanoid",
+    "tier": "normal",
+    "baseHp": 12,
+    "baseDamageMin": 1,
+    "baseDamageMax": 4,
+    "baseAc": 8,
+    "baseXp": 10,
+    "baseGold": 10,
+    "damageType": "physical",
+    "abilities": [],
+    "lootTable": [
+      { "itemId": "iron-short-sword", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "leather-armor", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "ration", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-ring", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["coast"],
+    "description": "A sun-weathered seafarer with a cutlass and bad intentions."
+  },
+  {
+    "id": "pirate-captain",
+    "name": "Pirate Captain",
+    "type": "humanoid",
+    "tier": "elite",
+    "baseHp": 25,
+    "baseDamageMin": 3,
+    "baseDamageMax": 6,
+    "baseAc": 11,
+    "baseXp": 22,
+    "baseGold": 25,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Cutlass Fury", "damageMultiplier": 1.6, "damageType": "physical", "chance": 0.18, "minLevel": 1, "description": "A whirlwind of slashing steel." },
+      { "name": "Pistol Shot", "damageMultiplier": 1.8, "damageType": "fire", "chance": 0.12, "minLevel": 4, "description": "The captain fires a black-powder pistol at close range." }
+    ],
+    "lootTable": [
+      { "itemId": "steel-short-sword", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanted-short-sword", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "gold-ring", "weight": 6, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "greater-health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["coast"],
+    "description": "A notorious captain whose name is whispered in every port."
+  },
+  {
+    "id": "goblin",
+    "name": "Goblin",
+    "type": "humanoid",
+    "tier": "normal",
+    "baseHp": 7,
+    "baseDamageMin": 1,
+    "baseDamageMax": 2,
+    "baseAc": 7,
+    "baseXp": 5,
+    "baseGold": 4,
+    "damageType": "physical",
+    "abilities": [],
+    "lootTable": [
+      { "itemId": "copper-dagger", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-arrows", "weight": 15, "minQuantity": 1, "maxQuantity": 3, "minLevel": 1 },
+      { "itemId": "ration", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "swamp", "mountain"],
+    "description": "A small, green-skinned scavenger clutching a rusty blade."
+  },
+  {
+    "id": "goblin-shaman",
+    "name": "Goblin Shaman",
+    "type": "humanoid",
+    "tier": "normal",
+    "baseHp": 9,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 7,
+    "baseXp": 9,
+    "baseGold": 6,
+    "damageType": "fire",
+    "abilities": [
+      { "name": "Fire Spark", "damageMultiplier": 1.5, "damageType": "fire", "chance": 0.22, "minLevel": 2, "description": "The shaman hurls a sputtering ball of flame." }
+    ],
+    "lootTable": [
+      { "itemId": "wooden-staff", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "swamp"],
+    "description": "A cackling goblin draped in feathers and totems."
+  },
+  {
+    "id": "orc-warrior",
+    "name": "Orc Warrior",
+    "type": "humanoid",
+    "tier": "normal",
+    "baseHp": 16,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 9,
+    "baseXp": 13,
+    "baseGold": 7,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Cleave", "damageMultiplier": 1.4, "damageType": "physical", "chance": 0.15, "minLevel": 4, "description": "The orc swings its axe in a wide, brutal arc." }
+    ],
+    "lootTable": [
+      { "itemId": "iron-battle-axe", "weight": 6, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-shield", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "leather-boots", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "plains", "forest"],
+    "description": "A tusked brute in crude iron armor."
+  },
+  {
+    "id": "orc-berserker",
+    "name": "Orc Berserker",
+    "type": "humanoid",
+    "tier": "elite",
+    "baseHp": 28,
+    "baseDamageMin": 3,
+    "baseDamageMax": 6,
+    "baseAc": 10,
+    "baseXp": 24,
+    "baseGold": 12,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Frenzy", "damageMultiplier": 1.8, "damageType": "physical", "chance": 0.20, "minLevel": 1, "description": "The berserker enters a blind, foaming rage." },
+      { "name": "War Cry", "damageMultiplier": 1.3, "damageType": "physical", "chance": 0.12, "minLevel": 4, "description": "A deafening roar that shakes resolve." }
+    ],
+    "lootTable": [
+      { "itemId": "steel-battle-axe", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "studded-leather-armor", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "greater-health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanted-battle-axe", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 }
+    ],
+    "preferredTerrains": ["mountain", "plains"],
+    "description": "A scarred orc frothing with battle-lust."
+  },
+  {
+    "id": "dark-knight",
+    "name": "Dark Knight",
+    "type": "humanoid",
+    "tier": "elite",
+    "baseHp": 30,
+    "baseDamageMin": 3,
+    "baseDamageMax": 7,
+    "baseAc": 13,
+    "baseXp": 28,
+    "baseGold": 15,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Shadow Strike", "damageMultiplier": 1.7, "damageType": "shadow", "chance": 0.20, "minLevel": 1, "description": "The knight's blade crackles with dark energy as it falls." }
+    ],
+    "lootTable": [
+      { "itemId": "enchanted-longsword", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "chainmail", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "plate-helm", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 4 },
+      { "itemId": "greater-health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "swamp"],
+    "description": "A fallen paladin encased in blackened plate armor."
+  },
+  {
+    "id": "assassin",
+    "name": "Assassin",
+    "type": "humanoid",
+    "tier": "elite",
+    "baseHp": 18,
+    "baseDamageMin": 4,
+    "baseDamageMax": 7,
+    "baseAc": 10,
+    "baseXp": 22,
+    "baseGold": 18,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Backstab", "damageMultiplier": 2.2, "damageType": "shadow", "chance": 0.15, "minLevel": 1, "description": "The assassin strikes from the shadows with lethal precision." }
+    ],
+    "lootTable": [
+      { "itemId": "enchanted-steel-dagger", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 4 },
+      { "itemId": "shadowfang-dagger", "weight": 1, "minQuantity": 1, "maxQuantity": 1, "minLevel": 7 },
+      { "itemId": "studded-leather-boots", "weight": 6, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "greater-health-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "coast", "swamp"],
+    "description": "A masked killer who moves without sound."
+  },
+  {
+    "id": "fire-elemental",
+    "name": "Fire Elemental",
+    "type": "elemental",
+    "tier": "normal",
+    "baseHp": 14,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 8,
+    "baseXp": 12,
+    "baseGold": 5,
+    "damageType": "fire",
+    "abilities": [
+      { "name": "Flame Burst", "damageMultiplier": 1.6, "damageType": "fire", "chance": 0.18, "minLevel": 3, "description": "The elemental erupts in a geyser of flame." }
+    ],
+    "lootTable": [
+      { "itemId": "fire-arrows", "weight": 8, "minQuantity": 1, "maxQuantity": 3, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["desert", "mountain"],
+    "description": "A roiling column of living flame."
+  },
+  {
+    "id": "ice-elemental",
+    "name": "Ice Elemental",
+    "type": "elemental",
+    "tier": "normal",
+    "baseHp": 14,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 8,
+    "baseXp": 12,
+    "baseGold": 5,
+    "damageType": "ice",
+    "abilities": [
+      { "name": "Frost Blast", "damageMultiplier": 1.6, "damageType": "ice", "chance": 0.18, "minLevel": 3, "description": "The elemental hurls a shard of razor-sharp ice." }
+    ],
+    "lootTable": [
+      { "itemId": "ice-arrows", "weight": 8, "minQuantity": 1, "maxQuantity": 3, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "coast"],
+    "description": "A jagged figure of frost that crackles with cold."
+  },
+  {
+    "id": "lightning-elemental",
+    "name": "Lightning Elemental",
+    "type": "elemental",
+    "tier": "normal",
+    "baseHp": 12,
+    "baseDamageMin": 2,
+    "baseDamageMax": 5,
+    "baseAc": 7,
+    "baseXp": 13,
+    "baseGold": 5,
+    "damageType": "lightning",
+    "abilities": [
+      { "name": "Chain Lightning", "damageMultiplier": 1.7, "damageType": "lightning", "chance": 0.15, "minLevel": 4, "description": "Arcs of electricity leap from the elemental to its foes." }
+    ],
+    "lootTable": [
+      { "itemId": "lightning-arrows", "weight": 8, "minQuantity": 1, "maxQuantity": 3, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "plains"],
+    "description": "A humming mass of crackling energy in vaguely humanoid form."
+  },
+  {
+    "id": "earth-elemental",
+    "name": "Earth Elemental",
+    "type": "elemental",
+    "tier": "normal",
+    "baseHp": 20,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 11,
+    "baseXp": 13,
+    "baseGold": 5,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Ground Slam", "damageMultiplier": 1.5, "damageType": "physical", "chance": 0.18, "minLevel": 3, "description": "The elemental drives its fists into the ground, sending shockwaves outward." }
+    ],
+    "lootTable": [
+      { "itemId": "iron-ore", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "steel-ingot", "weight": 6, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "desert"],
+    "description": "A lumbering mass of stone and soil shaped into a hulking form."
+  },
+  {
+    "id": "water-elemental",
+    "name": "Water Elemental",
+    "type": "elemental",
+    "tier": "normal",
+    "baseHp": 14,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 8,
+    "baseXp": 12,
+    "baseGold": 5,
+    "damageType": "ice",
+    "abilities": [
+      { "name": "Tidal Surge", "damageMultiplier": 1.5, "damageType": "ice", "chance": 0.18, "minLevel": 3, "description": "A wave of freezing water crashes into the target." }
+    ],
+    "lootTable": [
+      { "itemId": "mana-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "greater-mana-potion", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 3 },
+      { "itemId": "enchanting-dust", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["coast", "swamp"],
+    "description": "A swirling vortex of water given shape and malice."
+  },
+  {
+    "id": "ice-golem",
+    "name": "Ice Golem",
+    "type": "elemental",
+    "tier": "elite",
+    "baseHp": 32,
+    "baseDamageMin": 3,
+    "baseDamageMax": 6,
+    "baseAc": 13,
+    "baseXp": 25,
+    "baseGold": 10,
+    "damageType": "ice",
+    "abilities": [
+      { "name": "Frozen Crush", "damageMultiplier": 1.8, "damageType": "ice", "chance": 0.20, "minLevel": 1, "description": "The golem smashes down with arms of solid ice." }
+    ],
+    "lootTable": [
+      { "itemId": "steel-ingot", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "staff-of-frost", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "mithril-ore", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 }
+    ],
+    "preferredTerrains": ["mountain"],
+    "description": "A towering sculpture of blue-white ice animated by elemental fury."
+  },
+  {
+    "id": "treant",
+    "name": "Treant",
+    "type": "elemental",
+    "tier": "normal",
+    "baseHp": 22,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 10,
+    "baseXp": 14,
+    "baseGold": 3,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Root Slam", "damageMultiplier": 1.5, "damageType": "physical", "chance": 0.15, "minLevel": 3, "description": "Massive roots erupt from the ground to batter the target." }
+    ],
+    "lootTable": [
+      { "itemId": "wooden-staff", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "ration", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "elven-bread", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 3 }
+    ],
+    "preferredTerrains": ["forest"],
+    "description": "An ancient tree stirred to wrathful life."
+  },
+  {
+    "id": "wisp",
+    "name": "Wisp",
+    "type": "elemental",
+    "tier": "normal",
+    "baseHp": 6,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 6,
+    "baseXp": 6,
+    "baseGold": 2,
+    "damageType": "arcane",
+    "abilities": [],
+    "lootTable": [
+      { "itemId": "mana-potion", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-ring", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "swamp"],
+    "description": "A flickering orb of pale light drifting through the trees."
+  },
+  {
+    "id": "corrupted-treant",
+    "name": "Corrupted Treant",
+    "type": "elemental",
+    "tier": "elite",
+    "baseHp": 35,
+    "baseDamageMin": 3,
+    "baseDamageMax": 6,
+    "baseAc": 11,
+    "baseXp": 24,
+    "baseGold": 8,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Toxic Slam", "damageMultiplier": 1.5, "damageType": "poison", "chance": 0.18, "minLevel": 1, "description": "Blackened branches smash down, oozing toxic sap." },
+      { "name": "Vine Crush", "damageMultiplier": 1.8, "damageType": "physical", "chance": 0.12, "minLevel": 4, "description": "Thorned vines constrict the target with crushing force." }
+    ],
+    "lootTable": [
+      { "itemId": "greater-health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "elven-bread", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "wooden-staff", "weight": 6, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "swamp"],
+    "description": "A once-noble tree twisted by dark magic into a rotting horror."
+  },
+  {
+    "id": "sand-golem",
+    "name": "Sand Golem",
+    "type": "elemental",
+    "tier": "elite",
+    "baseHp": 30,
+    "baseDamageMin": 3,
+    "baseDamageMax": 6,
+    "baseAc": 12,
+    "baseXp": 22,
+    "baseGold": 8,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Sand Storm", "damageMultiplier": 1.6, "damageType": "physical", "chance": 0.18, "minLevel": 1, "description": "The golem dissolves into a scouring whirlwind of sand." }
+    ],
+    "lootTable": [
+      { "itemId": "iron-ore", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "steel-ingot", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "gold-ring", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["desert"],
+    "description": "A shifting humanoid form of compacted desert sand."
+  },
+  {
+    "id": "phoenix-hatchling",
+    "name": "Phoenix Hatchling",
+    "type": "elemental",
+    "tier": "elite",
+    "baseHp": 20,
+    "baseDamageMin": 3,
+    "baseDamageMax": 6,
+    "baseAc": 9,
+    "baseXp": 25,
+    "baseGold": 12,
+    "damageType": "fire",
+    "abilities": [
+      { "name": "Immolate", "damageMultiplier": 1.7, "damageType": "fire", "chance": 0.22, "minLevel": 1, "description": "The hatchling wraps its target in searing flames." },
+      { "name": "Rebirth Flame", "damageMultiplier": 1.3, "damageType": "fire", "chance": 0.10, "minLevel": 5, "description": "A burst of regenerative fire restores the phoenix's vigour." }
+    ],
+    "lootTable": [
+      { "itemId": "fire-arrows", "weight": 10, "minQuantity": 2, "maxQuantity": 4, "minLevel": 1 },
+      { "itemId": "staff-of-flames", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "enchanting-dust", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "dragon-scale", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 }
+    ],
+    "preferredTerrains": ["desert", "mountain"],
+    "description": "A fledgling bird of living fire, trailing embers in its wake."
+  },
+  {
+    "id": "storm-djinn",
+    "name": "Storm Djinn",
+    "type": "elemental",
+    "tier": "elite",
+    "baseHp": 28,
+    "baseDamageMin": 3,
+    "baseDamageMax": 7,
+    "baseAc": 11,
+    "baseXp": 28,
+    "baseGold": 15,
+    "damageType": "lightning",
+    "abilities": [
+      { "name": "Lightning Strike", "damageMultiplier": 1.8, "damageType": "lightning", "chance": 0.20, "minLevel": 1, "description": "A bolt of lightning arcs from the djinn's fingertips." },
+      { "name": "Windblast", "damageMultiplier": 1.3, "damageType": "physical", "chance": 0.15, "minLevel": 3, "description": "A concentrated gust of wind hammers the target." }
+    ],
+    "lootTable": [
+      { "itemId": "lightning-arrows", "weight": 10, "minQuantity": 2, "maxQuantity": 5, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "circlet-of-insight", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "greater-mana-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["desert", "mountain"],
+    "description": "A towering figure of wind and lightning wreathed in dark clouds."
+  },
+  {
+    "id": "venus-mantrap",
+    "name": "Venus Mantrap",
+    "type": "plant",
+    "tier": "normal",
+    "baseHp": 12,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 7,
+    "baseXp": 8,
+    "baseGold": 2,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Digestive Acid", "damageMultiplier": 1.5, "damageType": "poison", "chance": 0.18, "minLevel": 3, "description": "The plant sprays caustic digestive fluids." }
+    ],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "ration", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["forest", "swamp"],
+    "description": "A carnivorous plant with jaws large enough to swallow a man."
+  },
+  {
+    "id": "mushroom-spore",
+    "name": "Mushroom Spore",
+    "type": "plant",
+    "tier": "normal",
+    "baseHp": 8,
+    "baseDamageMin": 1,
+    "baseDamageMax": 2,
+    "baseAc": 6,
+    "baseXp": 6,
+    "baseGold": 1,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Toxic Cloud", "damageMultiplier": 1.4, "damageType": "poison", "chance": 0.20, "minLevel": 2, "description": "A cloud of choking spores billows outward." }
+    ],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 20, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mana-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "forest"],
+    "description": "A bulbous fungus that puffs toxic clouds when disturbed."
+  },
+  {
+    "id": "bog-lurker",
+    "name": "Bog Lurker",
+    "type": "aberration",
+    "tier": "normal",
+    "baseHp": 18,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 9,
+    "baseXp": 13,
+    "baseGold": 5,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Swamp Grasp", "damageMultiplier": 1.6, "damageType": "poison", "chance": 0.16, "minLevel": 3, "description": "Slimy tentacles erupt from the muck to seize the target." }
+    ],
+    "lootTable": [
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-spear", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "greater-health-potion", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 3 }
+    ],
+    "preferredTerrains": ["swamp"],
+    "description": "A shapeless mass of mud and tendrils lurking beneath stagnant water."
+  },
+  {
+    "id": "sand-wurm",
+    "name": "Sand Wurm",
+    "type": "aberration",
+    "tier": "elite",
+    "baseHp": 35,
+    "baseDamageMin": 4,
+    "baseDamageMax": 7,
+    "baseAc": 11,
+    "baseXp": 28,
+    "baseGold": 12,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Burrow Strike", "damageMultiplier": 2.0, "damageType": "physical", "chance": 0.15, "minLevel": 1, "description": "The wurm erupts from beneath the sand with devastating force." },
+      { "name": "Sand Spray", "damageMultiplier": 1.3, "damageType": "physical", "chance": 0.18, "minLevel": 3, "description": "A blast of abrasive sand blinds and shreds." }
+    ],
+    "lootTable": [
+      { "itemId": "steel-spear", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mithril-ore", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 4 },
+      { "itemId": "greater-health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "dragon-scale", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 7 }
+    ],
+    "preferredTerrains": ["desert"],
+    "description": "A colossal segmented worm that tunnels beneath the dunes."
+  },
+  {
+    "id": "cave-crawler",
+    "name": "Cave Crawler",
+    "type": "aberration",
+    "tier": "normal",
+    "baseHp": 10,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 8,
+    "baseXp": 8,
+    "baseGold": 3,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Acid Spit", "damageMultiplier": 1.4, "damageType": "poison", "chance": 0.15, "minLevel": 3, "description": "The crawler spits a glob of corrosive acid." }
+    ],
+    "lootTable": [
+      { "itemId": "iron-ore", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-bolts", "weight": 10, "minQuantity": 1, "maxQuantity": 3, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain"],
+    "description": "A pale, many-legged thing that skitters along cavern ceilings."
+  },
+  {
+    "id": "myconid",
+    "name": "Myconid",
+    "type": "plant",
+    "tier": "normal",
+    "baseHp": 10,
+    "baseDamageMin": 1,
+    "baseDamageMax": 2,
+    "baseAc": 7,
+    "baseXp": 7,
+    "baseGold": 2,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Spore Burst", "damageMultiplier": 1.3, "damageType": "poison", "chance": 0.20, "minLevel": 2, "description": "The myconid releases a burst of hallucinogenic spores." }
+    ],
+    "lootTable": [
+      { "itemId": "mana-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "health-potion", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "ration", "weight": 15, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["swamp", "forest"],
+    "description": "A walking mushroom that communicates through clouds of spores."
+  },
+  {
+    "id": "animated-armor",
+    "name": "Animated Armor",
+    "type": "construct",
+    "tier": "normal",
+    "baseHp": 16,
+    "baseDamageMin": 2,
+    "baseDamageMax": 4,
+    "baseAc": 12,
+    "baseXp": 14,
+    "baseGold": 6,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Shield Wall", "damageMultiplier": 1.0, "damageType": "physical", "chance": 0.10, "minLevel": 4, "description": "The armor raises its shield in a defensive stance." }
+    ],
+    "lootTable": [
+      { "itemId": "iron-shield", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "chainmail-coif", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-longsword", "weight": 6, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "iron-ore", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "desert"],
+    "description": "An empty suit of armor that moves with a will of its own."
+  },
+  {
+    "id": "stone-guardian",
+    "name": "Stone Guardian",
+    "type": "construct",
+    "tier": "elite",
+    "baseHp": 35,
+    "baseDamageMin": 3,
+    "baseDamageMax": 6,
+    "baseAc": 14,
+    "baseXp": 26,
+    "baseGold": 10,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Boulder Toss", "damageMultiplier": 1.8, "damageType": "physical", "chance": 0.18, "minLevel": 1, "description": "The guardian hurls a chunk of masonry with terrible force." }
+    ],
+    "lootTable": [
+      { "itemId": "steel-shield", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "plate-gauntlets", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "steel-ingot", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mithril-ore", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 }
+    ],
+    "preferredTerrains": ["mountain", "desert"],
+    "description": "A massive stone sentinel carved to guard ancient ruins."
+  },
+  {
+    "id": "iron-sentinel",
+    "name": "Iron Sentinel",
+    "type": "construct",
+    "tier": "elite",
+    "baseHp": 40,
+    "baseDamageMin": 3,
+    "baseDamageMax": 7,
+    "baseAc": 15,
+    "baseXp": 30,
+    "baseGold": 14,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Iron Fist", "damageMultiplier": 1.7, "damageType": "physical", "chance": 0.20, "minLevel": 1, "description": "The sentinel delivers a pulverizing metal punch." },
+      { "name": "Overcharge", "damageMultiplier": 2.0, "damageType": "lightning", "chance": 0.10, "minLevel": 5, "description": "Arcane circuits overload, releasing a lightning surge." }
+    ],
+    "lootTable": [
+      { "itemId": "plate-armor", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "steel-ingot", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "mithril-ore", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 4 },
+      { "itemId": "enchanted-steel-shield", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 }
+    ],
+    "preferredTerrains": ["mountain"],
+    "description": "A gleaming iron automaton thrumming with arcane energy."
+  },
+  {
+    "id": "clockwork-spider",
+    "name": "Clockwork Spider",
+    "type": "construct",
+    "tier": "normal",
+    "baseHp": 10,
+    "baseDamageMin": 1,
+    "baseDamageMax": 3,
+    "baseAc": 9,
+    "baseXp": 9,
+    "baseGold": 4,
+    "damageType": "lightning",
+    "abilities": [
+      { "name": "Electric Jolt", "damageMultiplier": 1.4, "damageType": "lightning", "chance": 0.18, "minLevel": 2, "description": "Sparks arc between the spider's metal legs." }
+    ],
+    "lootTable": [
+      { "itemId": "iron-ore", "weight": 12, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanting-dust", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "copper-bolts", "weight": 10, "minQuantity": 1, "maxQuantity": 3, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "desert"],
+    "description": "A mechanical arachnid of gears and copper wire."
+  },
+  {
+    "id": "dragon-wyrmling",
+    "name": "Dragon Wyrmling",
+    "type": "dragon",
+    "tier": "boss",
+    "baseHp": 50,
+    "baseDamageMin": 4,
+    "baseDamageMax": 9,
+    "baseAc": 14,
+    "baseXp": 55,
+    "baseGold": 35,
+    "damageType": "fire",
+    "abilities": [
+      { "name": "Fire Breath", "damageMultiplier": 2.0, "damageType": "fire", "chance": 0.25, "minLevel": 1, "description": "The wyrmling unleashes a cone of scorching fire." },
+      { "name": "Tail Sweep", "damageMultiplier": 1.5, "damageType": "physical", "chance": 0.18, "minLevel": 3, "description": "A powerful sweep of the tail sends foes flying." },
+      { "name": "Wing Buffet", "damageMultiplier": 1.3, "damageType": "physical", "chance": 0.15, "minLevel": 5, "description": "A blast of wind from beating wings staggers the target." }
+    ],
+    "lootTable": [
+      { "itemId": "dragon-scale", "weight": 10, "minQuantity": 1, "maxQuantity": 2, "minLevel": 1 },
+      { "itemId": "fire-arrows", "weight": 8, "minQuantity": 3, "maxQuantity": 5, "minLevel": 1 },
+      { "itemId": "staff-of-flames", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 4 },
+      { "itemId": "dragonscale-helm", "weight": 1, "minQuantity": 1, "maxQuantity": 1, "minLevel": 7 },
+      { "itemId": "supreme-health-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain", "desert"],
+    "description": "A young dragon already fearsome enough to raze a village."
+  },
+  {
+    "id": "ancient-dragon",
+    "name": "Ancient Dragon",
+    "type": "dragon",
+    "tier": "boss",
+    "baseHp": 80,
+    "baseDamageMin": 6,
+    "baseDamageMax": 12,
+    "baseAc": 16,
+    "baseXp": 80,
+    "baseGold": 60,
+    "damageType": "fire",
+    "abilities": [
+      { "name": "Inferno Breath", "damageMultiplier": 2.2, "damageType": "fire", "chance": 0.28, "minLevel": 1, "description": "A torrent of white-hot dragonfire engulfs everything ahead." },
+      { "name": "Tail Crush", "damageMultiplier": 1.8, "damageType": "physical", "chance": 0.20, "minLevel": 1, "description": "The dragon's massive tail slams down like a falling tree." },
+      { "name": "Ancient Fury", "damageMultiplier": 2.5, "damageType": "fire", "chance": 0.10, "minLevel": 5, "description": "Millennia of rage focus into a single cataclysmic blast." }
+    ],
+    "lootTable": [
+      { "itemId": "dragon-scale", "weight": 15, "minQuantity": 2, "maxQuantity": 3, "minLevel": 1 },
+      { "itemId": "dragonscale-plate", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "dragonscale-shield", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "dragonscale-boots", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "dragonscale-gauntlets", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "flamebrand-longsword", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 7 },
+      { "itemId": "divine-health-potion", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["mountain"],
+    "description": "A cathedral-sized wyrm whose mere presence warps the air with heat."
+  },
+  {
+    "id": "demon-lord",
+    "name": "Demon Lord",
+    "type": "demon",
+    "tier": "boss",
+    "baseHp": 70,
+    "baseDamageMin": 5,
+    "baseDamageMax": 11,
+    "baseAc": 15,
+    "baseXp": 75,
+    "baseGold": 50,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Hellfire", "damageMultiplier": 2.0, "damageType": "fire", "chance": 0.25, "minLevel": 1, "description": "Cursed flames pour from the demon's outstretched claws." },
+      { "name": "Shadow Rend", "damageMultiplier": 1.8, "damageType": "shadow", "chance": 0.20, "minLevel": 1, "description": "Claws of pure darkness tear through flesh and spirit." },
+      { "name": "Demonic Roar", "damageMultiplier": 1.5, "damageType": "shadow", "chance": 0.15, "minLevel": 4, "description": "A soul-shaking roar that weakens the will to fight." }
+    ],
+    "lootTable": [
+      { "itemId": "enchanted-plate-armor", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "shadowfang-dagger", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "supreme-mana-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "scroll-of-meteor-strike", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "amulet-of-the-cosmos", "weight": 1, "minQuantity": 1, "maxQuantity": 1, "minLevel": 8 }
+    ],
+    "preferredTerrains": ["swamp", "mountain"],
+    "description": "A towering fiend wreathed in hellfire and shadow."
+  },
+  {
+    "id": "hydra",
+    "name": "Hydra",
+    "type": "aberration",
+    "tier": "boss",
+    "baseHp": 65,
+    "baseDamageMin": 4,
+    "baseDamageMax": 10,
+    "baseAc": 13,
+    "baseXp": 65,
+    "baseGold": 40,
+    "damageType": "poison",
+    "abilities": [
+      { "name": "Multi-Bite", "damageMultiplier": 1.8, "damageType": "physical", "chance": 0.25, "minLevel": 1, "description": "Multiple heads strike simultaneously from every angle." },
+      { "name": "Venom Spray", "damageMultiplier": 1.6, "damageType": "poison", "chance": 0.20, "minLevel": 3, "description": "Streams of venom arc from the hydra's many maws." },
+      { "name": "Regenerate", "damageMultiplier": 0, "damageType": "physical", "chance": 0.15, "minLevel": 5, "description": "Severed heads regrow and wounds knit shut with alarming speed." }
+    ],
+    "lootTable": [
+      { "itemId": "dragon-scale", "weight": 8, "minQuantity": 1, "maxQuantity": 2, "minLevel": 1 },
+      { "itemId": "dragonscale-leggings", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "supreme-health-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "enchanted-steel-shield", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "ring-of-vitality", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 }
+    ],
+    "preferredTerrains": ["swamp", "coast"],
+    "description": "A many-headed serpent whose wounds heal as fast as they are dealt."
+  },
+  {
+    "id": "kraken-spawn",
+    "name": "Kraken Spawn",
+    "type": "aberration",
+    "tier": "boss",
+    "baseHp": 60,
+    "baseDamageMin": 5,
+    "baseDamageMax": 10,
+    "baseAc": 13,
+    "baseXp": 60,
+    "baseGold": 35,
+    "damageType": "ice",
+    "abilities": [
+      { "name": "Tentacle Slam", "damageMultiplier": 1.7, "damageType": "physical", "chance": 0.22, "minLevel": 1, "description": "A massive tentacle crashes down from above." },
+      { "name": "Ink Cloud", "damageMultiplier": 1.0, "damageType": "ice", "chance": 0.18, "minLevel": 3, "description": "A cloud of freezing ink obscures everything." },
+      { "name": "Crushing Grip", "damageMultiplier": 2.2, "damageType": "physical", "chance": 0.12, "minLevel": 5, "description": "The spawn wraps a tentacle tight and squeezes mercilessly." }
+    ],
+    "lootTable": [
+      { "itemId": "enchanted-chainmail", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "dragonscale-boots", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "supreme-mana-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "amulet-of-vitality", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "mithril-ore", "weight": 8, "minQuantity": 1, "maxQuantity": 2, "minLevel": 1 }
+    ],
+    "preferredTerrains": ["coast"],
+    "description": "A writhing mass of tentacles from the deepest ocean trench."
+  },
+  {
+    "id": "vampire-lord",
+    "name": "Vampire Lord",
+    "type": "undead",
+    "tier": "boss",
+    "baseHp": 55,
+    "baseDamageMin": 5,
+    "baseDamageMax": 9,
+    "baseAc": 14,
+    "baseXp": 65,
+    "baseGold": 45,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Blood Drain", "damageMultiplier": 1.8, "damageType": "shadow", "chance": 0.25, "minLevel": 1, "description": "The vampire sinks its fangs deep, drinking deeply of life." },
+      { "name": "Bat Swarm", "damageMultiplier": 1.5, "damageType": "physical", "chance": 0.18, "minLevel": 3, "description": "A swarm of bats erupts from the vampire's cloak." },
+      { "name": "Mesmerize", "damageMultiplier": 1.2, "damageType": "shadow", "chance": 0.12, "minLevel": 5, "description": "Hypnotic eyes freeze the target in place." }
+    ],
+    "lootTable": [
+      { "itemId": "enchanted-plate-helm", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "ring-of-arcane-power", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "supreme-health-potion", "weight": 8, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "amulet-of-the-warrior", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "scroll-of-resurrection", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 }
+    ],
+    "preferredTerrains": ["swamp", "mountain"],
+    "description": "An ancient bloodlord cloaked in aristocratic finery and menace."
+  },
+  {
+    "id": "giant-king",
+    "name": "Giant King",
+    "type": "humanoid",
+    "tier": "boss",
+    "baseHp": 75,
+    "baseDamageMin": 5,
+    "baseDamageMax": 12,
+    "baseAc": 15,
+    "baseXp": 70,
+    "baseGold": 50,
+    "damageType": "physical",
+    "abilities": [
+      { "name": "Earthshaker", "damageMultiplier": 2.0, "damageType": "physical", "chance": 0.22, "minLevel": 1, "description": "A colossal stomp that cracks the ground in all directions." },
+      { "name": "Boulder Hurl", "damageMultiplier": 1.6, "damageType": "physical", "chance": 0.18, "minLevel": 3, "description": "The king rips a boulder from the earth and hurls it." },
+      { "name": "Titanic Rage", "damageMultiplier": 2.5, "damageType": "physical", "chance": 0.10, "minLevel": 6, "description": "Blinding fury drives the king into a devastating rampage." }
+    ],
+    "lootTable": [
+      { "itemId": "stormbringer", "weight": 1, "minQuantity": 1, "maxQuantity": 1, "minLevel": 8 },
+      { "itemId": "plate-armor", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 4 },
+      { "itemId": "gauntlets-of-might", "weight": 2, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 },
+      { "itemId": "tower-shield", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "greater-elixir-of-fortitude", "weight": 5, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "potion-of-giant-strength", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 }
+    ],
+    "preferredTerrains": ["mountain"],
+    "description": "A crowned colossus who rules the mountain peaks with an iron fist."
+  },
+  {
+    "id": "shadow-lord",
+    "name": "Shadow Lord",
+    "type": "demon",
+    "tier": "boss",
+    "baseHp": 60,
+    "baseDamageMin": 5,
+    "baseDamageMax": 10,
+    "baseAc": 14,
+    "baseXp": 70,
+    "baseGold": 45,
+    "damageType": "shadow",
+    "abilities": [
+      { "name": "Void Bolt", "damageMultiplier": 1.8, "damageType": "shadow", "chance": 0.25, "minLevel": 1, "description": "A bolt of absolute darkness streaks toward the target." },
+      { "name": "Shadow Step", "damageMultiplier": 1.5, "damageType": "shadow", "chance": 0.18, "minLevel": 3, "description": "The lord vanishes and reappears beside its prey, striking instantly." },
+      { "name": "Darkness Descends", "damageMultiplier": 2.0, "damageType": "shadow", "chance": 0.12, "minLevel": 5, "description": "All light dies as an overwhelming wave of shadow engulfs everything." }
+    ],
+    "lootTable": [
+      { "itemId": "archmage-vestments", "weight": 1, "minQuantity": 1, "maxQuantity": 1, "minLevel": 8 },
+      { "itemId": "staff-of-the-archmage", "weight": 1, "minQuantity": 1, "maxQuantity": 1, "minLevel": 8 },
+      { "itemId": "celestial-raiment", "weight": 1, "minQuantity": 1, "maxQuantity": 1, "minLevel": 8 },
+      { "itemId": "scroll-of-blizzard", "weight": 4, "minQuantity": 1, "maxQuantity": 1, "minLevel": 5 },
+      { "itemId": "supreme-mana-potion", "weight": 10, "minQuantity": 1, "maxQuantity": 1, "minLevel": 1 },
+      { "itemId": "ring-of-arcane-power", "weight": 3, "minQuantity": 1, "maxQuantity": 1, "minLevel": 6 }
+    ],
+    "preferredTerrains": ["swamp"],
+    "description": "A being of pure darkness that consumes all light around it."
+  }
+]

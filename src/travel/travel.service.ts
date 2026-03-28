@@ -9,6 +9,8 @@ import { MapService } from '../map/map.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { SpellsService } from '../spells/spells.service';
 import { LevelingService } from '../leveling/leveling.service';
+import { CombatService, CombatStartResult } from '../combat/combat.service';
+import { GUARANTEED_COMBAT_POIS } from '../common/constants/combat.constants';
 import { carryCapacity } from '../common/constants/inventory.constants';
 import { findPath, computeStepTimes, Coordinate } from './pathfinding';
 import {
@@ -31,6 +33,7 @@ export class TravelService {
     private inventoryService: InventoryService,
     private spellsService: SpellsService,
     private levelingService: LevelingService,
+    private combatService: CombatService,
   ) {}
 
   /** Fetch the character for a user, or throw 404 */
@@ -58,7 +61,7 @@ export class TravelService {
     const discoveries: any[] = [];
 
     if (!character.travel_eta) {
-      return { character, discoveries, xp: undefined };
+      return { character, discoveries, xp: undefined, encounter: null };
     }
 
     const eta = new Date(character.travel_eta).getTime();
@@ -66,7 +69,7 @@ export class TravelService {
 
     if (now < eta) {
       // Still traveling
-      return { character, discoveries, xp: undefined };
+      return { character, discoveries, xp: undefined, encounter: null };
     }
 
     // Travel is complete — resolve it
@@ -120,7 +123,44 @@ export class TravelService {
       if (refreshed) finalCharacter = refreshed;
     }
 
-    return { character: finalCharacter, discoveries, xp };
+    // Roll for combat encounters along the path
+    let encounter: CombatStartResult | null = null;
+    for (const cell of path) {
+      const terrain = this.mapService.getTerrainAt(cell.x, cell.y);
+      if (!terrain) continue;
+      encounter = await this.combatService.rollEncounter(
+        finalCharacter.id,
+        terrain,
+        cell.x,
+        cell.y,
+      );
+      if (encounter) break;
+    }
+
+    // Check destination POI for guaranteed combat
+    if (!encounter) {
+      const destPoi = await this.mapService.getPOIAt(destination.x, destination.y);
+      if (destPoi && GUARANTEED_COMBAT_POIS.has(destPoi.type)) {
+        encounter = await this.combatService.startPOICombat(
+          finalCharacter.id,
+          destPoi.type,
+          destination.x,
+          destination.y,
+        );
+      }
+    }
+
+    // Re-fetch character if encounter started (in_combat flag changed)
+    if (encounter) {
+      const { data: refreshed } = await supabase
+        .from('characters')
+        .select('*, race:races(id, name), class:classes(id, name)')
+        .eq('id', finalCharacter.id)
+        .single();
+      if (refreshed) finalCharacter = refreshed;
+    }
+
+    return { character: finalCharacter, discoveries, xp, encounter };
   }
 
   /**
@@ -148,7 +188,7 @@ export class TravelService {
   /** Get full character data with travel status resolved if needed */
   async getMe(userId: string) {
     let character = await this.getCharacter(userId);
-    const { character: resolved, discoveries, xp } =
+    const { character: resolved, discoveries, xp, encounter } =
       await this.resolveTravel(character);
     character = resolved;
 
@@ -208,13 +248,14 @@ export class TravelService {
           statPointsGained: xp.statPointsGained,
         } : undefined,
       } : undefined,
+      encounter: encounter ?? undefined,
     };
   }
 
   /** Get current travel status */
   async getStatus(userId: string) {
     let character = await this.getCharacter(userId);
-    const { character: resolved, discoveries, xp } =
+    const { character: resolved, discoveries, xp, encounter } =
       await this.resolveTravel(character);
     character = resolved;
 
@@ -232,6 +273,7 @@ export class TravelService {
           statPointsGained: xp.statPointsGained,
         } : undefined,
       } : undefined,
+      encounter: encounter ?? undefined,
     };
   }
 
@@ -240,6 +282,11 @@ export class TravelService {
     let character = await this.getCharacter(userId);
     const { character: resolved } = await this.resolveTravel(character);
     character = resolved;
+
+    // Reject if in combat
+    if (character.in_combat) {
+      throw new ConflictException('Cannot move while in combat.');
+    }
 
     // Reject if currently traveling
     if (character.travel_eta) {
@@ -312,6 +359,11 @@ export class TravelService {
     let character = await this.getCharacter(userId);
     const { character: resolved } = await this.resolveTravel(character);
     character = resolved;
+
+    // Reject if in combat
+    if (character.in_combat) {
+      throw new ConflictException('Cannot travel while in combat.');
+    }
 
     // Reject if currently traveling
     if (character.travel_eta) {
@@ -544,6 +596,7 @@ export class TravelService {
       wisdom: character.wisdom,
       charisma: character.charisma,
       position: { x: character.pos_x, y: character.pos_y },
+      inCombat: character.in_combat ?? false,
       createdAt: character.created_at,
     };
   }

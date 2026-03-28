@@ -68,6 +68,11 @@ export class ShopsService {
   private async validateAtTown(userId: string, townId: string) {
     const character = await this.getCharacter(userId);
 
+    // Must not be in combat
+    if (character.in_combat) {
+      throw new ConflictException('Cannot use shops while in combat.');
+    }
+
     // Must not be traveling
     if (
       character.travel_eta &&

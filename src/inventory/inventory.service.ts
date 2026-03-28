@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -161,6 +162,11 @@ export class InventoryService {
   /** Equip an item to an equipment slot */
   async equip(userId: string, dto: EquipItemDto) {
     const character = await this.getCharacter(userId);
+
+    if (character.in_combat) {
+      throw new ConflictException('Cannot change equipment while in combat.');
+    }
+
     const item = await this.getItemDef(dto.itemId);
 
     // Must be equippable
@@ -282,6 +288,11 @@ export class InventoryService {
   /** Unequip an item from a slot back to backpack */
   async unequip(userId: string, dto: UnequipItemDto) {
     const character = await this.getCharacter(userId);
+
+    if (character.in_combat) {
+      throw new ConflictException('Cannot change equipment while in combat.');
+    }
+
     const rows = await this.getInventoryRows(character.id);
 
     const equippedRow = rows.find((r: any) => r.slot === dto.slot);

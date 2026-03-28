@@ -14,6 +14,7 @@ import { InventoryModule } from './inventory/inventory.module';
 import { SpellsModule } from './spells/spells.module';
 import { RestModule } from './rest/rest.module';
 import { ShopsModule } from './shops/shops.module';
+import { CombatModule } from './combat/combat.module';
 import { DatabaseModule } from './database/database.module';
 import { SupabaseAuthGuard } from './auth/auth.guard';
 import { ForgeboundThrottlerGuard } from './common/guards/throttler.guard';
@@ -38,6 +39,7 @@ import { AppController } from './app.controller';
     SpellsModule,
     RestModule,
     ShopsModule,
+    CombatModule,
   ],
   controllers: [AppController],
   providers: [

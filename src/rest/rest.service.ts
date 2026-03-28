@@ -101,6 +101,12 @@ export class RestService {
     }
   }
 
+  private checkNotInCombat(character: any) {
+    if (character.in_combat) {
+      throw new ConflictException('Cannot rest while in combat.');
+    }
+  }
+
   /* ─── Public API ─── */
 
   /** Start camping at the current location */
@@ -110,6 +116,7 @@ export class RestService {
 
     this.checkNotTraveling(character);
     this.checkNotResting(character);
+    this.checkNotInCombat(character);
 
     // Check if already at full HP and mana
     if (

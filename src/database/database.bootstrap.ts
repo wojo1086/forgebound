@@ -225,6 +225,35 @@ export class DatabaseBootstrap implements OnModuleInit {
         ON shop_stock(character_id, town_id);
     `);
 
+    // Combat: active_combats table + in_combat flag
+    await client.query(`
+      ALTER TABLE characters ADD COLUMN IF NOT EXISTS in_combat boolean NOT NULL DEFAULT false;
+
+      CREATE TABLE IF NOT EXISTS active_combats (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        character_id uuid NOT NULL UNIQUE REFERENCES characters(id) ON DELETE CASCADE,
+        monster_id varchar(60) NOT NULL,
+        monster_name varchar(100) NOT NULL,
+        monster_level int NOT NULL,
+        monster_hp int NOT NULL,
+        monster_max_hp int NOT NULL,
+        monster_ac int NOT NULL,
+        monster_damage_min int NOT NULL,
+        monster_damage_max int NOT NULL,
+        monster_xp_reward int NOT NULL,
+        monster_gold_reward int NOT NULL,
+        monster_loot_table jsonb NOT NULL DEFAULT '[]',
+        monster_abilities jsonb NOT NULL DEFAULT '[]',
+        monster_type varchar(30) NOT NULL,
+        turn_count int NOT NULL DEFAULT 0,
+        combat_log jsonb NOT NULL DEFAULT '[]',
+        source varchar(20) NOT NULL DEFAULT 'random',
+        created_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_active_combats_character ON active_combats(character_id);
+    `);
+
     // Update CHECK constraints for existing databases (idempotent)
     await client.query(`
       DO $$ BEGIN
@@ -342,6 +371,30 @@ export class DatabaseBootstrap implements OnModuleInit {
         END IF;
         IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'shop_stock_delete_own') THEN
           CREATE POLICY shop_stock_delete_own ON shop_stock FOR DELETE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+      END $$;
+    `);
+
+    // Active combats RLS
+    await client.query(`
+      ALTER TABLE active_combats ENABLE ROW LEVEL SECURITY;
+
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'combats_select_own') THEN
+          CREATE POLICY combats_select_own ON active_combats FOR SELECT
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'combats_insert_own') THEN
+          CREATE POLICY combats_insert_own ON active_combats FOR INSERT
+            WITH CHECK (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'combats_update_own') THEN
+          CREATE POLICY combats_update_own ON active_combats FOR UPDATE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'combats_delete_own') THEN
+          CREATE POLICY combats_delete_own ON active_combats FOR DELETE
             USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
         END IF;
       END $$;

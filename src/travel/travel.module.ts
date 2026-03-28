@@ -5,9 +5,10 @@ import { MapModule } from '../map/map.module';
 import { InventoryModule } from '../inventory/inventory.module';
 import { SpellsModule } from '../spells/spells.module';
 import { LevelingModule } from '../leveling/leveling.module';
+import { CombatModule } from '../combat/combat.module';
 
 @Module({
-  imports: [MapModule, InventoryModule, SpellsModule, LevelingModule],
+  imports: [MapModule, InventoryModule, SpellsModule, LevelingModule, CombatModule],
   controllers: [TravelController],
   providers: [TravelService],
   exports: [TravelService],

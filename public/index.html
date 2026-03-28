@@ -478,6 +478,11 @@
         <a href="#ep-allocate-stat"><span class="method-sm post">POST</span> Allocate Stat</a>
       </div>
       <div class="sidebar-section">
+        <div class="sidebar-heading">Combat</div>
+        <a href="#ep-combat-status"><span class="method-sm get">GET</span> Combat Status</a>
+        <a href="#ep-combat-action"><span class="method-sm post">POST</span> Combat Action</a>
+      </div>
+      <div class="sidebar-section">
         <div class="sidebar-heading">Reference</div>
         <a href="#ref-races">Races &amp; Bonuses</a>
         <a href="#ref-classes">Classes</a>
@@ -1714,6 +1719,157 @@ Content-Type: application/json
             </div>
           </div>
           <div class="note" style="margin-top:0.75rem;">Valid stats: <code>strength</code>, <code>dexterity</code>, <code>constitution</code>, <code>intelligence</code>, <code>wisdom</code>, <code>charisma</code>. When allocating Intelligence, the response includes <code>maxMana</code> and <code>mana</code> instead of HP fields.</div>
+        </div>
+      </div>
+
+      <!-- COMBAT -->
+      <div class="endpoint-section" id="combat">
+        <div class="section-label">Combat</div>
+        <div class="section-title">Turn-Based Combat</div>
+        <div class="section-desc">Encounters trigger randomly during travel (based on terrain danger) and at specific POIs like ambush sites. Combat is turn-based: you choose an action, the server resolves your turn and the monster&rsquo;s turn, and returns the results. On victory you earn XP, gold, and loot. On defeat you lose 10% gold and some XP, then respawn at the nearest town.</div>
+
+        <div style="margin-bottom:2rem;">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.75rem;">Encounter Rates (per cell)</h3>
+          <table class="ref-table" style="max-width:350px;">
+            <tr><th>Terrain</th><th>Chance</th></tr>
+            <tr><td>Plains</td><td>3%</td></tr>
+            <tr><td>Coast</td><td>2%</td></tr>
+            <tr><td>Forest</td><td>8%</td></tr>
+            <tr><td>Desert</td><td>6%</td></tr>
+            <tr><td>Swamp</td><td>10%</td></tr>
+            <tr><td>Mountain</td><td>12%</td></tr>
+          </table>
+        </div>
+
+        <div style="margin-bottom:2rem;">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.75rem;">Monster Scaling</h3>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">Monsters have base level-1 stats that scale with area level. Areas near the center (50,50) are low-level; edges are high-level.</p>
+          <table class="ref-table" style="max-width:450px;">
+            <tr><th>Stat</th><th>Formula</th></tr>
+            <tr><td>HP</td><td><code>baseHp &times; (1 + 0.3 &times; (level-1))</code></td></tr>
+            <tr><td>Damage</td><td><code>baseDmg &times; (1 + 0.2 &times; (level-1))</code></td></tr>
+            <tr><td>AC</td><td><code>baseAc + floor(level / 3)</code></td></tr>
+            <tr><td>XP Reward</td><td><code>baseXp &times; level</code></td></tr>
+          </table>
+        </div>
+
+        <div class="endpoint-block" id="ep-combat-status">
+          <div class="endpoint-header">
+            <span class="method-badge get">GET</span>
+            <code>/api/combat/status</code>
+          </div>
+          <div class="endpoint-desc">
+            Get the current combat state. Returns monster info, player HP/mana, and the combat log. Returns <code>{ inCombat: false }</code> if not in combat.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Response (in combat)</div>
+              <pre>{
+  "inCombat": true,
+  "turn": 2,
+  "source": "random",
+  "monster": {
+    "id": "wolf",
+    "name": "Strong Wolf",
+    "level": 3,
+    "hp": 14,
+    "maxHp": 19,
+    "ac": 9,
+    "type": "beast"
+  },
+  "player": {
+    "hp": 8,
+    "maxHp": 13,
+    "mana": 20,
+    "maxMana": 20,
+    "ac": 12
+  },
+  "log": ["..."]
+}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-block" id="ep-combat-action">
+          <div class="endpoint-header">
+            <span class="method-badge post">POST</span>
+            <code>/api/combat/action</code>
+          </div>
+          <div class="endpoint-desc">
+            Perform a combat action. Your turn resolves first, then the monster attacks back. Possible outcomes: <code>ongoing</code>, <code>victory</code>, <code>defeat</code>, or <code>fled</code>.
+          </div>
+          <div class="endpoint-meta">
+            <span class="meta-tag">Auth: Required</span>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Attack</div>
+              <pre>{ "action": "attack" }</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Cast Spell</div>
+              <pre>{ "action": "cast", "spellId": "fireball" }</pre>
+            </div>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Use Item</div>
+              <pre>{ "action": "use_item", "itemId": "health-potion" }</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Flee</div>
+              <pre>{ "action": "flee" }</pre>
+            </div>
+          </div>
+          <div class="code-pair">
+            <div class="code-block">
+              <div class="code-label">Victory Response</div>
+              <pre>{
+  "outcome": "victory",
+  "turn": 4,
+  "log": [
+    "You hit the Wolf for 5 damage.",
+    "The Wolf has been defeated!",
+    "You gain 10 XP.",
+    "You find 3 gold.",
+    "Loot: Health Potion"
+  ],
+  "xpGained": 10,
+  "goldGained": 3,
+  "loot": ["Health Potion"],
+  "levelUp": null,
+  "player": { "hp": 8, "mana": 20, "gold": 103 }
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-label">Defeat Response</div>
+              <pre>{
+  "outcome": "defeat",
+  "turn": 6,
+  "log": [
+    "The Bear mauls you for 8 damage!",
+    "You have been defeated!",
+    "You lost 10 gold and 5 XP..."
+  ],
+  "goldLost": 10,
+  "xpLost": 5,
+  "respawnTown": "Thornhaven",
+  "player": {
+    "hp": 3, "mana": 5,
+    "gold": 90, "xp": 95,
+    "posX": 50, "posY": 50
+  }
+}</pre>
+            </div>
+          </div>
+          <div class="note" style="margin-top:0.75rem;">
+            <strong>Actions:</strong> <code>attack</code> uses your equipped weapon (STR modifier). <code>cast</code> uses a learned spell (INT/WIS modifier, costs mana). <code>use_item</code> consumes a backpack item (costs your turn). <code>flee</code> has a DEX-based chance (40% base); fails against bosses.<br>
+            <strong>Hit rolls:</strong> d20 + modifier vs target AC. Natural 20 = critical (2&times; damage). Natural 1 = miss.<br>
+            <strong>While in combat:</strong> You cannot travel, rest, shop, or change equipment.
+          </div>
         </div>
       </div>
 

@@ -1,0 +1,149 @@
+## Run auth.http → Login first to populate {{token}}
+
+###
+## ─── Combat Status ───
+###
+
+### Check combat status
+GET {{host}}/combat/status
+Authorization: Bearer {{token}}
+
+###
+## ─── Combat Actions ───
+###
+
+### Attack with equipped weapon
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "attack"
+}
+
+### Cast a damage spell
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "cast",
+  "spellId": "fireball"
+}
+
+### Cast a healing spell
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "cast",
+  "spellId": "heal"
+}
+
+### Use a health potion
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "use_item",
+  "itemId": "health-potion"
+}
+
+### Use a mana potion
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "use_item",
+  "itemId": "mana-potion"
+}
+
+### Flee from combat
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "flee"
+}
+
+###
+## ─── Error Cases ───
+###
+
+### Attack when not in combat — should fail (404)
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "attack"
+}
+
+### Cast without spellId — should fail (400)
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "cast"
+}
+
+### Use item without itemId — should fail (400)
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "use_item"
+}
+
+### Invalid action — should fail (400)
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "dance"
+}
+
+###
+## ─── Trigger Encounter (via travel) ───
+###
+
+### Travel through forest (high encounter chance)
+POST {{host}}/travel/start
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "destinationX": 80,
+  "destinationY": 48
+}
+
+### Check travel status — may show encounter
+GET {{host}}/travel/status
+Authorization: Bearer {{token}}
+
+### Try to travel while in combat — should fail (409)
+POST {{host}}/travel/move
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "direction": "north"
+}
+
+### Try to rest while in combat — should fail (409)
+POST {{host}}/rest/camp
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{}
+
+### Try to shop while in combat — should fail (409)
+GET {{host}}/shops/thornhaven
+Authorization: Bearer {{token}}
