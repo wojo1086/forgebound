@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
 import * as poisData from '../data/pois.json';
+import itemsData = require('../data/items.json');
 
 @Injectable()
 export class DatabaseBootstrap implements OnModuleInit {
@@ -108,6 +109,75 @@ export class DatabaseBootstrap implements OnModuleInit {
       ALTER TABLE characters ADD COLUMN IF NOT EXISTS travel_step_times jsonb DEFAULT NULL;
     `);
 
+    // Items definition table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS items (
+        id varchar(60) PRIMARY KEY,
+        name varchar(100) NOT NULL,
+        description text,
+        type varchar(20) NOT NULL CHECK (type IN (
+          'weapon','armor','helmet','shield','leggings','boots','gloves','ring','amulet',
+          'consumable','material','quest','ammunition'
+        )),
+        rarity varchar(20) NOT NULL DEFAULT 'common' CHECK (rarity IN (
+          'common','uncommon','rare','epic','legendary'
+        )),
+        weight numeric(6,1) NOT NULL DEFAULT 0,
+        value int NOT NULL DEFAULT 0,
+        level_required int NOT NULL DEFAULT 1,
+        class_restriction varchar(20) DEFAULT NULL REFERENCES classes(id),
+        bonus_strength int NOT NULL DEFAULT 0,
+        bonus_dexterity int NOT NULL DEFAULT 0,
+        bonus_constitution int NOT NULL DEFAULT 0,
+        bonus_intelligence int NOT NULL DEFAULT 0,
+        bonus_wisdom int NOT NULL DEFAULT 0,
+        bonus_charisma int NOT NULL DEFAULT 0,
+        bonus_ac int NOT NULL DEFAULT 0,
+        bonus_hp int NOT NULL DEFAULT 0,
+        damage_min int DEFAULT NULL,
+        damage_max int DEFAULT NULL,
+        effect_type varchar(30) DEFAULT NULL,
+        effect_value int DEFAULT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS character_inventory (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        character_id uuid NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+        item_id varchar(60) NOT NULL REFERENCES items(id),
+        quantity int NOT NULL DEFAULT 1 CHECK (quantity > 0),
+        slot varchar(20) DEFAULT NULL CHECK (slot IN (
+          'weapon','armor','helmet','shield','leggings','boots','gloves','ring1','ring2','amulet',
+          NULL
+        )),
+        created_at timestamptz NOT NULL DEFAULT now(),
+        UNIQUE(character_id, item_id, slot)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_char_inv_character ON character_inventory(character_id);
+      CREATE INDEX IF NOT EXISTS idx_char_inv_slot ON character_inventory(character_id, slot) WHERE slot IS NOT NULL;
+    `);
+
+    // Update CHECK constraints for existing databases (idempotent)
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE items DROP CONSTRAINT IF EXISTS items_type_check;
+        ALTER TABLE items ADD CONSTRAINT items_type_check CHECK (type IN (
+          'weapon','armor','helmet','shield','leggings','boots','gloves','ring','amulet',
+          'consumable','material','quest','ammunition'
+        ));
+      EXCEPTION WHEN OTHERS THEN NULL;
+      END $$;
+
+      DO $$ BEGIN
+        ALTER TABLE character_inventory DROP CONSTRAINT IF EXISTS character_inventory_slot_check;
+        ALTER TABLE character_inventory ADD CONSTRAINT character_inventory_slot_check CHECK (slot IN (
+          'weapon','armor','helmet','shield','leggings','boots','gloves','ring1','ring2','amulet',
+          NULL
+        ));
+      EXCEPTION WHEN OTHERS THEN NULL;
+      END $$;
+    `);
+
     this.logger.log('Tables verified');
   }
 
@@ -118,6 +188,8 @@ export class DatabaseBootstrap implements OnModuleInit {
       ALTER TABLE characters ENABLE ROW LEVEL SECURITY;
       ALTER TABLE pois ENABLE ROW LEVEL SECURITY;
       ALTER TABLE player_discoveries ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE items ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE character_inventory ENABLE ROW LEVEL SECURITY;
 
       DO $$ BEGIN
         IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'races_public_read') THEN
@@ -143,6 +215,25 @@ export class DatabaseBootstrap implements OnModuleInit {
         END IF;
         IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'discoveries_insert_own') THEN
           CREATE POLICY discoveries_insert_own ON player_discoveries FOR INSERT WITH CHECK (auth.uid() = user_id);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'items_public_read') THEN
+          CREATE POLICY items_public_read ON items FOR SELECT USING (true);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'inventory_select_own') THEN
+          CREATE POLICY inventory_select_own ON character_inventory FOR SELECT
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'inventory_insert_own') THEN
+          CREATE POLICY inventory_insert_own ON character_inventory FOR INSERT
+            WITH CHECK (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'inventory_update_own') THEN
+          CREATE POLICY inventory_update_own ON character_inventory FOR UPDATE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'inventory_delete_own') THEN
+          CREATE POLICY inventory_delete_own ON character_inventory FOR DELETE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
         END IF;
       END $$;
     `);
@@ -220,5 +311,62 @@ export class DatabaseBootstrap implements OnModuleInit {
 
       this.logger.log(`${allPois.length} POIs seeded`);
     }
+
+    // Seed items (uses ON CONFLICT so new items are added on restarts)
+    this.logger.log('Syncing items...');
+    const items = (itemsData as any[]).map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      description: item.description ?? null,
+      type: item.type,
+      rarity: item.rarity ?? 'common',
+      weight: item.weight ?? 0,
+      value: item.value ?? 0,
+      level_required: item.levelRequired ?? 1,
+      class_restriction: item.classRestriction ?? null,
+      bonus_strength: item.bonusStrength ?? 0,
+      bonus_dexterity: item.bonusDexterity ?? 0,
+      bonus_constitution: item.bonusConstitution ?? 0,
+      bonus_intelligence: item.bonusIntelligence ?? 0,
+      bonus_wisdom: item.bonusWisdom ?? 0,
+      bonus_charisma: item.bonusCharisma ?? 0,
+      bonus_ac: item.bonusAc ?? 0,
+      bonus_hp: item.bonusHp ?? 0,
+      damage_min: item.damageMin ?? null,
+      damage_max: item.damageMax ?? null,
+      effect_type: item.effectType ?? null,
+      effect_value: item.effectValue ?? null,
+    }));
+
+    const COLS = 21;
+    for (let i = 0; i < items.length; i += 50) {
+      const chunk = items.slice(i, i + 50);
+      const values = chunk
+        .map(
+          (_, idx) =>
+            `(${Array.from({ length: COLS }, (__, c) => `$${idx * COLS + c + 1}`).join(', ')})`,
+        )
+        .join(', ');
+
+      const params = chunk.flatMap((item) => [
+        item.id, item.name, item.description, item.type, item.rarity,
+        item.weight, item.value, item.level_required, item.class_restriction,
+        item.bonus_strength, item.bonus_dexterity, item.bonus_constitution,
+        item.bonus_intelligence, item.bonus_wisdom, item.bonus_charisma,
+        item.bonus_ac, item.bonus_hp, item.damage_min, item.damage_max,
+        item.effect_type, item.effect_value,
+      ]);
+
+      await client.query(
+        `INSERT INTO items (id, name, description, type, rarity, weight, value, level_required, class_restriction,
+          bonus_strength, bonus_dexterity, bonus_constitution, bonus_intelligence, bonus_wisdom, bonus_charisma,
+          bonus_ac, bonus_hp, damage_min, damage_max, effect_type, effect_value)
+         VALUES ${values}
+         ON CONFLICT (id) DO NOTHING`,
+        params,
+      );
+    }
+
+    this.logger.log(`${items.length} items synced`);
   }
 }

@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { MapService } from '../map/map.service';
+import { InventoryService } from '../inventory/inventory.service';
+import { carryCapacity } from '../common/constants/inventory.constants';
 import { findPath, computeStepTimes, Coordinate } from './pathfinding';
 import {
   DIRECTIONS,
@@ -18,6 +20,7 @@ export class TravelService {
   constructor(
     private supabaseService: SupabaseService,
     private mapService: MapService,
+    private inventoryService: InventoryService,
   ) {}
 
   /** Fetch the character for a user, or throw 404 */
@@ -120,8 +123,35 @@ export class TravelService {
       await this.resolveTravel(character);
     character = resolved;
 
+    // Fetch equipment and compute effective stats
+    const equippedItems = await this.inventoryService.getEquippedItems(
+      character.id,
+    );
+    const effectiveStats = this.inventoryService.computeEffectiveStats(
+      character,
+      equippedItems,
+    );
+
+    const equipment: Record<string, any> = {};
+    const slots = [
+      'weapon', 'armor', 'helmet', 'shield', 'leggings',
+      'boots', 'gloves', 'ring1', 'ring2', 'amulet',
+    ];
+    for (const slot of slots) {
+      const row = equippedItems.find((r: any) => r.slot === slot);
+      if (row) {
+        const item = row.item as any;
+        equipment[slot] = { id: item.id, name: item.name, type: item.type, rarity: item.rarity };
+      } else {
+        equipment[slot] = null;
+      }
+    }
+
     return {
       ...this.formatCharacter(character),
+      effectiveStats,
+      equipment,
+      carryCapacity: carryCapacity(character.strength),
       travel: this.buildTravelStatus(character),
       discoveries: discoveries.length > 0 ? discoveries : undefined,
     };

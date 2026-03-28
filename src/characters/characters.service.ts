@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { InventoryService } from '../inventory/inventory.service';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import {
   ABILITIES,
@@ -16,7 +17,10 @@ import {
 
 @Injectable()
 export class CharactersService {
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    private inventoryService: InventoryService,
+  ) {}
 
   async create(userId: string, dto: CreateCharacterDto) {
     const supabase = this.supabaseService.getClient();
@@ -88,6 +92,9 @@ export class CharactersService {
       }
       throw new BadRequestException(error.message);
     }
+
+    // Grant class-based starting equipment
+    await this.inventoryService.grantStartingEquipment(data.id, dto.classId);
 
     return data;
   }

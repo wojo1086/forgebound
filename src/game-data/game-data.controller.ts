@@ -17,4 +17,10 @@ export class GameDataController {
   getClasses() {
     return this.gameDataService.getClasses();
   }
+
+  @Public()
+  @Get('items')
+  getItems() {
+    return this.gameDataService.getItems();
+  }
 }

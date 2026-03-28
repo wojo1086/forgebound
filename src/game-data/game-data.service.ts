@@ -32,4 +32,20 @@ export class GameDataService {
 
     return data;
   }
+
+  async getItems() {
+    const { data, error } = await this.supabaseService
+      .getClient()
+      .from('items')
+      .select('*')
+      .order('type')
+      .order('rarity')
+      .order('name');
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }

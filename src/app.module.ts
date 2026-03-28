@@ -10,6 +10,7 @@ import { CharactersModule } from './characters/characters.module';
 import { GameDataModule } from './game-data/game-data.module';
 import { MapModule } from './map/map.module';
 import { TravelModule } from './travel/travel.module';
+import { InventoryModule } from './inventory/inventory.module';
 import { DatabaseModule } from './database/database.module';
 import { SupabaseAuthGuard } from './auth/auth.guard';
 import { ForgeboundThrottlerGuard } from './common/guards/throttler.guard';
@@ -30,6 +31,7 @@ import { AppController } from './app.controller';
     GameDataModule,
     MapModule,
     TravelModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [
