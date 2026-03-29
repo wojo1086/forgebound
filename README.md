@@ -96,7 +96,7 @@ Full documentation at [forgebound.io](https://forgebound.io) or via the [OpenAPI
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-username/forgebound.git
+git clone https://github.com/wojo1086/forgebound.git
 cd forgebound
 
 # Install dependencies
