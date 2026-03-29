@@ -47,18 +47,19 @@
       --nav-h: 56px;
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     /* ─── TOP NAV ─── */
     .topnav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200; overflow: hidden;
       height: var(--nav-h);
       background: rgba(12, 13, 18, 0.92);
       backdrop-filter: blur(16px);
@@ -190,14 +191,15 @@
 
     /* Main content */
     .docs-main {
-      flex: 1; min-width: 0;
-      padding: 2.5rem 0;
+      flex: 1; min-width: 0; max-width: 100%;
+      padding: 2.5rem 0; overflow-x: hidden;
     }
 
     /* ─── ENDPOINT SECTION (two-column) ─── */
     .endpoint-section {
       padding: 2.5rem 3rem;
       border-bottom: 1px solid var(--border);
+      max-width: 100%; overflow-x: hidden;
     }
     .endpoint-section:last-child { border-bottom: none; }
 
@@ -286,7 +288,7 @@
       border: 1px solid var(--border); border-radius: 8px;
       padding: 1rem 1.15rem; overflow-x: auto;
       font-family: 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.65;
-      margin-bottom: 1rem;
+      margin-bottom: 1rem; max-width: 100%;
     }
     pre .comment { color: var(--text-dim); }
     pre .str { color: var(--gold-glow); }
