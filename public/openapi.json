@@ -67,10 +67,20 @@
           "password": { "type": "string" }
         }
       },
-      "AuthResponse": {
+      "RegisterResponse": {
         "type": "object",
         "properties": {
-          "access_token": { "type": "string" },
+          "id": { "type": "string", "format": "uuid" },
+          "email": { "type": "string", "format": "email" },
+          "message": { "type": "string", "example": "Account created. Please check your email and confirm your address before logging in." }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": { "type": "string" },
+          "refreshToken": { "type": "string" },
+          "expiresIn": { "type": "integer", "description": "Token lifetime in seconds" },
           "user": {
             "type": "object",
             "properties": {
@@ -84,7 +94,8 @@
         "type": "object",
         "properties": {
           "id": { "type": "string", "format": "uuid" },
-          "email": { "type": "string", "format": "email" }
+          "email": { "type": "string", "format": "email" },
+          "createdAt": { "type": "string", "format": "date-time" }
         }
       },
       "CreateCharacterRequest": {
@@ -109,20 +120,95 @@
           "stat": { "type": "string", "enum": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] }
         }
       },
-      "Character": {
+      "Coordinate": {
         "type": "object",
         "properties": {
+          "x": { "type": "integer" },
+          "y": { "type": "integer" }
+        }
+      },
+      "EquipmentSlotItem": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "rarity": { "type": "string" }
+        }
+      },
+      "LevelUp": {
+        "type": "object",
+        "properties": {
+          "newLevel": { "type": "integer" },
+          "hpGained": { "type": "integer" },
+          "manaGained": { "type": "integer" },
+          "newSpells": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "manaCost": { "type": "integer" }
+              }
+            }
+          },
+          "statPointsGained": { "type": "integer" }
+        }
+      },
+      "Discovery": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "category": { "type": "string" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "terrain": { "type": "string" },
+          "description": { "type": "string" },
+          "level_min": { "type": "integer" },
+          "level_max": { "type": "integer" },
+          "discoveredAt": { "type": "string", "format": "date-time", "description": "Present on player discoveries" }
+        }
+      },
+      "TravelXp": {
+        "type": "object",
+        "properties": {
+          "xpGained": { "type": "integer" },
+          "totalXp": { "type": "integer" },
+          "levelUp": { "$ref": "#/components/schemas/LevelUp" }
+        }
+      },
+      "TravelEncounter": {
+        "type": "object",
+        "properties": {
+          "monsterId": { "type": "string" },
+          "monsterName": { "type": "string" },
+          "monsterLevel": { "type": "integer" },
+          "monsterHp": { "type": "integer" },
+          "monsterMaxHp": { "type": "integer" },
+          "monsterType": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      },
+      "CharacterCreated": {
+        "type": "object",
+        "description": "Raw character row returned on creation",
+        "properties": {
           "id": { "type": "string", "format": "uuid" },
+          "user_id": { "type": "string", "format": "uuid" },
           "name": { "type": "string" },
           "race_id": { "type": "string" },
           "class_id": { "type": "string" },
           "level": { "type": "integer" },
           "xp": { "type": "integer" },
-          "xp_next": { "type": "integer" },
           "hp": { "type": "integer" },
           "max_hp": { "type": "integer" },
           "mana": { "type": "integer" },
           "max_mana": { "type": "integer" },
+          "ac": { "type": "integer" },
           "gold": { "type": "integer" },
           "strength": { "type": "integer" },
           "dexterity": { "type": "integer" },
@@ -130,12 +216,146 @@
           "intelligence": { "type": "integer" },
           "wisdom": { "type": "integer" },
           "charisma": { "type": "integer" },
-          "unspent_points": { "type": "integer" },
           "pos_x": { "type": "integer" },
           "pos_y": { "type": "integer" },
-          "in_combat": { "type": "boolean" },
-          "traveling": { "type": "boolean" },
-          "resting": { "type": "boolean" }
+          "race": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" }
+            }
+          },
+          "class": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" }
+            }
+          }
+        }
+      },
+      "Character": {
+        "type": "object",
+        "description": "Full character state returned by GET /characters/me",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "race": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" }
+            }
+          },
+          "class": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" }
+            }
+          },
+          "level": { "type": "integer" },
+          "xp": { "type": "integer" },
+          "xpToNextLevel": { "type": "integer" },
+          "unspentStatPoints": { "type": "integer" },
+          "hp": { "type": "integer" },
+          "maxHp": { "type": "integer" },
+          "ac": { "type": "integer" },
+          "strength": { "type": "integer" },
+          "dexterity": { "type": "integer" },
+          "constitution": { "type": "integer" },
+          "intelligence": { "type": "integer" },
+          "wisdom": { "type": "integer" },
+          "charisma": { "type": "integer" },
+          "mana": { "type": "integer" },
+          "maxMana": { "type": "integer" },
+          "gold": { "type": "integer" },
+          "position": { "$ref": "#/components/schemas/Coordinate" },
+          "inCombat": { "type": "boolean" },
+          "inDungeon": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "effectiveStats": {
+            "type": "object",
+            "description": "Stats after equipment bonuses",
+            "properties": {
+              "strength": { "type": "integer" },
+              "dexterity": { "type": "integer" },
+              "constitution": { "type": "integer" },
+              "intelligence": { "type": "integer" },
+              "wisdom": { "type": "integer" },
+              "charisma": { "type": "integer" },
+              "maxHp": { "type": "integer" },
+              "ac": { "type": "integer" }
+            }
+          },
+          "equipment": {
+            "type": "object",
+            "properties": {
+              "weapon": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "armor": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "helmet": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "shield": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "leggings": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "boots": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "gloves": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "ring1": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "ring2": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "amulet": { "$ref": "#/components/schemas/EquipmentSlotItem" }
+            }
+          },
+          "spells": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "school": { "type": "string" },
+                "spellLevel": { "type": "integer" },
+                "manaCost": { "type": "integer" }
+              }
+            }
+          },
+          "carryCapacity": { "type": "number" },
+          "travel": {
+            "type": "object",
+            "properties": {
+              "isTraveling": { "type": "boolean" },
+              "position": { "$ref": "#/components/schemas/Coordinate" },
+              "estimatedCurrent": { "$ref": "#/components/schemas/Coordinate" },
+              "destination": { "$ref": "#/components/schemas/Coordinate" },
+              "path": { "type": "array", "items": { "$ref": "#/components/schemas/Coordinate" } },
+              "progressIndex": { "type": "integer" },
+              "totalCells": { "type": "integer" },
+              "startedAt": { "type": "string", "format": "date-time" },
+              "eta": { "type": "string", "format": "date-time" }
+            }
+          },
+          "discoveries": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Discovery" }
+          },
+          "xp_extra": {
+            "description": "Present if XP was gained during travel resolution",
+            "$ref": "#/components/schemas/TravelXp"
+          },
+          "encounter": {
+            "description": "Present if a combat encounter was triggered",
+            "$ref": "#/components/schemas/TravelEncounter"
+          }
+        }
+      },
+      "AllocateStatResponse": {
+        "type": "object",
+        "properties": {
+          "allocated": { "type": "string", "description": "The stat that was increased" },
+          "newValue": { "type": "integer", "description": "New value of the stat" },
+          "unspentStatPoints": { "type": "integer" },
+          "message": { "type": "string" },
+          "maxHp": { "type": "integer", "description": "Present if constitution was allocated" },
+          "hp": { "type": "integer", "description": "Present if constitution was allocated" },
+          "maxMana": { "type": "integer", "description": "Present if intelligence was allocated" },
+          "mana": { "type": "integer", "description": "Present if intelligence was allocated" }
         }
       },
       "MoveRequest": {
@@ -143,6 +363,18 @@
         "required": ["direction"],
         "properties": {
           "direction": { "type": "string", "enum": ["north", "south", "east", "west"] }
+        }
+      },
+      "MoveResponse": {
+        "type": "object",
+        "properties": {
+          "direction": { "type": "string" },
+          "from": { "$ref": "#/components/schemas/Coordinate" },
+          "destination": { "$ref": "#/components/schemas/Coordinate" },
+          "terrain": { "type": "string" },
+          "travelSeconds": { "type": "number" },
+          "startedAt": { "type": "string", "format": "date-time" },
+          "eta": { "type": "string", "format": "date-time" }
         }
       },
       "TravelRequest": {
@@ -153,15 +385,56 @@
           "y": { "type": "integer", "minimum": 0, "maximum": 99 }
         }
       },
+      "TravelGoResponse": {
+        "type": "object",
+        "properties": {
+          "from": { "$ref": "#/components/schemas/Coordinate" },
+          "destination": { "$ref": "#/components/schemas/Coordinate" },
+          "path": { "type": "array", "items": { "$ref": "#/components/schemas/Coordinate" } },
+          "totalCells": { "type": "integer" },
+          "travelSeconds": { "type": "number" },
+          "startedAt": { "type": "string", "format": "date-time" },
+          "eta": { "type": "string", "format": "date-time" }
+        }
+      },
       "TravelStatus": {
         "type": "object",
         "properties": {
-          "traveling": { "type": "boolean" },
-          "origin": { "type": "object", "properties": { "x": { "type": "integer" }, "y": { "type": "integer" } } },
-          "destination": { "type": "object", "properties": { "x": { "type": "integer" }, "y": { "type": "integer" } } },
-          "progress": { "type": "number", "description": "0.0 to 1.0" },
-          "eta": { "type": "string", "format": "date-time" },
-          "terrain": { "type": "string" }
+          "isTraveling": { "type": "boolean" },
+          "position": { "$ref": "#/components/schemas/Coordinate" },
+          "estimatedCurrent": { "$ref": "#/components/schemas/Coordinate", "description": "Present while traveling" },
+          "destination": { "$ref": "#/components/schemas/Coordinate", "description": "Present while traveling" },
+          "path": { "type": "array", "items": { "$ref": "#/components/schemas/Coordinate" }, "description": "Present while traveling" },
+          "progressIndex": { "type": "integer", "description": "Present while traveling" },
+          "totalCells": { "type": "integer", "description": "Present while traveling" },
+          "startedAt": { "type": "string", "format": "date-time", "description": "Present while traveling" },
+          "eta": { "type": "string", "format": "date-time", "description": "Present while traveling" },
+          "discoveries": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Discovery" },
+            "description": "POIs discovered during completed travel"
+          },
+          "xp": {
+            "$ref": "#/components/schemas/TravelXp",
+            "description": "Present if XP was gained from travel"
+          },
+          "encounter": {
+            "$ref": "#/components/schemas/TravelEncounter",
+            "description": "Present if a combat encounter was triggered"
+          }
+        }
+      },
+      "TravelCancelResponse": {
+        "type": "object",
+        "properties": {
+          "cancelled": { "type": "boolean" },
+          "position": { "$ref": "#/components/schemas/Coordinate" },
+          "cellsTraversed": { "type": "integer" },
+          "discoveries": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Discovery" }
+          },
+          "xp": { "$ref": "#/components/schemas/TravelXp" }
         }
       },
       "CombatActionRequest": {
@@ -184,6 +457,7 @@
       },
       "CombatStatus": {
         "type": "object",
+        "description": "Returns { inCombat: false } when not in combat, or full combat state when fighting",
         "properties": {
           "inCombat": { "type": "boolean" },
           "turn": { "type": "integer" },
@@ -217,13 +491,16 @@
       },
       "CombatResult": {
         "type": "object",
+        "description": "Result varies by outcome. Ongoing: monster + player state. Victory: xp, gold, items, optional levelUp. Defeat: goldLost, xpLost, message. Fled: player state.",
         "properties": {
           "outcome": { "type": "string", "enum": ["ongoing", "victory", "defeat", "fled"] },
           "turn": { "type": "integer" },
           "log": { "type": "array", "items": { "type": "string" } },
           "monster": {
             "type": "object",
+            "description": "Present on ongoing outcome",
             "properties": {
+              "name": { "type": "string" },
               "hp": { "type": "integer" },
               "maxHp": { "type": "integer" },
               "effects": { "type": "array", "items": { "$ref": "#/components/schemas/StatusEffect" } }
@@ -231,19 +508,74 @@
           },
           "player": {
             "type": "object",
+            "description": "Present on ongoing, victory, and fled outcomes",
             "properties": {
               "hp": { "type": "integer" },
+              "maxHp": { "type": "integer" },
               "mana": { "type": "integer" },
+              "maxMana": { "type": "integer" },
               "effects": { "type": "array", "items": { "$ref": "#/components/schemas/StatusEffect" } }
             }
           },
-          "xpGained": { "type": "integer", "description": "Present on victory" },
-          "goldGained": { "type": "integer", "description": "Present on victory" },
-          "loot": { "type": "array", "items": { "type": "string" }, "description": "Present on victory" },
-          "levelUp": { "type": "object", "nullable": true, "description": "Present if leveled up on victory" },
-          "goldLost": { "type": "integer", "description": "Present on defeat" },
-          "xpLost": { "type": "integer", "description": "Present on defeat" },
-          "respawnTown": { "type": "string", "description": "Present on defeat" }
+          "xp": { "type": "integer", "description": "XP gained (victory)" },
+          "gold": { "type": "integer", "description": "Gold gained (victory)" },
+          "items": {
+            "type": "array",
+            "description": "Loot dropped (victory)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": { "type": "string" },
+                "quantity": { "type": "integer" }
+              }
+            }
+          },
+          "levelUp": {
+            "$ref": "#/components/schemas/LevelUp",
+            "description": "Present on victory if character leveled up"
+          },
+          "goldLost": { "type": "integer", "description": "Gold penalty (defeat)" },
+          "xpLost": { "type": "integer", "description": "XP penalty (defeat)" },
+          "hp": { "type": "integer", "description": "HP after defeat" },
+          "message": { "type": "string", "description": "Status message (defeat)" }
+        }
+      },
+      "InventoryResponse": {
+        "type": "object",
+        "properties": {
+          "equipment": {
+            "type": "object",
+            "properties": {
+              "weapon": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "armor": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "helmet": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "shield": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "leggings": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "boots": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "gloves": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "ring1": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "ring2": { "$ref": "#/components/schemas/EquipmentSlotItem" },
+              "amulet": { "$ref": "#/components/schemas/EquipmentSlotItem" }
+            }
+          },
+          "backpack": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "rarity": { "type": "string" },
+                "quantity": { "type": "integer" },
+                "weight": { "type": "number" },
+                "levelRequired": { "type": "integer" },
+                "classRestriction": { "type": "string", "nullable": true }
+              }
+            }
+          },
+          "carryWeight": { "type": "number" },
+          "carryCapacity": { "type": "number" }
         }
       },
       "PickUpItemRequest": {
@@ -254,12 +586,28 @@
           "quantity": { "type": "integer", "minimum": 1, "maximum": 99, "default": 1 }
         }
       },
+      "PickUpItemResponse": {
+        "type": "object",
+        "properties": {
+          "pickedUp": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "message": { "type": "string" }
+        }
+      },
       "DropItemRequest": {
         "type": "object",
         "required": ["itemId"],
         "properties": {
           "itemId": { "type": "string" },
           "quantity": { "type": "integer", "minimum": 1, "maximum": 99, "default": 1 }
+        }
+      },
+      "DropItemResponse": {
+        "type": "object",
+        "properties": {
+          "dropped": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "message": { "type": "string" }
         }
       },
       "EquipItemRequest": {
@@ -270,11 +618,70 @@
           "slot": { "type": "string", "enum": ["weapon", "armor", "helmet", "shield", "leggings", "boots", "gloves", "ring1", "ring2", "amulet"], "description": "Optional; auto-detected from item type if omitted" }
         }
       },
+      "EquipItemResponse": {
+        "type": "object",
+        "properties": {
+          "equipped": {
+            "type": "object",
+            "properties": {
+              "slot": { "type": "string" },
+              "item": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "type": { "type": "string" },
+                  "rarity": { "type": "string" }
+                }
+              }
+            }
+          },
+          "unequipped": {
+            "type": "object",
+            "nullable": true,
+            "description": "Present if an item was swapped out of the slot",
+            "properties": {
+              "slot": { "type": "string" },
+              "item": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "type": { "type": "string" },
+                  "rarity": { "type": "string" }
+                }
+              }
+            }
+          },
+          "message": { "type": "string" }
+        }
+      },
       "UnequipItemRequest": {
         "type": "object",
         "required": ["slot"],
         "properties": {
           "slot": { "type": "string", "enum": ["weapon", "armor", "helmet", "shield", "leggings", "boots", "gloves", "ring1", "ring2", "amulet"] }
+        }
+      },
+      "UnequipItemResponse": {
+        "type": "object",
+        "properties": {
+          "unequipped": {
+            "type": "object",
+            "properties": {
+              "slot": { "type": "string" },
+              "item": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "type": { "type": "string" },
+                  "rarity": { "type": "string" }
+                }
+              }
+            }
+          },
+          "message": { "type": "string" }
         }
       },
       "UseItemRequest": {
@@ -284,11 +691,68 @@
           "itemId": { "type": "string" }
         }
       },
+      "UseItemResponse": {
+        "type": "object",
+        "properties": {
+          "used": { "type": "string" },
+          "message": { "type": "string" },
+          "effect": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string" },
+              "value": { "type": "number" }
+            }
+          },
+          "result": { "type": "string" },
+          "hp": { "type": "integer", "description": "Present for heal effects" },
+          "maxHp": { "type": "integer", "description": "Present for max HP boost effects" },
+          "mana": { "type": "integer", "description": "Present for mana restore effects" },
+          "maxMana": { "type": "integer", "description": "Present for max mana boost effects" },
+          "learned": { "type": "string", "description": "Present for learn_spell effects" }
+        }
+      },
+      "SpellbookResponse": {
+        "type": "object",
+        "properties": {
+          "mana": { "type": "integer" },
+          "maxMana": { "type": "integer" },
+          "spells": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "school": { "type": "string" },
+                "spell_level": { "type": "integer" },
+                "mana_cost": { "type": "integer" }
+              }
+            }
+          }
+        }
+      },
       "LearnSpellRequest": {
         "type": "object",
         "required": ["spellId"],
         "properties": {
           "spellId": { "type": "string" }
+        }
+      },
+      "LearnSpellResponse": {
+        "type": "object",
+        "properties": {
+          "learned": { "type": "string" },
+          "message": { "type": "string" },
+          "spell": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "school": { "type": "string" },
+              "spell_level": { "type": "integer" },
+              "mana_cost": { "type": "integer" }
+            }
+          }
         }
       },
       "CastSpellRequest": {
@@ -298,10 +762,131 @@
           "spellId": { "type": "string" }
         }
       },
+      "CastSpellResponse": {
+        "type": "object",
+        "properties": {
+          "cast": { "type": "string" },
+          "manaCost": { "type": "integer" },
+          "effect": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string" },
+              "value": { "type": "number" }
+            }
+          },
+          "result": { "type": "string" }
+        }
+      },
       "StartCampRequest": {
         "type": "object",
         "properties": {
           "duration": { "type": "integer", "minimum": 10, "maximum": 600, "description": "Camp duration in seconds (default varies)" }
+        }
+      },
+      "StartCampResponse": {
+        "type": "object",
+        "properties": {
+          "resting": { "type": "boolean", "example": true },
+          "type": { "type": "string", "example": "camp" },
+          "durationSeconds": { "type": "integer" },
+          "startedAt": { "type": "string", "format": "date-time" },
+          "until": { "type": "string", "format": "date-time" },
+          "position": { "$ref": "#/components/schemas/Coordinate" },
+          "willRecover": {
+            "type": "object",
+            "properties": {
+              "hp": { "type": "integer" },
+              "mana": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "InnRestResponse": {
+        "type": "object",
+        "properties": {
+          "rested": { "type": "boolean", "example": true },
+          "type": { "type": "string", "example": "inn" },
+          "location": { "type": "string" },
+          "hp": { "type": "integer" },
+          "maxHp": { "type": "integer" },
+          "mana": { "type": "integer" },
+          "maxMana": { "type": "integer" },
+          "hpRestored": { "type": "integer" },
+          "manaRestored": { "type": "integer" }
+        }
+      },
+      "RestStatus": {
+        "type": "object",
+        "description": "Returns { resting: false, hp, maxHp, mana, maxMana } when not resting, or full rest progress when resting",
+        "properties": {
+          "resting": { "type": "boolean" },
+          "type": { "type": "string", "description": "Present while resting" },
+          "startedAt": { "type": "string", "format": "date-time", "description": "Present while resting" },
+          "until": { "type": "string", "format": "date-time", "description": "Present while resting" },
+          "elapsedSeconds": { "type": "number", "description": "Present while resting" },
+          "totalDurationSeconds": { "type": "integer", "description": "Present while resting" },
+          "currentHp": { "type": "integer", "description": "Present while resting" },
+          "currentMana": { "type": "integer", "description": "Present while resting" },
+          "hp": { "type": "integer", "description": "Present when not resting" },
+          "maxHp": { "type": "integer" },
+          "mana": { "type": "integer", "description": "Present when not resting" },
+          "maxMana": { "type": "integer" },
+          "recovered": {
+            "type": "object",
+            "description": "Present while resting",
+            "properties": {
+              "hp": { "type": "integer" },
+              "mana": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "StopRestResponse": {
+        "type": "object",
+        "properties": {
+          "stopped": { "type": "boolean" },
+          "completed": { "type": "boolean" },
+          "elapsedSeconds": { "type": "number" },
+          "recovered": {
+            "type": "object",
+            "properties": {
+              "hp": { "type": "integer" },
+              "mana": { "type": "integer" }
+            }
+          },
+          "hp": { "type": "integer" },
+          "maxHp": { "type": "integer" },
+          "mana": { "type": "integer" },
+          "maxMana": { "type": "integer" }
+        }
+      },
+      "ShopResponse": {
+        "type": "object",
+        "properties": {
+          "townId": { "type": "string" },
+          "shop": { "type": "string" },
+          "description": { "type": "string" },
+          "restockMinutes": { "type": "integer" },
+          "gold": { "type": "integer", "description": "Player's current gold" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "rarity": { "type": "string" },
+                "price": { "type": "integer" },
+                "sellPrice": { "type": "integer" },
+                "levelRequired": { "type": "integer" },
+                "classRestriction": { "type": "string", "nullable": true },
+                "weight": { "type": "string" },
+                "stock": { "type": "integer" },
+                "maxStock": { "type": "integer" }
+              }
+            }
+          }
         }
       },
       "BuyItemRequest": {
@@ -312,12 +897,33 @@
           "quantity": { "type": "integer", "minimum": 1, "maximum": 99, "default": 1 }
         }
       },
+      "BuyItemResponse": {
+        "type": "object",
+        "properties": {
+          "bought": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "totalCost": { "type": "integer" },
+          "gold": { "type": "integer" },
+          "message": { "type": "string" }
+        }
+      },
       "SellItemRequest": {
         "type": "object",
         "required": ["itemId"],
         "properties": {
           "itemId": { "type": "string" },
           "quantity": { "type": "integer", "minimum": 1, "maximum": 99, "default": 1 }
+        }
+      },
+      "SellItemResponse": {
+        "type": "object",
+        "properties": {
+          "sold": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "unitPrice": { "type": "integer" },
+          "totalPrice": { "type": "integer" },
+          "gold": { "type": "integer" },
+          "message": { "type": "string" }
         }
       },
       "AcceptQuestRequest": {
@@ -341,6 +947,140 @@
           "questId": { "type": "string" }
         }
       },
+      "QuestObjective": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["kill", "fetch", "explore"] },
+          "target": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "description": { "type": "string" },
+          "current": { "type": "integer", "description": "Present on active/completed quests" },
+          "required": { "type": "integer", "description": "Present on active/completed quests" }
+        }
+      },
+      "QuestRewards": {
+        "type": "object",
+        "properties": {
+          "xp": { "type": "integer" },
+          "gold": { "type": "integer" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": { "type": "string" },
+                "quantity": { "type": "integer" }
+              }
+            }
+          }
+        }
+      },
+      "AvailableQuestsResponse": {
+        "type": "object",
+        "properties": {
+          "town": { "type": "string" },
+          "quests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "description": { "type": "string" },
+                "levelMin": { "type": "integer" },
+                "levelMax": { "type": "integer" },
+                "objectives": { "type": "array", "items": { "$ref": "#/components/schemas/QuestObjective" } },
+                "rewards": { "$ref": "#/components/schemas/QuestRewards" }
+              }
+            }
+          }
+        }
+      },
+      "ActiveQuestsResponse": {
+        "type": "object",
+        "properties": {
+          "activeCount": { "type": "integer" },
+          "maxActive": { "type": "integer" },
+          "quests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "description": { "type": "string" },
+                "giverTown": { "type": "string" },
+                "status": { "type": "string", "enum": ["active", "completed", "turned_in"] },
+                "objectives": { "type": "array", "items": { "$ref": "#/components/schemas/QuestObjective" } },
+                "rewards": { "$ref": "#/components/schemas/QuestRewards" },
+                "acceptedAt": { "type": "string", "format": "date-time" },
+                "completedAt": { "type": "string", "format": "date-time", "description": "Present when quest is completed" }
+              }
+            }
+          }
+        }
+      },
+      "AcceptQuestResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "quest": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "status": { "type": "string" },
+              "objectives": { "type": "array", "items": { "$ref": "#/components/schemas/QuestObjective" } },
+              "rewards": { "$ref": "#/components/schemas/QuestRewards" }
+            }
+          }
+        }
+      },
+      "TurnInQuestResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "rewards": {
+            "type": "object",
+            "properties": {
+              "xp": { "type": "integer" },
+              "gold": { "type": "integer" },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "itemId": { "type": "string" },
+                    "quantity": { "type": "integer" },
+                    "name": { "type": "string" }
+                  }
+                }
+              },
+              "leveledUp": { "type": "boolean" },
+              "newLevel": { "type": "integer", "description": "Present if leveled up" },
+              "newSpells": {
+                "type": "array",
+                "description": "Present if leveled up and learned spells",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "manaCost": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AbandonQuestResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        }
+      },
       "EnterDungeonRequest": {
         "type": "object",
         "required": ["poiId"],
@@ -348,46 +1088,168 @@
           "poiId": { "type": "string", "description": "The POI ID of the dungeon entrance" }
         }
       },
-      "Quest": {
+      "DungeonRoom": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "description": { "type": "string" },
-          "town": { "type": "string" },
-          "minLevel": { "type": "integer" },
-          "objectives": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "type": { "type": "string", "enum": ["kill", "fetch", "explore"] },
-                "target": { "type": "string" },
-                "quantity": { "type": "integer" },
-                "current": { "type": "integer" }
-              }
-            }
-          },
-          "rewards": {
-            "type": "object",
-            "properties": {
-              "xp": { "type": "integer" },
-              "gold": { "type": "integer" },
-              "items": { "type": "array", "items": { "type": "object", "properties": { "itemId": { "type": "string" }, "quantity": { "type": "integer" } } } }
-            }
-          }
+          "index": { "type": "integer" },
+          "type": { "type": "string", "enum": ["combat", "treasure", "trap", "rest", "boss"] },
+          "cleared": { "type": "boolean" },
+          "log": { "type": "array", "items": { "type": "string" } }
         }
       },
       "DungeonStatus": {
         "type": "object",
+        "description": "Returns { inDungeon: false } when not in a dungeon, or full dungeon state when inside",
         "properties": {
           "inDungeon": { "type": "boolean" },
+          "dungeonId": { "type": "string" },
           "poiId": { "type": "string" },
-          "dungeonName": { "type": "string" },
+          "poiName": { "type": "string" },
+          "dungeonLevel": { "type": "integer" },
           "currentRoom": { "type": "integer" },
           "totalRooms": { "type": "integer" },
-          "roomType": { "type": "string", "enum": ["combat", "treasure", "trap", "rest", "boss"] },
-          "completed": { "type": "boolean" }
+          "completed": { "type": "boolean" },
+          "rooms": { "type": "array", "items": { "$ref": "#/components/schemas/DungeonRoom" } }
+        }
+      },
+      "DungeonAdvanceCombat": {
+        "type": "object",
+        "description": "Combat or boss room — starts a fight",
+        "properties": {
+          "roomIndex": { "type": "integer" },
+          "roomType": { "type": "string", "enum": ["combat", "boss"] },
+          "status": { "type": "string", "example": "combat_started" },
+          "message": { "type": "string" },
+          "monster": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "level": { "type": "integer" },
+              "hp": { "type": "integer" },
+              "maxHp": { "type": "integer" },
+              "type": { "type": "string" }
+            }
+          }
+        }
+      },
+      "DungeonAdvanceTrap": {
+        "type": "object",
+        "description": "Trap room — resolves immediately",
+        "properties": {
+          "roomIndex": { "type": "integer" },
+          "roomType": { "type": "string", "example": "trap" },
+          "status": { "type": "string", "example": "cleared" },
+          "trapType": { "type": "string" },
+          "avoided": { "type": "boolean" },
+          "log": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "DungeonAdvanceTreasure": {
+        "type": "object",
+        "description": "Treasure room — gold and loot",
+        "properties": {
+          "roomIndex": { "type": "integer" },
+          "roomType": { "type": "string", "example": "treasure" },
+          "status": { "type": "string", "example": "cleared" },
+          "gold": { "type": "integer" },
+          "loot": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": { "type": "string" },
+                "quantity": { "type": "integer" }
+              }
+            }
+          },
+          "log": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "DungeonAdvanceRest": {
+        "type": "object",
+        "description": "Rest room — restores HP and mana",
+        "properties": {
+          "roomIndex": { "type": "integer" },
+          "roomType": { "type": "string", "example": "rest" },
+          "status": { "type": "string", "example": "cleared" },
+          "hp": { "type": "integer" },
+          "maxHp": { "type": "integer" },
+          "mana": { "type": "integer" },
+          "maxMana": { "type": "integer" },
+          "recovered": {
+            "type": "object",
+            "properties": {
+              "hp": { "type": "integer" },
+              "mana": { "type": "integer" }
+            }
+          },
+          "log": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "DungeonLeaveResponse": {
+        "type": "object",
+        "properties": {
+          "left": { "type": "boolean" },
+          "message": { "type": "string" },
+          "position": { "$ref": "#/components/schemas/Coordinate" }
+        }
+      },
+      "MapData": {
+        "type": "object",
+        "properties": {
+          "width": { "type": "integer" },
+          "height": { "type": "integer" },
+          "terrain": {
+            "type": "array",
+            "description": "100x100 grid of terrain type strings",
+            "items": { "type": "array", "items": { "type": "string" } }
+          },
+          "pois": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Discovery" }
+          },
+          "discoveries": {
+            "type": "array",
+            "description": "POIs the player has discovered (authenticated only)",
+            "items": { "$ref": "#/components/schemas/Discovery" }
+          }
+        }
+      },
+      "Region": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "x1": { "type": "integer" },
+          "y1": { "type": "integer" },
+          "x2": { "type": "integer" },
+          "y2": { "type": "integer" },
+          "level": { "type": "integer" },
+          "terrain": { "type": "string" }
+        }
+      },
+      "CellResponse": {
+        "type": "object",
+        "properties": {
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "terrain": { "type": "string" },
+          "poi": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "type": { "type": "string" },
+              "category": { "type": "string" },
+              "x": { "type": "integer" },
+              "y": { "type": "integer" },
+              "terrain": { "type": "string" },
+              "description": { "type": "string" },
+              "level_min": { "type": "integer" },
+              "level_max": { "type": "integer" },
+              "discoveredAt": { "type": "string", "format": "date-time", "description": "Present if player has discovered this POI" }
+            }
+          }
         }
       },
       "Item": {
@@ -442,41 +1304,6 @@
           "description": { "type": "string" },
           "hitDie": { "type": "integer" },
           "primaryStat": { "type": "string" }
-        }
-      },
-      "MapData": {
-        "type": "object",
-        "properties": {
-          "terrain": {
-            "type": "array",
-            "description": "100x100 grid of terrain type strings",
-            "items": { "type": "array", "items": { "type": "string" } }
-          },
-          "pois": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": { "type": "string" },
-                "name": { "type": "string" },
-                "type": { "type": "string" },
-                "x": { "type": "integer" },
-                "y": { "type": "integer" }
-              }
-            }
-          }
-        }
-      },
-      "Region": {
-        "type": "object",
-        "properties": {
-          "name": { "type": "string" },
-          "x1": { "type": "integer" },
-          "y1": { "type": "integer" },
-          "x2": { "type": "integer" },
-          "y2": { "type": "integer" },
-          "level": { "type": "integer" },
-          "terrain": { "type": "string" }
         }
       }
     },
@@ -538,7 +1365,7 @@
         "responses": {
           "201": {
             "description": "Account created — check email for confirmation",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegisterResponse" } } }
           },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "409": { "description": "Email already registered", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
@@ -563,7 +1390,7 @@
         "responses": {
           "200": {
             "description": "Login successful",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } }
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } } }
           },
           "401": { "description": "Invalid credentials", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
           "429": { "$ref": "#/components/responses/TooManyRequests" }
@@ -597,7 +1424,7 @@
           }
         },
         "responses": {
-          "201": { "description": "Character created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Character" } } } },
+          "201": { "description": "Character created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CharacterCreated" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Character already exists", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
@@ -608,7 +1435,7 @@
       "get": {
         "tags": ["Characters"],
         "summary": "Get your character",
-        "description": "Returns the authenticated player's character with all stats, position, and status flags. Includes travel progress if currently traveling.",
+        "description": "Returns the authenticated player's character with all stats, position, equipment, spells, and travel status. If currently traveling, travel is auto-resolved and may include discoveries, XP, and encounters.",
         "responses": {
           "200": { "description": "Character data", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Character" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" },
@@ -620,7 +1447,7 @@
       "post": {
         "tags": ["Characters"],
         "summary": "Allocate a stat point",
-        "description": "Spend one unspent stat point to increase an ability score by 1. Points are earned on level up.",
+        "description": "Spend one unspent stat point to increase an ability score by 1. Points are earned on level up. If constitution is allocated, maxHp and hp are included. If intelligence is allocated, maxMana and mana are included.",
         "requestBody": {
           "required": true,
           "content": {
@@ -630,7 +1457,7 @@
           }
         },
         "responses": {
-          "200": { "description": "Stat allocated", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Character" } } } },
+          "200": { "description": "Stat allocated", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AllocateStatResponse" } } } },
           "400": { "description": "No unspent points available", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" }
         }
@@ -640,7 +1467,7 @@
       "post": {
         "tags": ["Travel"],
         "summary": "Move one cell",
-        "description": "Step one cell in a cardinal direction. Immediate movement. May trigger a random encounter based on terrain danger.",
+        "description": "Step one cell in a cardinal direction. Starts a short travel to the adjacent cell.",
         "requestBody": {
           "required": true,
           "content": {
@@ -650,7 +1477,7 @@
           }
         },
         "responses": {
-          "200": { "description": "Moved successfully. May include combat encounter data." },
+          "200": { "description": "Move started", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MoveResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Conflict" }
@@ -671,7 +1498,7 @@
           }
         },
         "responses": {
-          "200": { "description": "Travel started" },
+          "200": { "description": "Travel started", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TravelGoResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Conflict" }
@@ -682,7 +1509,7 @@
       "get": {
         "tags": ["Travel"],
         "summary": "Get travel status",
-        "description": "Check current travel progress. Returns position, destination, ETA, and progress percentage.",
+        "description": "Check current travel progress. If travel has completed, returns the final position along with any discoveries, XP gained, and encounters triggered.",
         "responses": {
           "200": { "description": "Travel status", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TravelStatus" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" }
@@ -693,9 +1520,9 @@
       "post": {
         "tags": ["Travel"],
         "summary": "Cancel active travel",
-        "description": "Stop traveling and remain at the last resolved position along the route.",
+        "description": "Stop traveling and remain at the last resolved position along the route. Discoveries and XP from traversed cells are kept.",
         "responses": {
-          "200": { "description": "Travel cancelled" },
+          "200": { "description": "Travel cancelled", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TravelCancelResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Not currently traveling", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
@@ -705,7 +1532,7 @@
       "get": {
         "tags": ["Map"],
         "summary": "Get world map",
-        "description": "Returns the full 100x100 terrain grid and all visible points of interest.",
+        "description": "Returns the full 100x100 terrain grid, all points of interest, and the player's discovered POIs (if authenticated).",
         "security": [],
         "responses": {
           "200": { "description": "Map data", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MapData" } } } }
@@ -721,7 +1548,19 @@
         "responses": {
           "200": {
             "description": "Region list",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Region" } } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "regions": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Region" }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -730,14 +1569,14 @@
       "get": {
         "tags": ["Map"],
         "summary": "Get cell details",
-        "description": "Returns detailed information about a specific cell including terrain, region, nearby POIs, and area level.",
+        "description": "Returns detailed information about a specific cell including terrain and any POI at that location.",
         "security": [],
         "parameters": [
           { "name": "x", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 0, "maximum": 99 } },
           { "name": "y", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 0, "maximum": 99 } }
         ],
         "responses": {
-          "200": { "description": "Cell details" },
+          "200": { "description": "Cell details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CellResponse" } } } },
           "400": { "description": "Coordinates out of range", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
       }
@@ -778,9 +1617,9 @@
       "get": {
         "tags": ["Inventory"],
         "summary": "Get inventory",
-        "description": "Returns the player's full inventory including equipment slots, backpack items, carry weight, and gold.",
+        "description": "Returns the player's full inventory including equipment slots, backpack items, carry weight, and capacity.",
         "responses": {
-          "200": { "description": "Inventory data" },
+          "200": { "description": "Inventory data", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InventoryResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" }
         }
       }
@@ -795,7 +1634,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PickUpItemRequest" } } }
         },
         "responses": {
-          "200": { "description": "Item picked up" },
+          "200": { "description": "Item picked up", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PickUpItemResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Conflict" }
@@ -812,7 +1651,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DropItemRequest" } } }
         },
         "responses": {
-          "200": { "description": "Item dropped" },
+          "200": { "description": "Item dropped", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DropItemResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" }
         }
@@ -828,7 +1667,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EquipItemRequest" } } }
         },
         "responses": {
-          "200": { "description": "Item equipped" },
+          "200": { "description": "Item equipped", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EquipItemResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Conflict" }
@@ -845,7 +1684,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnequipItemRequest" } } }
         },
         "responses": {
-          "200": { "description": "Item unequipped" },
+          "200": { "description": "Item unequipped", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnequipItemResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Conflict" }
@@ -862,7 +1701,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UseItemRequest" } } }
         },
         "responses": {
-          "200": { "description": "Item used" },
+          "200": { "description": "Item used", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UseItemResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" }
         }
@@ -872,9 +1711,9 @@
       "get": {
         "tags": ["Spells"],
         "summary": "Get spellbook",
-        "description": "Returns the player's learned spells with their details, mana costs, and cooldown status.",
+        "description": "Returns the player's learned spells with current mana.",
         "responses": {
-          "200": { "description": "Spellbook" },
+          "200": { "description": "Spellbook", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SpellbookResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" }
         }
       }
@@ -889,7 +1728,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LearnSpellRequest" } } }
         },
         "responses": {
-          "200": { "description": "Spell learned" },
+          "200": { "description": "Spell learned", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LearnSpellResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Already learned or requirements not met", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
@@ -906,7 +1745,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CastSpellRequest" } } }
         },
         "responses": {
-          "200": { "description": "Spell cast" },
+          "200": { "description": "Spell cast", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CastSpellResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Conflict" }
@@ -923,7 +1762,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StartCampRequest" } } }
         },
         "responses": {
-          "200": { "description": "Camping started" },
+          "200": { "description": "Camping started", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StartCampResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Conflict" }
         }
@@ -935,7 +1774,7 @@
         "summary": "Rest at an inn",
         "description": "Rest at a town inn to fully restore HP and mana. Must be at a town. Costs gold.",
         "responses": {
-          "200": { "description": "Rested at inn — HP and mana restored" },
+          "200": { "description": "Rested at inn — HP and mana restored", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InnRestResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Not at a town or insufficient gold", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
@@ -945,9 +1784,9 @@
       "get": {
         "tags": ["Rest"],
         "summary": "Get rest status",
-        "description": "Check if currently resting and how much time remains.",
+        "description": "Check if currently resting and how much time remains. Returns HP/mana status when not resting.",
         "responses": {
-          "200": { "description": "Rest status" },
+          "200": { "description": "Rest status", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RestStatus" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" }
         }
       }
@@ -958,7 +1797,7 @@
         "summary": "Stop resting",
         "description": "Cancel an active rest session early. You keep any HP/mana restored so far.",
         "responses": {
-          "200": { "description": "Rest stopped" },
+          "200": { "description": "Rest stopped", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StopRestResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Not currently resting", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
@@ -973,7 +1812,7 @@
           { "name": "townId", "in": "path", "required": true, "schema": { "type": "string" }, "example": "thornhaven" }
         ],
         "responses": {
-          "200": { "description": "Shop inventory" },
+          "200": { "description": "Shop inventory", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ShopResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "404": { "description": "Town not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
@@ -992,7 +1831,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BuyItemRequest" } } }
         },
         "responses": {
-          "200": { "description": "Item purchased" },
+          "200": { "description": "Item purchased", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BuyItemResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Insufficient gold or not at town", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
@@ -1012,7 +1851,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SellItemRequest" } } }
         },
         "responses": {
-          "200": { "description": "Item sold" },
+          "200": { "description": "Item sold", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SellItemResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Item not in backpack or not at town", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
@@ -1025,7 +1864,7 @@
         "summary": "Get available quests",
         "description": "Returns quests available at your current town. Quests are level-gated and some require completing prerequisite quests. Already-completed and active quests are excluded.",
         "responses": {
-          "200": { "description": "Available quests", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Quest" } } } } },
+          "200": { "description": "Available quests", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AvailableQuestsResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" }
         }
       }
@@ -1036,7 +1875,7 @@
         "summary": "Get active quests",
         "description": "Returns all quests currently in progress with objective tracking (current/required counts).",
         "responses": {
-          "200": { "description": "Active quests with progress", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Quest" } } } } },
+          "200": { "description": "Active quests with progress", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ActiveQuestsResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" }
         }
       }
@@ -1051,7 +1890,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AcceptQuestRequest" } } }
         },
         "responses": {
-          "200": { "description": "Quest accepted" },
+          "200": { "description": "Quest accepted", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AcceptQuestResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Quest limit reached or quest not available", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
@@ -1068,7 +1907,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TurnInQuestRequest" } } }
         },
         "responses": {
-          "200": { "description": "Quest turned in — rewards granted" },
+          "200": { "description": "Quest turned in — rewards granted", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TurnInQuestResponse" } } } },
           "400": { "description": "Objectives not complete", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" }
         }
@@ -1084,7 +1923,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AbandonQuestRequest" } } }
         },
         "responses": {
-          "200": { "description": "Quest abandoned" },
+          "200": { "description": "Quest abandoned", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AbandonQuestResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Quest not active", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
@@ -1094,7 +1933,7 @@
       "get": {
         "tags": ["Dungeons"],
         "summary": "Get dungeon status",
-        "description": "Check if you're in a dungeon and get current room info. Returns `{ inDungeon: false }` if not in a dungeon.",
+        "description": "Check if you're in a dungeon and get current progress including all rooms. Returns `{ inDungeon: false }` if not in a dungeon.",
         "responses": {
           "200": { "description": "Dungeon status", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DungeonStatus" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" }
@@ -1111,7 +1950,7 @@
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EnterDungeonRequest" } } }
         },
         "responses": {
-          "200": { "description": "Dungeon entered — first room revealed" },
+          "200": { "description": "Dungeon entered — rooms generated", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DungeonStatus" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Not at a dungeon POI, already in dungeon, or cooldown active", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
@@ -1122,9 +1961,23 @@
       "post": {
         "tags": ["Dungeons"],
         "summary": "Advance to next room",
-        "description": "Move to the next dungeon room. Non-combat rooms (trap, treasure, rest) resolve immediately. Combat and boss rooms start a fight — use `POST /api/combat/action` to battle.",
+        "description": "Move to the next dungeon room. Non-combat rooms (trap, treasure, rest) resolve immediately. Combat and boss rooms start a fight — use `POST /api/combat/action` to battle. Response shape varies by room type.",
         "responses": {
-          "200": { "description": "Room result — varies by room type" },
+          "200": {
+            "description": "Room result — varies by room type (combat, trap, treasure, rest)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/DungeonAdvanceCombat" },
+                    { "$ref": "#/components/schemas/DungeonAdvanceTrap" },
+                    { "$ref": "#/components/schemas/DungeonAdvanceTreasure" },
+                    { "$ref": "#/components/schemas/DungeonAdvanceRest" }
+                  ]
+                }
+              }
+            }
+          },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Not in dungeon, in combat, or dungeon completed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
@@ -1136,7 +1989,7 @@
         "summary": "Leave dungeon",
         "description": "Leave the dungeon. Progress is saved — you can re-enter later to continue from where you left off (unless completed, which triggers cooldown).",
         "responses": {
-          "200": { "description": "Left dungeon" },
+          "200": { "description": "Left dungeon", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DungeonLeaveResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Not in dungeon", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
