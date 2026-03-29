@@ -1,98 +1,179 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Forgebound
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A **fantasy RPG** played entirely through **REST API** calls. Create characters, explore a vast world, fight monsters, delve into dungeons, and complete quests — all via HTTP requests. No frontend required — build your own client, use curl, or just a REST client like Postman.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**[Live API Docs](https://forgebound.io)** | **[OpenAPI Spec](https://forgebound.io/openapi.html)** | **[World Map](https://forgebound.io/map.html)** | **[Discord](https://discord.gg/qPgsa5xqe3)**
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Features
 
-## Project setup
+- **Character Creation** — 5 races (Human, Elf, Dwarf, Halfling, Orc) and 5 classes (Warrior, Mage, Rogue, Cleric, Ranger) with D&D-style point-buy stats
+- **Open World** — 100x100 tile map with 7 terrain types, 12 towns, 14 landmarks, and ~500 points of interest
+- **A\* Pathfinding Travel** — Real-time travel with terrain-based movement costs and random encounters
+- **Turn-Based Combat** — d20 attack rolls, crits, 65 monsters across 9 types with level scaling
+- **Status Effects** — 12 effects (Poison, Burn, Stun, Freeze, Silence, Shield, Regen, and more) via spells, weapons, and monster abilities
+- **Spell System** — Class-specific spell lists with damage, healing, buffs, and debuffs
+- **Equipment & Inventory** — Weapons, armor, consumables with rarity tiers and carry weight
+- **Shops** — Town shops with restocking inventory, buy/sell at different prices
+- **Dungeons** — Multi-room instanced dungeons with combat, treasure, traps, rest rooms, and bosses
+- **Quests** — 37 hand-crafted quests across all 12 towns with kill, fetch, and explore objectives
+- **Leveling** — XP-based progression (levels 1-20) with stat allocation and spell unlocks
+- **Rest System** — Camp in the wild or stay at an inn to restore HP and mana
+
+## Quick Start
+
+### 1. Register & Login
 
 ```bash
-$ npm install
+# Register
+curl -X POST https://forgebound.io/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@example.com", "password": "yourpassword"}'
+
+# Login (save the token)
+curl -X POST https://forgebound.io/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@example.com", "password": "yourpassword"}'
 ```
 
-## Compile and run the project
+### 2. Create a Character
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+curl -X POST https://forgebound.io/api/characters \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Aldric",
+    "raceId": "human",
+    "classId": "warrior",
+    "strength": 15, "dexterity": 12, "constitution": 14,
+    "intelligence": 8, "wisdom": 10, "charisma": 8
+  }'
 ```
 
-## Run tests
+### 3. Start Exploring
 
 ```bash
-# unit tests
-$ npm run test
+# Travel to a location
+curl -X POST https://forgebound.io/api/travel/go \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"x": 45, "y": 52}'
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Check travel status
+curl https://forgebound.io/api/travel/status \
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-## Deployment
+## API Endpoints
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+| Category | Endpoints | Description |
+|----------|-----------|-------------|
+| **Auth** | 3 | Register, login, profile |
+| **Characters** | 3 | Create, view, allocate stats |
+| **Travel** | 4 | Move, pathfind, status, cancel |
+| **Map** | 3 | World map, regions, cell details |
+| **Combat** | 2 | Status, perform action |
+| **Inventory** | 6 | View, pick up, drop, equip, unequip, use |
+| **Spells** | 3 | Spellbook, learn, cast |
+| **Rest** | 4 | Camp, inn, status, stop |
+| **Shops** | 3 | View inventory, buy, sell |
+| **Quests** | 5 | Available, active, accept, turn in, abandon |
+| **Dungeons** | 4 | Status, enter, advance, leave |
+| **Game Data** | 4 | Races, classes, items, spells (public) |
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Full documentation at [forgebound.io](https://forgebound.io) or via the [OpenAPI spec](https://forgebound.io/openapi.html).
+
+## Self-Hosting
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 18+
+- A [Supabase](https://supabase.com/) project (free tier works)
+
+### Setup
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Clone the repo
+git clone https://github.com/your-username/forgebound.git
+cd forgebound
+
+# Install dependencies
+npm install
+
+# Copy the environment template and fill in your Supabase credentials
+cp .env.example .env
+# Edit .env with your Supabase URL, anon key, JWT JWK, and database URL
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Environment Variables
 
-## Resources
+| Variable | Description | Where to find it |
+|----------|-------------|------------------|
+| `SUPABASE_URL` | Your Supabase project URL | Dashboard > Settings > API |
+| `SUPABASE_ANON_KEY` | Public anon key | Dashboard > Settings > API |
+| `SUPABASE_JWT_JWK` | ES256 public key (JSON) | Dashboard > Settings > API > JWT Settings |
+| `DATABASE_URL` | PostgreSQL connection string | Dashboard > Settings > Database > Connection string |
 
-Check out a few resources that may come in handy when working with NestJS:
+### Run
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+# Development (watch mode)
+npm run start:dev
 
-## Support
+# Production
+npm run build
+npm run start:prod
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+The server starts on `http://localhost:3000`. Database tables, seed data, and RLS policies are created automatically on first boot.
 
-## Stay in touch
+### What happens on startup
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. **Tables created** — characters, inventory, active_combats, spells, items, shops, dungeons, quests, etc.
+2. **Data seeded** — 65 monsters, 80+ items, 30+ spells, 37 quests, world map with POIs
+3. **RLS policies applied** — Row-level security ensures players can only access their own data
+
+## Tech Stack
+
+- **Runtime** — [NestJS](https://nestjs.com/) (Node.js + TypeScript)
+- **Database** — [Supabase](https://supabase.com/) (PostgreSQL + Auth + RLS)
+- **Auth** — Supabase Auth with JWT verification
+- **Hosting** — Static files served from `/public` (API docs, world map, OpenAPI spec)
+
+## Project Structure
+
+```
+src/
+  auth/           # Registration, login, JWT verification
+  characters/     # Character creation and management
+  travel/         # Movement, pathfinding, encounters
+  map/            # World map, regions, POIs
+  combat/         # Turn-based combat engine + status effects
+  inventory/      # Items, equipment, backpack
+  spells/         # Spell system
+  rest/           # Camping and inn resting
+  shops/          # Town shops
+  quests/         # Quest system
+  dungeons/       # Dungeon instances
+  leveling/       # XP and level progression
+  game-data/      # Public reference data endpoints
+  common/         # Shared constants, guards, decorators
+  data/           # JSON seed data (monsters, items, spells, quests, map)
+  database/       # Bootstrap (table creation, seeding, RLS)
+public/
+  index.html      # API documentation site
+  openapi.html    # OpenAPI spec viewer (Redoc)
+  openapi.json    # OpenAPI 3.0.3 specification
+  map.html        # Interactive world map
+http/             # REST client test files (.http)
+```
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+[MIT](LICENSE)
