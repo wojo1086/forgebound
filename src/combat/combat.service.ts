@@ -40,6 +40,16 @@ import {
   RESPAWN_HP_FRACTION,
   RESPAWN_MANA_FRACTION,
 } from '../common/constants/combat.constants';
+import {
+  StatusEffect,
+  StatusEffectType,
+  STATUS_EFFECT_DEFAULTS,
+  DOT_EFFECTS,
+  INCAPACITATING_EFFECTS,
+  BUFF_EFFECTS,
+  DOT_FLAVOR,
+  EFFECT_APPLY_FLAVOR,
+} from '../common/constants/status-effects.constants';
 import { CombatAction } from './dto/combat-action.dto';
 import type { DungeonService } from '../dungeons/dungeon.service';
 import monstersData = require('../data/monsters.json');
@@ -53,6 +63,13 @@ interface MonsterAbility {
   chance: number;
   minLevel: number;
   description: string;
+  statusEffect?: {
+    type: string;
+    duration?: number;
+    value?: number;
+    chance?: number;   // probability to apply (0-1), default 1.0
+    target?: 'self' | 'opponent'; // default: 'opponent'
+  };
 }
 
 interface LootEntry {
@@ -185,6 +202,9 @@ export class CombatService implements OnModuleInit {
         maxHp: combat.monster_max_hp,
         ac: combat.monster_ac,
         type: combat.monster_type,
+        effects: (combat.monster_effects ?? []).map((e: StatusEffect) => ({
+          type: e.type, duration: e.duration, value: e.value,
+        })),
       },
       player: {
         hp: character.hp,
@@ -192,6 +212,9 @@ export class CombatService implements OnModuleInit {
         mana: character.mana,
         maxMana: character.max_mana,
         ac: effective.ac,
+        effects: (combat.player_effects ?? []).map((e: StatusEffect) => ({
+          type: e.type, duration: e.duration, value: e.value,
+        })),
       },
       log: combat.combat_log,
     };
@@ -231,115 +254,156 @@ export class CombatService implements OnModuleInit {
     let monsterHp = combat.monster_hp;
     let playerHp = character.hp;
     let playerMana = character.mana;
-    let combatOver = false;
-    let result: any = {};
+    let playerEffects: StatusEffect[] = [...(combat.player_effects ?? [])];
+    let monsterEffects: StatusEffect[] = [...(combat.monster_effects ?? [])];
+
+    // ─── Start-of-Turn: Process Status Effects ───
+    const playerTick = this.processEffects(
+      playerEffects, 'You', playerHp, effective.maxHp, log,
+    );
+    playerHp = playerTick.hp;
+    playerEffects = playerTick.effects;
+
+    const monsterTick = this.processEffects(
+      monsterEffects, `The ${combat.monster_name}`, monsterHp, combat.monster_max_hp, log,
+    );
+    monsterHp = monsterTick.hp;
+    monsterEffects = monsterTick.effects;
+
+    // Check DoT kills
+    if (playerHp <= 0) {
+      playerHp = 0;
+      log.push(`You have been defeated by the ${combat.monster_name}!`);
+      const defeatResult = await this.resolveDefeat(character, combat, log);
+      return { outcome: 'defeat', turn: combat.turn_count + 1, log, ...defeatResult };
+    }
+    if (monsterHp <= 0) {
+      monsterHp = 0;
+      log.push(`The ${combat.monster_name} has been defeated!`);
+      const victoryResult = await this.resolveVictory(character, combat, playerHp, playerMana, log);
+      return { outcome: 'victory', turn: combat.turn_count + 1, log, ...victoryResult };
+    }
 
     // ─── Player Turn ───
-    switch (action) {
-      case CombatAction.ATTACK: {
-        const roll = d20();
-        const strMod = abilityModifier(effective.strength);
-        const attackTotal = roll + strMod;
+    let playerActed = true;
+    if (playerTick.isIncapacitated) {
+      // Player is stunned/frozen — skip their action
+      playerActed = false;
+    } else if (playerTick.isSilenced && action === CombatAction.CAST) {
+      log.push('You are silenced and cannot cast spells this turn!');
+      playerActed = false;
+    } else {
+      switch (action) {
+        case CombatAction.ATTACK: {
+          // Blind check
+          const blindMiss = this.getBlindMissChance(playerEffects);
+          if (blindMiss > 0 && Math.random() < blindMiss) {
+            log.push(`Your vision is impaired — your attack goes wide! (blinded)`);
+            break;
+          }
 
-        if (roll === FUMBLE_ROLL) {
-          log.push(`You swing and miss completely! (rolled ${roll})`);
-        } else if (roll === CRIT_ROLL || attackTotal >= combat.monster_ac) {
-          const dmgMin = weapon ? weapon.damage_min : UNARMED_DAMAGE_MIN;
-          const dmgMax = weapon ? weapon.damage_max : UNARMED_DAMAGE_MAX;
-          let damage = randomInt(dmgMin, dmgMax) + strMod;
-          if (damage < 1) damage = 1;
-          if (roll === CRIT_ROLL) {
-            damage *= CRIT_DAMAGE_MULTIPLIER;
+          const roll = d20();
+          const curseMod = this.getCurseModifier(playerEffects);
+          const strMod = abilityModifier(effective.strength) + curseMod;
+          const attackTotal = roll + strMod;
+
+          if (roll === FUMBLE_ROLL) {
+            log.push(`You swing and miss completely! (rolled ${roll})`);
+          } else if (roll === CRIT_ROLL || attackTotal >= combat.monster_ac) {
+            const dmgMin = weapon ? weapon.damage_min : UNARMED_DAMAGE_MIN;
+            const dmgMax = weapon ? weapon.damage_max : UNARMED_DAMAGE_MAX;
+            let damage = randomInt(dmgMin, dmgMax) + Math.max(0, strMod);
+            if (damage < 1) damage = 1;
+            if (roll === CRIT_ROLL) damage *= CRIT_DAMAGE_MULTIPLIER;
+            damage = this.applyDamageModifiers(damage, playerEffects, monsterEffects, monsterTick.vulnerabilityMultiplier);
+            monsterHp -= damage;
+
+            const critText = roll === CRIT_ROLL ? 'CRITICAL HIT! ' : '';
             log.push(
-              `CRITICAL HIT! You strike the ${combat.monster_name} for ${damage} damage! (rolled ${roll})`,
+              `${critText}You strike the ${combat.monster_name} for ${damage} damage.${roll !== CRIT_ROLL ? ` (rolled ${roll} + ${strMod} = ${attackTotal} vs AC ${combat.monster_ac})` : ` (rolled ${roll})`}`,
             );
+
+            // Weapon proc check
+            if (weapon?.status_effect && weapon?.status_chance) {
+              if (Math.random() < weapon.status_chance) {
+                const se = weapon.status_effect;
+                monsterEffects = this.applyEffect(
+                  monsterEffects,
+                  se.type as StatusEffectType,
+                  weapon.name,
+                  log,
+                  `The ${combat.monster_name}`,
+                  se.duration,
+                  se.value,
+                );
+              }
+            }
           } else {
             log.push(
-              `You hit the ${combat.monster_name} for ${damage} damage. (rolled ${roll} + ${strMod} = ${attackTotal} vs AC ${combat.monster_ac})`,
+              `Your attack misses the ${combat.monster_name}. (rolled ${roll} + ${strMod} = ${attackTotal} vs AC ${combat.monster_ac})`,
             );
           }
-          monsterHp -= damage;
-        } else {
-          log.push(
-            `Your attack misses the ${combat.monster_name}. (rolled ${roll} + ${strMod} = ${attackTotal} vs AC ${combat.monster_ac})`,
-          );
+          break;
         }
-        break;
-      }
 
-      case CombatAction.CAST: {
-        if (!spellId) {
-          throw new BadRequestException('spellId is required for cast action.');
-        }
-        const spellResult = await this.resolveCast(
-          character,
-          effective,
-          spellId,
-          combat,
-          monsterHp,
-          playerHp,
-          playerMana,
-          log,
-        );
-        monsterHp = spellResult.monsterHp;
-        playerHp = spellResult.playerHp;
-        playerMana = spellResult.playerMana;
-        break;
-      }
-
-      case CombatAction.USE_ITEM: {
-        if (!itemId) {
-          throw new BadRequestException('itemId is required for use_item action.');
-        }
-        const itemResult = await this.resolveUseItem(
-          character.id,
-          itemId,
-          playerHp,
-          effective.maxHp,
-          playerMana,
-          character.max_mana,
-          log,
-        );
-        playerHp = itemResult.playerHp;
-        playerMana = itemResult.playerMana;
-        break;
-      }
-
-      case CombatAction.FLEE: {
-        if (combat.monster_type === 'boss' || combat.monster_type === 'dragon' || combat.monster_type === 'demon') {
-          // Check if the actual tier is boss
-          const monsterDef = this.monstersById.get(combat.monster_id);
-          if (monsterDef?.tier === 'boss') {
-            throw new BadRequestException('You cannot flee from a boss!');
+        case CombatAction.CAST: {
+          if (!spellId) {
+            throw new BadRequestException('spellId is required for cast action.');
           }
+          const spellResult = await this.resolveCast(
+            character, effective, spellId, combat,
+            monsterHp, playerHp, playerMana,
+            log, playerEffects, monsterEffects,
+            monsterTick.vulnerabilityMultiplier,
+          );
+          monsterHp = spellResult.monsterHp;
+          playerHp = spellResult.playerHp;
+          playerMana = spellResult.playerMana;
+          playerEffects = spellResult.playerEffects;
+          monsterEffects = spellResult.monsterEffects;
+          break;
         }
 
-        const dexMod = abilityModifier(effective.dexterity);
-        const fleeChance = Math.max(
-          FLEE_MIN_CHANCE,
-          Math.min(FLEE_MAX_CHANCE, FLEE_BASE_CHANCE + dexMod * FLEE_DEX_BONUS),
-        );
-
-        if (Math.random() < fleeChance) {
-          log.push(`You successfully flee from the ${combat.monster_name}!`);
-
-          // End combat — no rewards
-          await supabase.from('active_combats').delete().eq('id', combat.id);
-          await supabase
-            .from('characters')
-            .update({ hp: playerHp, mana: playerMana, in_combat: false })
-            .eq('id', character.id);
-
-          return {
-            outcome: 'fled',
-            log,
-            player: { hp: playerHp, mana: playerMana },
-          };
-        } else {
-          log.push(`You fail to escape from the ${combat.monster_name}!`);
-          // Monster gets a free attack — fall through to monster turn
+        case CombatAction.USE_ITEM: {
+          if (!itemId) {
+            throw new BadRequestException('itemId is required for use_item action.');
+          }
+          const itemResult = await this.resolveUseItem(
+            character.id, itemId, playerHp, effective.maxHp,
+            playerMana, character.max_mana, log,
+          );
+          playerHp = itemResult.playerHp;
+          playerMana = itemResult.playerMana;
+          break;
         }
-        break;
+
+        case CombatAction.FLEE: {
+          if (combat.monster_type === 'boss' || combat.monster_type === 'dragon' || combat.monster_type === 'demon') {
+            const monsterDef = this.monstersById.get(combat.monster_id);
+            if (monsterDef?.tier === 'boss') {
+              throw new BadRequestException('You cannot flee from a boss!');
+            }
+          }
+
+          const dexMod = abilityModifier(effective.dexterity);
+          const fleeChance = Math.max(
+            FLEE_MIN_CHANCE,
+            Math.min(FLEE_MAX_CHANCE, FLEE_BASE_CHANCE + dexMod * FLEE_DEX_BONUS),
+          );
+
+          if (Math.random() < fleeChance) {
+            log.push(`You successfully flee from the ${combat.monster_name}!`);
+            await supabase.from('active_combats').delete().eq('id', combat.id);
+            await supabase
+              .from('characters')
+              .update({ hp: playerHp, mana: playerMana, in_combat: false })
+              .eq('id', character.id);
+            return { outcome: 'fled', log, player: { hp: playerHp, mana: playerMana } };
+          } else {
+            log.push(`You fail to escape from the ${combat.monster_name}!`);
+          }
+          break;
+        }
       }
     }
 
@@ -347,41 +411,30 @@ export class CombatService implements OnModuleInit {
     if (monsterHp <= 0) {
       monsterHp = 0;
       log.push(`The ${combat.monster_name} has been defeated!`);
-      const victoryResult = await this.resolveVictory(
-        character,
-        combat,
-        playerHp,
-        playerMana,
-        log,
-      );
-      return {
-        outcome: 'victory',
-        turn: combat.turn_count + 1,
-        log,
-        ...victoryResult,
-      };
+      const victoryResult = await this.resolveVictory(character, combat, playerHp, playerMana, log);
+      return { outcome: 'victory', turn: combat.turn_count + 1, log, ...victoryResult };
     }
 
     // ─── Monster Turn ───
-    const monsterResult = this.resolveMonsterTurn(
-      combat,
-      effective,
-      playerHp,
-      log,
-    );
-    playerHp = monsterResult.playerHp;
+    if (monsterTick.isIncapacitated) {
+      // Monster is stunned/frozen — skip its turn (already logged above)
+    } else {
+      const monsterResult = this.resolveMonsterTurn(
+        combat, effective, playerHp, log,
+        playerEffects, monsterEffects, playerTick.vulnerabilityMultiplier,
+      );
+      playerHp = monsterResult.playerHp;
+      playerEffects = monsterResult.playerEffects;
+      monsterEffects = monsterResult.monsterEffects;
+      monsterHp = monsterResult.monsterHp;
+    }
 
     // ─── Check Player Death ───
     if (playerHp <= 0) {
       playerHp = 0;
       log.push(`You have been defeated by the ${combat.monster_name}!`);
       const defeatResult = await this.resolveDefeat(character, combat, log);
-      return {
-        outcome: 'defeat',
-        turn: combat.turn_count + 1,
-        log,
-        ...defeatResult,
-      };
+      return { outcome: 'defeat', turn: combat.turn_count + 1, log, ...defeatResult };
     }
 
     // ─── Update State ───
@@ -392,6 +445,8 @@ export class CombatService implements OnModuleInit {
         monster_hp: monsterHp,
         turn_count: combat.turn_count + 1,
         combat_log: updatedLog,
+        player_effects: playerEffects,
+        monster_effects: monsterEffects,
       })
       .eq('id', combat.id);
 
@@ -408,12 +463,14 @@ export class CombatService implements OnModuleInit {
         name: combat.monster_name,
         hp: monsterHp,
         maxHp: combat.monster_max_hp,
+        effects: monsterEffects.map((e) => ({ type: e.type, duration: e.duration, value: e.value })),
       },
       player: {
         hp: playerHp,
         maxHp: effective.maxHp,
         mana: playerMana,
         maxMana: character.max_mana,
+        effects: playerEffects.map((e) => ({ type: e.type, duration: e.duration, value: e.value })),
       },
     };
   }
@@ -431,6 +488,9 @@ export class CombatService implements OnModuleInit {
     playerHp: number,
     playerMana: number,
     log: string[],
+    playerEffects: StatusEffect[],
+    monsterEffects: StatusEffect[],
+    monsterVulnerability: number,
   ) {
     const supabase = this.supabaseService.getClient();
 
@@ -466,64 +526,96 @@ export class CombatService implements OnModuleInit {
     playerMana -= spell.mana_cost;
 
     // Determine casting modifier (INT for mage, WIS for cleric, INT otherwise)
+    const curseMod = this.getCurseModifier(playerEffects);
     const castMod =
-      character.class_id === 'cleric'
+      (character.class_id === 'cleric'
         ? abilityModifier(effective.wisdom)
-        : abilityModifier(effective.intelligence);
+        : abilityModifier(effective.intelligence)) + curseMod;
+
+    let spellHit = false;
 
     if (spell.effect_type === 'damage') {
-      const roll = d20();
-      const attackTotal = roll + castMod;
+      // Blind check
+      const blindMiss = this.getBlindMissChance(playerEffects);
+      if (blindMiss > 0 && Math.random() < blindMiss) {
+        log.push(`Your ${spell.name} goes astray — you can't see! (blinded, ${spell.mana_cost} mana)`);
+      } else {
+        const roll = d20();
+        const attackTotal = roll + castMod;
 
-      if (roll === FUMBLE_ROLL) {
-        log.push(`Your ${spell.name} fizzles! (rolled ${roll})`);
-      } else if (roll === CRIT_ROLL || attackTotal >= combat.monster_ac) {
-        let damage = (spell.effect_value ?? 0) + castMod;
-        if (damage < 1) damage = 1;
-        if (roll === CRIT_ROLL) {
-          damage *= CRIT_DAMAGE_MULTIPLIER;
+        if (roll === FUMBLE_ROLL) {
+          log.push(`Your ${spell.name} fizzles! (rolled ${roll})`);
+        } else if (roll === CRIT_ROLL || attackTotal >= combat.monster_ac) {
+          spellHit = true;
+          let damage = (spell.effect_value ?? 0) + Math.max(0, castMod);
+          if (damage < 1) damage = 1;
+          if (roll === CRIT_ROLL) damage *= CRIT_DAMAGE_MULTIPLIER;
+          damage = this.applyDamageModifiers(damage, playerEffects, monsterEffects, monsterVulnerability);
+          monsterHp -= damage;
+
+          const critText = roll === CRIT_ROLL ? 'CRITICAL! ' : '';
           log.push(
-            `CRITICAL! Your ${spell.name} blasts the ${combat.monster_name} for ${damage} ${spell.damage_type ?? ''} damage! (${spell.mana_cost} mana)`,
+            `${critText}Your ${spell.name} hits the ${combat.monster_name} for ${damage} ${spell.damage_type ?? ''} damage. (${spell.mana_cost} mana)`,
           );
         } else {
           log.push(
-            `Your ${spell.name} hits the ${combat.monster_name} for ${damage} ${spell.damage_type ?? ''} damage. (rolled ${roll} + ${castMod} = ${attackTotal} vs AC ${combat.monster_ac}, ${spell.mana_cost} mana)`,
+            `Your ${spell.name} misses! (rolled ${roll} + ${castMod} = ${attackTotal} vs AC ${combat.monster_ac}, ${spell.mana_cost} mana)`,
           );
         }
-        monsterHp -= damage;
-      } else {
-        log.push(
-          `Your ${spell.name} misses! (rolled ${roll} + ${castMod} = ${attackTotal} vs AC ${combat.monster_ac}, ${spell.mana_cost} mana)`,
-        );
       }
     } else if (spell.effect_type === 'heal_hp') {
-      const healAmount = Math.min(
-        spell.effect_value ?? 0,
-        effective.maxHp - playerHp,
-      );
+      const healAmount = Math.min(spell.effect_value ?? 0, effective.maxHp - playerHp);
       playerHp += healAmount;
-      log.push(
-        `You cast ${spell.name}, healing yourself for ${healAmount} HP. (${spell.mana_cost} mana)`,
-      );
+      log.push(`You cast ${spell.name}, healing yourself for ${healAmount} HP. (${spell.mana_cost} mana)`);
+      spellHit = true; // Self-target always "hits"
     } else if (spell.effect_type === 'restore_mana') {
-      const restoreAmount = Math.min(
-        spell.effect_value ?? 0,
-        character.max_mana - playerMana,
-      );
+      const restoreAmount = Math.min(spell.effect_value ?? 0, character.max_mana - playerMana);
       playerMana += restoreAmount;
-      log.push(
-        `You cast ${spell.name}, restoring ${restoreAmount} mana. (${spell.mana_cost} mana)`,
-      );
+      log.push(`You cast ${spell.name}, restoring ${restoreAmount} mana. (${spell.mana_cost} mana)`);
+      spellHit = true;
     } else if (spell.effect_type === 'teleport_town') {
       throw new BadRequestException('Cannot use teleport spells during combat. Try fleeing instead.');
     } else {
-      // Buff spells or null effect — just use mana, no combat effect yet
-      log.push(
-        `You cast ${spell.name}. (${spell.mana_cost} mana)`,
-      );
+      // Buff/utility spells with no direct effect
+      log.push(`You cast ${spell.name}. (${spell.mana_cost} mana)`);
+      spellHit = true; // Self-target always "hits"
     }
 
-    return { monsterHp, playerHp, playerMana };
+    // Apply spell's status effect
+    const spellSE = spell.status_effect;
+    if (spellSE && spellHit) {
+      const seType = spellSE.type as string;
+
+      if (seType === 'cleanse') {
+        // Remove all negative effects from player
+        const before = playerEffects.length;
+        playerEffects = playerEffects.filter((e) => BUFF_EFFECTS.has(e.type as StatusEffectType));
+        const removed = before - playerEffects.length;
+        if (removed > 0) {
+          log.push(`${spell.name} purges ${removed} negative effect${removed > 1 ? 's' : ''}!`);
+        } else {
+          log.push(`${spell.name} finds no negative effects to purge.`);
+        }
+      } else {
+        const seChance = spellSE.chance ?? 1.0;
+        if (Math.random() < seChance) {
+          const target = spellSE.target ?? (spell.target_type === 'self' ? 'self' : 'opponent');
+          if (target === 'self') {
+            playerEffects = this.applyEffect(
+              playerEffects, seType as StatusEffectType, spell.name,
+              log, 'You', spellSE.duration, spellSE.value,
+            );
+          } else {
+            monsterEffects = this.applyEffect(
+              monsterEffects, seType as StatusEffectType, spell.name,
+              log, `The ${combat.monster_name}`, spellSE.duration, spellSE.value,
+            );
+          }
+        }
+      }
+    }
+
+    return { monsterHp, playerHp, playerMana, playerEffects, monsterEffects };
   }
 
   /* ═══════════════════════════════════════════════
@@ -585,9 +677,13 @@ export class CombatService implements OnModuleInit {
     effective: any,
     playerHp: number,
     log: string[],
+    playerEffects: StatusEffect[],
+    monsterEffects: StatusEffect[],
+    playerVulnerability: number,
   ) {
     const abilities = (combat.monster_abilities as MonsterAbility[]) ?? [];
-    const monsterMod = Math.floor(combat.monster_level / 3);
+    const monsterMod = Math.floor(combat.monster_level / 3) + this.getCurseModifier(monsterEffects);
+    let monsterHp = combat.monster_hp; // track for self-heal abilities
 
     // Check for ability use
     let usedAbility: MonsterAbility | null = null;
@@ -598,71 +694,103 @@ export class CombatService implements OnModuleInit {
       }
     }
 
+    // Blind check for monster
+    const monsterBlindMiss = this.getBlindMissChance(monsterEffects);
+
     if (usedAbility && usedAbility.damageMultiplier > 0) {
       // Ability attack
-      const roll = d20();
-      const attackTotal = roll + monsterMod;
-
-      if (roll === FUMBLE_ROLL) {
-        log.push(
-          `The ${combat.monster_name} tries ${usedAbility.name} but misses! (rolled ${roll})`,
-        );
-      } else if (roll === CRIT_ROLL || attackTotal >= effective.ac) {
-        const baseDmg = randomInt(combat.monster_damage_min, combat.monster_damage_max);
-        let damage = Math.round(baseDmg * usedAbility.damageMultiplier);
-        if (roll === CRIT_ROLL) damage *= CRIT_DAMAGE_MULTIPLIER;
-        if (damage < 1) damage = 1;
-        playerHp -= damage;
-
-        const critText = roll === CRIT_ROLL ? 'CRITICAL! ' : '';
-        log.push(
-          `${critText}The ${combat.monster_name} uses ${usedAbility.name} for ${damage} ${usedAbility.damageType} damage!`,
-        );
+      if (monsterBlindMiss > 0 && Math.random() < monsterBlindMiss) {
+        log.push(`The ${combat.monster_name} tries ${usedAbility.name} but can't see! (blinded)`);
       } else {
-        log.push(
-          `The ${combat.monster_name} uses ${usedAbility.name} but misses! (${attackTotal} vs AC ${effective.ac})`,
-        );
+        const roll = d20();
+        const attackTotal = roll + monsterMod;
+
+        if (roll === FUMBLE_ROLL) {
+          log.push(`The ${combat.monster_name} tries ${usedAbility.name} but misses! (rolled ${roll})`);
+        } else if (roll === CRIT_ROLL || attackTotal >= effective.ac) {
+          const baseDmg = randomInt(combat.monster_damage_min, combat.monster_damage_max);
+          let damage = Math.round(baseDmg * usedAbility.damageMultiplier);
+          if (roll === CRIT_ROLL) damage *= CRIT_DAMAGE_MULTIPLIER;
+          damage = this.applyDamageModifiers(damage, monsterEffects, playerEffects, playerVulnerability);
+          playerHp -= damage;
+
+          const critText = roll === CRIT_ROLL ? 'CRITICAL! ' : '';
+          log.push(`${critText}The ${combat.monster_name} uses ${usedAbility.name} for ${damage} ${usedAbility.damageType} damage!`);
+
+          // Apply ability status effect on hit
+          if (usedAbility.statusEffect) {
+            const se = usedAbility.statusEffect;
+            const seChance = se.chance ?? 1.0;
+            if (Math.random() < seChance) {
+              const target = se.target ?? 'opponent';
+              if (target === 'self') {
+                monsterEffects = this.applyEffect(
+                  monsterEffects, se.type as StatusEffectType, usedAbility.name,
+                  log, `The ${combat.monster_name}`, se.duration, se.value,
+                );
+              } else {
+                playerEffects = this.applyEffect(
+                  playerEffects, se.type as StatusEffectType, usedAbility.name,
+                  log, 'You', se.duration, se.value,
+                );
+              }
+            }
+          }
+        } else {
+          log.push(`The ${combat.monster_name} uses ${usedAbility.name} but misses! (${attackTotal} vs AC ${effective.ac})`);
+        }
       }
     } else if (usedAbility && usedAbility.damageMultiplier === 0) {
-      // Self-heal ability (like Dark Heal or Regenerate)
-      const healAmount = Math.round(
-        (combat.monster_max_hp - combat.monster_hp) * 0.15,
-      );
-      // Note: we can't heal the monster from here since we return only playerHp
-      // Instead, treat as a 0-damage turn with flavor text
-      log.push(
-        `The ${combat.monster_name} uses ${usedAbility.name}!`,
-      );
+      // Non-damage ability (self-buff / self-heal)
+      log.push(`The ${combat.monster_name} uses ${usedAbility.name}!`);
+      // Apply status effect (typically self-targeting like Regen, Enrage)
+      if (usedAbility.statusEffect) {
+        const se = usedAbility.statusEffect;
+        const seChance = se.chance ?? 1.0;
+        if (Math.random() < seChance) {
+          const target = se.target ?? 'self'; // 0-damage abilities default to self
+          if (target === 'self') {
+            monsterEffects = this.applyEffect(
+              monsterEffects, se.type as StatusEffectType, usedAbility.name,
+              log, `The ${combat.monster_name}`, se.duration, se.value,
+            );
+          } else {
+            playerEffects = this.applyEffect(
+              playerEffects, se.type as StatusEffectType, usedAbility.name,
+              log, 'You', se.duration, se.value,
+            );
+          }
+        }
+      }
     } else {
       // Basic attack
-      const roll = d20();
-      const attackTotal = roll + monsterMod;
-
-      if (roll === FUMBLE_ROLL) {
-        log.push(
-          `The ${combat.monster_name} attacks but misses! (rolled ${roll})`,
-        );
-      } else if (roll === CRIT_ROLL || attackTotal >= effective.ac) {
-        let damage = randomInt(combat.monster_damage_min, combat.monster_damage_max);
-        if (roll === CRIT_ROLL) {
-          damage *= CRIT_DAMAGE_MULTIPLIER;
-          log.push(
-            `CRITICAL! The ${combat.monster_name} strikes you for ${damage} ${combat.monster_type === 'undead' ? 'shadow' : 'physical'} damage!`,
-          );
-        } else {
-          log.push(
-            `The ${combat.monster_name} attacks you for ${damage} damage. (rolled ${roll} + ${monsterMod} = ${attackTotal} vs AC ${effective.ac})`,
-          );
-        }
-        playerHp -= damage;
+      if (monsterBlindMiss > 0 && Math.random() < monsterBlindMiss) {
+        log.push(`The ${combat.monster_name} attacks but can't see! (blinded)`);
       } else {
-        log.push(
-          `The ${combat.monster_name}'s attack misses. (rolled ${roll} + ${monsterMod} = ${attackTotal} vs AC ${effective.ac})`,
-        );
+        const roll = d20();
+        const attackTotal = roll + monsterMod;
+
+        if (roll === FUMBLE_ROLL) {
+          log.push(`The ${combat.monster_name} attacks but misses! (rolled ${roll})`);
+        } else if (roll === CRIT_ROLL || attackTotal >= effective.ac) {
+          let damage = randomInt(combat.monster_damage_min, combat.monster_damage_max);
+          if (roll === CRIT_ROLL) damage *= CRIT_DAMAGE_MULTIPLIER;
+          damage = this.applyDamageModifiers(damage, monsterEffects, playerEffects, playerVulnerability);
+          playerHp -= damage;
+
+          const critText = roll === CRIT_ROLL ? 'CRITICAL! ' : '';
+          if (critText) {
+            log.push(`${critText}The ${combat.monster_name} strikes you for ${damage} damage!`);
+          } else {
+            log.push(`The ${combat.monster_name} attacks you for ${damage} damage. (rolled ${roll} + ${monsterMod} = ${attackTotal} vs AC ${effective.ac})`);
+          }
+        } else {
+          log.push(`The ${combat.monster_name}'s attack misses. (rolled ${roll} + ${monsterMod} = ${attackTotal} vs AC ${effective.ac})`);
+        }
       }
     }
 
-    return { playerHp };
+    return { playerHp, playerEffects, monsterEffects, monsterHp };
   }
 
   /* ═══════════════════════════════════════════════
@@ -1057,6 +1185,167 @@ export class CombatService implements OnModuleInit {
     }
 
     return pool;
+  }
+
+  /* ═══════════════════════════════════════════════
+     STATUS EFFECT ENGINE
+     ═══════════════════════════════════════════════ */
+
+  /**
+   * Process start-of-turn effects for a target.
+   * Applies DoTs, Regen, checks for incapacitation/silence.
+   * Decrements durations and removes expired effects.
+   */
+  private processEffects(
+    effects: StatusEffect[],
+    targetName: string,
+    hp: number,
+    maxHp: number,
+    log: string[],
+  ): {
+    hp: number;
+    effects: StatusEffect[];
+    isIncapacitated: boolean;
+    isSilenced: boolean;
+    vulnerabilityMultiplier: number;
+  } {
+    let isIncapacitated = false;
+    let isSilenced = false;
+    let vulnerabilityMultiplier = 1.0;
+
+    for (const eff of effects) {
+      const type = eff.type as StatusEffectType;
+
+      // DoT damage
+      if (DOT_EFFECTS.has(type)) {
+        hp -= eff.value;
+        const flavor = DOT_FLAVOR[type] ?? 'takes damage';
+        log.push(`${targetName} ${flavor} for ${eff.value} damage! (${type}, ${eff.duration} turns left)`);
+      }
+
+      // Regen
+      if (type === StatusEffectType.REGEN) {
+        const healAmt = Math.min(eff.value, maxHp - hp);
+        if (healAmt > 0) {
+          hp += healAmt;
+          log.push(`${targetName} regenerates ${healAmt} HP. (${eff.duration} turns left)`);
+        }
+      }
+
+      // Incapacitation
+      if (INCAPACITATING_EFFECTS.has(type)) {
+        isIncapacitated = true;
+        if (type === StatusEffectType.STUN) {
+          log.push(`${targetName} is stunned and cannot act!`);
+        } else if (type === StatusEffectType.FREEZE) {
+          log.push(`${targetName} is frozen solid and cannot act!`);
+          vulnerabilityMultiplier = 1 + eff.value / 100;
+        }
+      }
+
+      // Silence
+      if (type === StatusEffectType.SILENCE) {
+        isSilenced = true;
+      }
+
+      // Freeze vulnerability (even if not incapacitated on this check)
+      if (type === StatusEffectType.FREEZE && !isIncapacitated) {
+        vulnerabilityMultiplier = 1 + eff.value / 100;
+      }
+    }
+
+    // Decrement durations and remove expired
+    const remaining: StatusEffect[] = [];
+    for (const eff of effects) {
+      const newDur = eff.duration - 1;
+      if (newDur <= 0) {
+        const flavor = EFFECT_APPLY_FLAVOR[eff.type as StatusEffectType] ?? eff.type;
+        log.push(`${targetName} is no longer ${flavor.replace(/^(is |becomes |gains |begins )/, '')}.`);
+      } else {
+        remaining.push({ ...eff, duration: newDur });
+      }
+    }
+
+    return { hp, effects: remaining, isIncapacitated, isSilenced, vulnerabilityMultiplier };
+  }
+
+  /**
+   * Apply a status effect to a target's effects array.
+   * If the same type already exists, refreshes duration (no stacking).
+   */
+  private applyEffect(
+    effects: StatusEffect[],
+    type: StatusEffectType,
+    source: string,
+    log: string[],
+    targetName: string,
+    durationOverride?: number,
+    valueOverride?: number,
+  ): StatusEffect[] {
+    const defaults = STATUS_EFFECT_DEFAULTS[type];
+    const duration = durationOverride ?? defaults.duration;
+    const value = valueOverride ?? defaults.value;
+
+    const existing = effects.find((e) => e.type === type);
+    if (existing) {
+      existing.duration = Math.max(existing.duration, duration);
+      existing.value = value;
+      existing.source = source;
+    } else {
+      effects.push({ type, duration, value, source });
+    }
+
+    const flavor = EFFECT_APPLY_FLAVOR[type] ?? `is affected by ${type}`;
+    log.push(`${targetName} ${flavor}! (${source}, ${duration} turns)`);
+    return effects;
+  }
+
+  /** Get outgoing damage multiplier: Weakness reduces, Enrage increases */
+  private getOutgoingDmgMult(effects: StatusEffect[]): number {
+    let mult = 1.0;
+    for (const eff of effects) {
+      if (eff.type === StatusEffectType.WEAKNESS) mult *= 1 - eff.value / 100;
+      if (eff.type === StatusEffectType.ENRAGE) mult *= 1 + eff.value / 100;
+    }
+    return mult;
+  }
+
+  /** Get Shield flat damage absorption */
+  private getShieldAbsorb(effects: StatusEffect[]): number {
+    for (const eff of effects) {
+      if (eff.type === StatusEffectType.SHIELD) return eff.value;
+    }
+    return 0;
+  }
+
+  /** Get Blind miss chance (0-1) */
+  private getBlindMissChance(effects: StatusEffect[]): number {
+    for (const eff of effects) {
+      if (eff.type === StatusEffectType.BLIND) return eff.value / 100;
+    }
+    return 0;
+  }
+
+  /** Get Curse modifier (negative) */
+  private getCurseModifier(effects: StatusEffect[]): number {
+    for (const eff of effects) {
+      if (eff.type === StatusEffectType.CURSE) return -eff.value;
+    }
+    return 0;
+  }
+
+  /** Apply damage modifiers: outgoing mult, vulnerability, shield. Returns final damage. */
+  private applyDamageModifiers(
+    rawDamage: number,
+    attackerEffects: StatusEffect[],
+    defenderEffects: StatusEffect[],
+    defenderVulnerability: number,
+  ): number {
+    let dmg = rawDamage;
+    dmg = Math.round(dmg * this.getOutgoingDmgMult(attackerEffects));
+    dmg = Math.round(dmg * defenderVulnerability);
+    dmg -= this.getShieldAbsorb(defenderEffects);
+    return Math.max(1, dmg);
   }
 
   /* ═══════════════════════════════════════════════

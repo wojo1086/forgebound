@@ -254,6 +254,15 @@ export class DatabaseBootstrap implements OnModuleInit {
       CREATE INDEX IF NOT EXISTS idx_active_combats_character ON active_combats(character_id);
     `);
 
+    // Status effects: add columns to active_combats, spells, items (idempotent)
+    await client.query(`
+      ALTER TABLE active_combats ADD COLUMN IF NOT EXISTS player_effects jsonb NOT NULL DEFAULT '[]';
+      ALTER TABLE active_combats ADD COLUMN IF NOT EXISTS monster_effects jsonb NOT NULL DEFAULT '[]';
+      ALTER TABLE spells ADD COLUMN IF NOT EXISTS status_effect jsonb DEFAULT NULL;
+      ALTER TABLE items ADD COLUMN IF NOT EXISTS status_effect jsonb DEFAULT NULL;
+      ALTER TABLE items ADD COLUMN IF NOT EXISTS status_chance numeric(4,2) DEFAULT NULL;
+    `);
+
     // Update CHECK constraints for existing databases (idempotent)
     await client.query(`
       DO $$ BEGIN
@@ -635,9 +644,11 @@ export class DatabaseBootstrap implements OnModuleInit {
       damage_max: item.damageMax ?? null,
       effect_type: item.effectType ?? null,
       effect_value: item.effectValue ?? null,
+      status_effect: item.statusEffect ? JSON.stringify(item.statusEffect) : null,
+      status_chance: item.statusChance ?? null,
     }));
 
-    const COLS = 21;
+    const COLS = 23;
     for (let i = 0; i < items.length; i += 50) {
       const chunk = items.slice(i, i + 50);
       const values = chunk
@@ -654,14 +665,18 @@ export class DatabaseBootstrap implements OnModuleInit {
         item.bonus_intelligence, item.bonus_wisdom, item.bonus_charisma,
         item.bonus_ac, item.bonus_hp, item.damage_min, item.damage_max,
         item.effect_type, item.effect_value,
+        item.status_effect, item.status_chance,
       ]);
 
       await client.query(
         `INSERT INTO items (id, name, description, type, rarity, weight, value, level_required, class_restriction,
           bonus_strength, bonus_dexterity, bonus_constitution, bonus_intelligence, bonus_wisdom, bonus_charisma,
-          bonus_ac, bonus_hp, damage_min, damage_max, effect_type, effect_value)
+          bonus_ac, bonus_hp, damage_min, damage_max, effect_type, effect_value,
+          status_effect, status_chance)
          VALUES ${values}
-         ON CONFLICT (id) DO NOTHING`,
+         ON CONFLICT (id) DO UPDATE SET
+           status_effect = EXCLUDED.status_effect,
+           status_chance = EXCLUDED.status_chance`,
         params,
       );
     }
@@ -684,9 +699,10 @@ export class DatabaseBootstrap implements OnModuleInit {
       effect_type: s.effectType ?? null,
       effect_value: s.effectValue ?? null,
       damage_type: s.damageType ?? null,
+      status_effect: s.statusEffect ? JSON.stringify(s.statusEffect) : null,
     }));
 
-    const SPELL_COLS = 13;
+    const SPELL_COLS = 14;
     for (let i = 0; i < spells.length; i += 50) {
       const chunk = spells.slice(i, i + 50);
       const values = chunk
@@ -700,14 +716,15 @@ export class DatabaseBootstrap implements OnModuleInit {
         s.id, s.name, s.description, s.school, s.spell_level,
         s.mana_cost, s.cooldown_seconds, s.level_required, s.class_restriction,
         s.target_type, s.effect_type, s.effect_value, s.damage_type,
+        s.status_effect,
       ]);
 
       await client.query(
         `INSERT INTO spells (id, name, description, school, spell_level,
           mana_cost, cooldown_seconds, level_required, class_restriction,
-          target_type, effect_type, effect_value, damage_type)
+          target_type, effect_type, effect_value, damage_type, status_effect)
          VALUES ${values}
-         ON CONFLICT (id) DO NOTHING`,
+         ON CONFLICT (id) DO UPDATE SET status_effect = EXCLUDED.status_effect`,
         params,
       );
     }

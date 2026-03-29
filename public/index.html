@@ -59,7 +59,7 @@
 
     /* ─── TOP NAV ─── */
     .topnav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200; overflow: hidden;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       height: var(--nav-h);
       background: rgba(12, 13, 18, 0.92);
       backdrop-filter: blur(16px);
@@ -1938,14 +1938,18 @@ Content-Type: application/json
     "hp": 14,
     "maxHp": 19,
     "ac": 9,
-    "type": "beast"
+    "type": "beast",
+    "effects": []
   },
   "player": {
     "hp": 8,
     "maxHp": 13,
     "mana": 20,
     "maxMana": 20,
-    "ac": 12
+    "ac": 12,
+    "effects": [
+      { "type": "regen", "duration": 2, "value": 5, "source": "Nature's Blessing" }
+    ]
   },
   "log": ["..."]
 }</pre>
@@ -2031,6 +2035,59 @@ Content-Type: application/json
             <strong>While in combat:</strong> You cannot travel, rest, shop, or change equipment.
           </div>
         </div>
+
+        <div style="margin-top:2rem;">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:0.75rem;">Status Effects</h3>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem;">Both players and monsters can apply status effects during combat. Spells apply effects on hit (with a chance roll). Rare+ weapons have a chance to proc effects on melee attacks. Monster abilities can also inflict effects. Effects do not stack &mdash; reapplying the same effect refreshes its duration.</p>
+
+          <h4 style="font-size:0.9rem;font-weight:600;color:var(--text-bright);margin:1rem 0 0.5rem;">Damage over Time</h4>
+          <table class="ref-table" style="max-width:550px;">
+            <tr><th>Effect</th><th>Duration</th><th>Value</th><th>Behavior</th></tr>
+            <tr><td>Poison</td><td>3 turns</td><td>5 dmg/turn</td><td>Damage before action each turn</td></tr>
+            <tr><td>Bleed</td><td>3 turns</td><td>4 dmg/turn</td><td>Damage before action each turn</td></tr>
+            <tr><td>Burn</td><td>2 turns</td><td>6 dmg/turn</td><td>Damage before action each turn</td></tr>
+          </table>
+
+          <h4 style="font-size:0.9rem;font-weight:600;color:var(--text-bright);margin:1rem 0 0.5rem;">Control Effects</h4>
+          <table class="ref-table" style="max-width:550px;">
+            <tr><th>Effect</th><th>Duration</th><th>Behavior</th></tr>
+            <tr><td>Stun</td><td>1 turn</td><td>Skip turn entirely</td></tr>
+            <tr><td>Freeze</td><td>1 turn</td><td>Skip turn + take 50% more damage</td></tr>
+          </table>
+
+          <h4 style="font-size:0.9rem;font-weight:600;color:var(--text-bright);margin:1rem 0 0.5rem;">Debuffs</h4>
+          <table class="ref-table" style="max-width:550px;">
+            <tr><th>Effect</th><th>Duration</th><th>Value</th><th>Behavior</th></tr>
+            <tr><td>Blind</td><td>2 turns</td><td>40% miss</td><td>Extra miss chance on attacks and spells</td></tr>
+            <tr><td>Silence</td><td>2 turns</td><td>&mdash;</td><td>Cannot cast spells</td></tr>
+            <tr><td>Weakness</td><td>3 turns</td><td>-25%</td><td>Outgoing damage reduced</td></tr>
+            <tr><td>Curse</td><td>3 turns</td><td>-2</td><td>All ability modifiers reduced by 2</td></tr>
+          </table>
+
+          <h4 style="font-size:0.9rem;font-weight:600;color:var(--text-bright);margin:1rem 0 0.5rem;">Buffs</h4>
+          <table class="ref-table" style="max-width:550px;">
+            <tr><th>Effect</th><th>Duration</th><th>Value</th><th>Behavior</th></tr>
+            <tr><td>Shield</td><td>3 turns</td><td>5 absorb</td><td>Flat damage reduction per hit</td></tr>
+            <tr><td>Regen</td><td>3 turns</td><td>5 HP/turn</td><td>Heal before action each turn</td></tr>
+            <tr><td>Enrage</td><td>3 turns</td><td>+30%</td><td>Outgoing damage increased</td></tr>
+          </table>
+
+          <h4 style="font-size:0.9rem;font-weight:600;color:var(--text-bright);margin:1rem 0 0.5rem;">Sources</h4>
+          <table class="ref-table" style="max-width:550px;">
+            <tr><th>Source</th><th>Application</th></tr>
+            <tr><td>Spells</td><td>Chance to apply on hit (e.g. Fireball: 50% burn)</td></tr>
+            <tr><td>Weapons</td><td>Rare+ weapons have a proc chance (e.g. Flamebrand: 25% burn)</td></tr>
+            <tr><td>Monster abilities</td><td>Many monsters inflict effects (e.g. Spider: poison, Lich: silence)</td></tr>
+            <tr><td>Purify spell</td><td>Removes all negative effects (DoTs, debuffs, controls)</td></tr>
+          </table>
+
+          <div class="note" style="margin-top:0.75rem;">
+            <strong>Processing order:</strong> Effects are processed at turn start before actions. DoT damage and regen heal first, then stun/freeze/silence are checked. A stun applied on turn N takes effect on turn N+1.<br>
+            <strong>No stacking:</strong> Reapplying the same effect type refreshes the duration; it does not stack multiple instances.<br>
+            <strong>Damage pipeline:</strong> Raw damage &rarr; Outgoing multiplier (Weakness/Enrage) &rarr; Vulnerability (Freeze +50%) &rarr; Shield absorption.
+          </div>
+        </div>
+
       </div>
 
       <!-- DUNGEONS -->
@@ -2334,6 +2391,24 @@ Content-Type: application/json
         <div class="section-label">Changelog</div>
         <div class="section-title">Update History</div>
         <div class="section-desc">A transparent log of everything added, changed, and fixed in Forgebound.</div>
+
+        <div class="changelog-entry">
+          <div class="changelog-date">March 28, 2026</div>
+          <div class="changelog-version">v0.7.0 &mdash; Status Effects</div>
+          <ul class="changelog-list">
+            <li><span class="changelog-tag tag-new">New</span> 12 status effects &mdash; Poison, Bleed, Burn, Stun, Freeze, Blind, Silence, Weakness, Curse, Shield, Regen, Enrage</li>
+            <li><span class="changelog-tag tag-new">New</span> Spells apply status effects on hit with per-spell chance rolls</li>
+            <li><span class="changelog-tag tag-new">New</span> Rare+ weapons have on-hit proc chances for status effects</li>
+            <li><span class="changelog-tag tag-new">New</span> Monster abilities can inflict status effects on players</li>
+            <li><span class="changelog-tag tag-new">New</span> Damage-over-time effects (Poison, Bleed, Burn) tick at turn start</li>
+            <li><span class="changelog-tag tag-new">New</span> Control effects (Stun, Freeze) skip the target&rsquo;s turn</li>
+            <li><span class="changelog-tag tag-new">New</span> Silence prevents spellcasting; Blind adds miss chance; Weakness/Curse reduce damage output</li>
+            <li><span class="changelog-tag tag-new">New</span> Buff effects (Shield, Regen, Enrage) for self-targeting spells and monster abilities</li>
+            <li><span class="changelog-tag tag-new">New</span> Purify spell cleanses all negative effects (DoTs, debuffs, controls)</li>
+            <li><span class="changelog-tag tag-improved">Improved</span> Combat status response now includes active effects for both player and monster</li>
+            <li><span class="changelog-tag tag-improved">Improved</span> Full damage modifier pipeline &mdash; Weakness, Enrage, Freeze vulnerability, and Shield absorption</li>
+          </ul>
+        </div>
 
         <div class="changelog-entry">
           <div class="changelog-date">March 28, 2026</div>

@@ -27,7 +27,13 @@
     "targetType": "enemy",
     "effectType": "damage",
     "effectValue": 9,
-    "damageType": "ice"
+    "damageType": "ice",
+    "statusEffect": {
+      "type": "freeze",
+      "duration": 1,
+      "value": 50,
+      "chance": 0.25
+    }
   },
   {
     "id": "fireball",
@@ -42,7 +48,13 @@
     "targetType": "area",
     "effectType": "damage",
     "effectValue": 22,
-    "damageType": "fire"
+    "damageType": "fire",
+    "statusEffect": {
+      "type": "burn",
+      "duration": 2,
+      "value": 8,
+      "chance": 0.5
+    }
   },
   {
     "id": "lightning-bolt",
@@ -57,7 +69,13 @@
     "targetType": "enemy",
     "effectType": "damage",
     "effectValue": 20,
-    "damageType": "lightning"
+    "damageType": "lightning",
+    "statusEffect": {
+      "type": "stun",
+      "duration": 1,
+      "value": 0,
+      "chance": 0.2
+    }
   },
   {
     "id": "arcane-shield",
@@ -72,7 +90,14 @@
     "targetType": "self",
     "effectType": null,
     "effectValue": null,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "shield",
+      "duration": 3,
+      "value": 8,
+      "chance": 1,
+      "target": "self"
+    }
   },
   {
     "id": "blizzard",
@@ -87,7 +112,13 @@
     "targetType": "area",
     "effectType": "damage",
     "effectValue": 38,
-    "damageType": "ice"
+    "damageType": "ice",
+    "statusEffect": {
+      "type": "freeze",
+      "duration": 1,
+      "value": 50,
+      "chance": 0.35
+    }
   },
   {
     "id": "meteor-strike",
@@ -102,7 +133,13 @@
     "targetType": "area",
     "effectType": "damage",
     "effectValue": 55,
-    "damageType": "fire"
+    "damageType": "fire",
+    "statusEffect": {
+      "type": "burn",
+      "duration": 3,
+      "value": 12,
+      "chance": 0.6
+    }
   },
   {
     "id": "mana-surge",
@@ -160,9 +197,15 @@
     "levelRequired": 7,
     "classRestriction": "mage",
     "targetType": "enemy",
-    "effectType": null,
-    "effectValue": null,
-    "damageType": null
+    "effectType": "damage",
+    "effectValue": 5,
+    "damageType": "arcane",
+    "statusEffect": {
+      "type": "silence",
+      "duration": 2,
+      "value": 0,
+      "chance": 0.8
+    }
   },
   {
     "id": "mirror-image",
@@ -177,7 +220,14 @@
     "targetType": "self",
     "effectType": null,
     "effectValue": null,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "blind",
+      "duration": 2,
+      "value": 30,
+      "chance": 1,
+      "target": "self_on_enemy"
+    }
   },
   {
     "id": "heal",
@@ -222,7 +272,13 @@
     "targetType": "enemy",
     "effectType": "damage",
     "effectValue": 7,
-    "damageType": "holy"
+    "damageType": "holy",
+    "statusEffect": {
+      "type": "burn",
+      "duration": 2,
+      "value": 4,
+      "chance": 0.3
+    }
   },
   {
     "id": "bless",
@@ -252,7 +308,14 @@
     "targetType": "self",
     "effectType": null,
     "effectValue": null,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "shield",
+      "duration": 4,
+      "value": 10,
+      "chance": 1,
+      "target": "self"
+    }
   },
   {
     "id": "smite",
@@ -267,7 +330,13 @@
     "targetType": "enemy",
     "effectType": "damage",
     "effectValue": 20,
-    "damageType": "holy"
+    "damageType": "holy",
+    "statusEffect": {
+      "type": "weakness",
+      "duration": 2,
+      "value": 20,
+      "chance": 0.4
+    }
   },
   {
     "id": "resurrection",
@@ -297,7 +366,12 @@
     "targetType": "self",
     "effectType": "heal_hp",
     "effectValue": 15,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "cleanse",
+      "chance": 1,
+      "target": "self"
+    }
   },
   {
     "id": "holy-nova",
@@ -312,7 +386,13 @@
     "targetType": "area",
     "effectType": "damage",
     "effectValue": 28,
-    "damageType": "holy"
+    "damageType": "holy",
+    "statusEffect": {
+      "type": "burn",
+      "duration": 2,
+      "value": 5,
+      "chance": 0.25
+    }
   },
   {
     "id": "prayer-of-fortitude",
@@ -342,7 +422,14 @@
     "targetType": "self",
     "effectType": "heal_hp",
     "effectValue": 15,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "regen",
+      "duration": 3,
+      "value": 5,
+      "chance": 1,
+      "target": "self"
+    }
   },
   {
     "id": "hunters-mark",
@@ -357,7 +444,13 @@
     "targetType": "enemy",
     "effectType": null,
     "effectValue": null,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "curse",
+      "duration": 4,
+      "value": 2,
+      "chance": 1
+    }
   },
   {
     "id": "entangling-roots",
@@ -372,7 +465,13 @@
     "targetType": "enemy",
     "effectType": null,
     "effectValue": null,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "stun",
+      "duration": 1,
+      "value": 0,
+      "chance": 0.6
+    }
   },
   {
     "id": "barkskin",
@@ -387,7 +486,14 @@
     "targetType": "self",
     "effectType": null,
     "effectValue": null,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "shield",
+      "duration": 4,
+      "value": 6,
+      "chance": 1,
+      "target": "self"
+    }
   },
   {
     "id": "wind-walk",
@@ -432,7 +538,13 @@
     "targetType": "enemy",
     "effectType": "damage",
     "effectValue": 25,
-    "damageType": "lightning"
+    "damageType": "lightning",
+    "statusEffect": {
+      "type": "stun",
+      "duration": 1,
+      "value": 0,
+      "chance": 0.3
+    }
   },
   {
     "id": "camouflage",
@@ -474,10 +586,16 @@
     "cooldownSeconds": 0,
     "levelRequired": 1,
     "classRestriction": "rogue",
-    "targetType": "self",
-    "effectType": null,
-    "effectValue": null,
-    "damageType": null
+    "targetType": "enemy",
+    "effectType": "damage",
+    "effectValue": 3,
+    "damageType": "poison",
+    "statusEffect": {
+      "type": "poison",
+      "duration": 4,
+      "value": 6,
+      "chance": 1
+    }
   },
   {
     "id": "smoke-bomb",
@@ -489,10 +607,16 @@
     "cooldownSeconds": 30,
     "levelRequired": 3,
     "classRestriction": "rogue",
-    "targetType": "self",
+    "targetType": "enemy",
     "effectType": null,
     "effectValue": null,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "blind",
+      "duration": 2,
+      "value": 35,
+      "chance": 1
+    }
   },
   {
     "id": "assassinate",
@@ -507,7 +631,13 @@
     "targetType": "enemy",
     "effectType": "damage",
     "effectValue": 30,
-    "damageType": "shadow"
+    "damageType": "shadow",
+    "statusEffect": {
+      "type": "bleed",
+      "duration": 3,
+      "value": 5,
+      "chance": 0.6
+    }
   },
   {
     "id": "evasion",
@@ -522,7 +652,14 @@
     "targetType": "self",
     "effectType": null,
     "effectValue": null,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "shield",
+      "duration": 3,
+      "value": 5,
+      "chance": 1,
+      "target": "self"
+    }
   },
   {
     "id": "shadowmeld",
@@ -552,7 +689,14 @@
     "targetType": "self",
     "effectType": "buff_strength",
     "effectValue": 2,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "enrage",
+      "duration": 3,
+      "value": 25,
+      "chance": 1,
+      "target": "self"
+    }
   },
   {
     "id": "shield-wall",
@@ -567,7 +711,14 @@
     "targetType": "self",
     "effectType": null,
     "effectValue": null,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "shield",
+      "duration": 4,
+      "value": 8,
+      "chance": 1,
+      "target": "self"
+    }
   },
   {
     "id": "charge",
@@ -580,9 +731,15 @@
     "levelRequired": 1,
     "classRestriction": "warrior",
     "targetType": "enemy",
-    "effectType": null,
-    "effectValue": null,
-    "damageType": null
+    "effectType": "damage",
+    "effectValue": 8,
+    "damageType": "physical",
+    "statusEffect": {
+      "type": "stun",
+      "duration": 1,
+      "value": 0,
+      "chance": 0.3
+    }
   },
   {
     "id": "whirlwind",
@@ -612,6 +769,13 @@
     "targetType": "self",
     "effectType": "buff_strength",
     "effectValue": 3,
-    "damageType": null
+    "damageType": null,
+    "statusEffect": {
+      "type": "enrage",
+      "duration": 4,
+      "value": 40,
+      "chance": 1,
+      "target": "self"
+    }
   }
 ]
