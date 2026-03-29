@@ -1,0 +1,175 @@
+## Run auth.http → Login first to populate {{token}}
+
+###
+## ─── Available Quests ───
+###
+
+### View available quests at current town
+GET {{host}}/quests/available
+Authorization: Bearer {{token}}
+
+###
+## ─── Active Quests ───
+###
+
+### View active/completed quests
+GET {{host}}/quests/active
+Authorization: Bearer {{token}}
+
+###
+## ─── Accept Quest ───
+###
+
+### Accept a starter quest at Thornhaven
+POST {{host}}/quests/accept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "thornhaven-rat-problem"
+}
+
+### Accept the wolf pelts quest
+POST {{host}}/quests/accept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "thornhaven-wolf-pelts"
+}
+
+### Accept the chapel pilgrimage quest
+POST {{host}}/quests/accept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "thornhaven-chapel-pilgrimage"
+}
+
+###
+## ─── Turn In Quest ───
+###
+
+### Turn in a completed quest
+POST {{host}}/quests/turn-in
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "thornhaven-rat-problem"
+}
+
+###
+## ─── Abandon Quest ───
+###
+
+### Abandon an active quest
+POST {{host}}/quests/abandon
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "thornhaven-wolf-pelts"
+}
+
+###
+## ─── Error Cases ───
+###
+
+### Accept quest when not at town — should fail (400)
+POST {{host}}/quests/accept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "saltmere-crab-harvest"
+}
+
+### Accept non-existent quest — should fail (404)
+POST {{host}}/quests/accept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "fake-quest-id"
+}
+
+### Turn in quest that's not completed — should fail (400)
+POST {{host}}/quests/turn-in
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "thornhaven-rat-problem"
+}
+
+### Abandon a turned-in quest — should fail (409)
+POST {{host}}/quests/abandon
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "thornhaven-rat-problem"
+}
+
+### View available quests when not at town — should fail (400)
+GET {{host}}/quests/available
+Authorization: Bearer {{token}}
+
+###
+## ─── Workflow: Full Quest Cycle ───
+###
+
+### 1. Travel to Thornhaven first
+POST {{host}}/travel/start
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "destinationX": 50,
+  "destinationY": 50
+}
+
+### 2. Check travel status (wait for arrival)
+GET {{host}}/travel/status
+Authorization: Bearer {{token}}
+
+### 3. View available quests
+GET {{host}}/quests/available
+Authorization: Bearer {{token}}
+
+### 4. Accept the rat problem quest
+POST {{host}}/quests/accept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "thornhaven-rat-problem"
+}
+
+### 5. Check active quests
+GET {{host}}/quests/active
+Authorization: Bearer {{token}}
+
+### 6. Kill monsters (progress updates automatically via combat)
+POST {{host}}/combat/action
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "attack"
+}
+
+### 7. Check active quests again (progress should update)
+GET {{host}}/quests/active
+Authorization: Bearer {{token}}
+
+### 8. Return to Thornhaven and turn in
+POST {{host}}/quests/turn-in
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "questId": "thornhaven-rat-problem"
+}

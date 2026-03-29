@@ -27,6 +27,8 @@ import {
 
 @Injectable()
 export class TravelService {
+  private questService: any = null;
+
   constructor(
     private supabaseService: SupabaseService,
     private mapService: MapService,
@@ -35,6 +37,11 @@ export class TravelService {
     private levelingService: LevelingService,
     private combatService: CombatService,
   ) {}
+
+  /** Called by QuestModule to set the quest service (avoids circular dep) */
+  setQuestService(qs: any) {
+    this.questService = qs;
+  }
 
   /** Fetch the character for a user, or throw 404 */
   private async getCharacter(userId: string) {
@@ -158,6 +165,18 @@ export class TravelService {
         .eq('id', finalCharacter.id)
         .single();
       if (refreshed) finalCharacter = refreshed;
+    }
+
+    // Quest integration: track POI visits for explore objectives
+    if (this.questService) {
+      const destPoi2 = await this.mapService.getPOIAt(destination.x, destination.y);
+      if (destPoi2) {
+        try {
+          await this.questService.onPOIVisit(finalCharacter.id, destPoi2.id);
+        } catch {
+          // Silently ignore quest tracking errors during travel
+        }
+      }
     }
 
     return { character: finalCharacter, discoveries, xp, encounter };

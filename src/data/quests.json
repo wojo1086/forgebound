@@ -1,0 +1,474 @@
+[
+  {
+    "id": "thornhaven-rat-problem",
+    "name": "Rat Problem",
+    "description": "The innkeeper at Thornhaven needs help clearing giant rats from the cellar. Exterminate them before they ruin the food stores.",
+    "giverTown": "thornhaven",
+    "levelMin": 1,
+    "levelMax": 3,
+    "objectives": [
+      { "type": "kill", "target": "giant-rat", "quantity": 5, "description": "Kill 5 Giant Rats" }
+    ],
+    "rewards": { "xp": 50, "gold": 20, "items": [{ "itemId": "health-potion", "quantity": 3 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "thornhaven-wolf-pelts",
+    "name": "Wolf Pelts",
+    "description": "A traveling merchant wants wolf pelts for his trade route. Hunt wolves in the surrounding plains.",
+    "giverTown": "thornhaven",
+    "levelMin": 1,
+    "levelMax": 4,
+    "objectives": [
+      { "type": "kill", "target": "wolf", "quantity": 8, "description": "Kill 8 Wolves" }
+    ],
+    "rewards": { "xp": 75, "gold": 35, "items": [{ "itemId": "steel-dagger", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "thornhaven-chapel-pilgrimage",
+    "name": "The Chapel Pilgrimage",
+    "description": "An elderly priest asks you to visit the Whispering Chapel south of town and offer a prayer at the altar.",
+    "giverTown": "thornhaven",
+    "levelMin": 1,
+    "levelMax": 4,
+    "objectives": [
+      { "type": "explore", "target": "whispering-chapel", "quantity": 1, "description": "Visit the Whispering Chapel" }
+    ],
+    "rewards": { "xp": 60, "gold": 15, "items": [{ "itemId": "mana-potion", "quantity": 2 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "thornhaven-bandit-threat",
+    "name": "Bandit Threat",
+    "description": "Bandits have been raiding caravans near Thornhaven. The town guard captain wants them dealt with.",
+    "giverTown": "thornhaven",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "kill", "target": "bandit", "quantity": 6, "description": "Kill 6 Bandits" }
+    ],
+    "rewards": { "xp": 100, "gold": 50, "items": [{ "itemId": "studded-leather-armor", "quantity": 1 }] },
+    "prerequisiteQuestId": "thornhaven-rat-problem"
+  },
+  {
+    "id": "saltmere-pirate-menace",
+    "name": "Pirate Menace",
+    "description": "Pirates are terrorizing the coast near Saltmere. The harbormaster needs someone to thin their numbers.",
+    "giverTown": "saltmere",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "kill", "target": "pirate", "quantity": 6, "description": "Kill 6 Pirates" }
+    ],
+    "rewards": { "xp": 90, "gold": 45, "items": [{ "itemId": "steel-short-sword", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "saltmere-eel-delivery",
+    "name": "Smoked Eel Supply",
+    "description": "The fishmonger needs iron ore to repair his smoking racks. Bring some from the mines.",
+    "giverTown": "saltmere",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "fetch", "target": "iron-ore", "quantity": 3, "description": "Collect 3 Iron Ore" }
+    ],
+    "rewards": { "xp": 80, "gold": 40, "items": [{ "itemId": "greater-health-potion", "quantity": 2 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "saltmere-stormwatch-dispatch",
+    "name": "Stormwatch Dispatch",
+    "description": "The Saltmere harbor captain needs you to travel to Stormwatch and deliver an urgent message about pirate movements.",
+    "giverTown": "saltmere",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "explore", "target": "stormwatch", "quantity": 1, "description": "Travel to Stormwatch" }
+    ],
+    "rewards": { "xp": 100, "gold": 60, "items": [] },
+    "prerequisiteQuestId": "saltmere-pirate-menace"
+  },
+  {
+    "id": "tidecrest-spider-silk",
+    "name": "Spider Silk Harvest",
+    "description": "The weavers of Tidecrest need giant spider silk for their renowned fabrics. The spiders lurk in the forests nearby.",
+    "giverTown": "tidecrest",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "kill", "target": "giant-spider", "quantity": 8, "description": "Kill 8 Giant Spiders" }
+    ],
+    "rewards": { "xp": 85, "gold": 40, "items": [{ "itemId": "studded-leather-gloves", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "tidecrest-bleached-expedition",
+    "name": "Bleached Expedition",
+    "description": "An archaeologist in Tidecrest wants you to investigate the Bleached Remnants in the nearby desert and report back.",
+    "giverTown": "tidecrest",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "explore", "target": "bleached-remnants", "quantity": 1, "description": "Explore the Bleached Remnants" }
+    ],
+    "rewards": { "xp": 100, "gold": 50, "items": [{ "itemId": "enchanting-dust", "quantity": 2 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "tidecrest-scorpion-venom",
+    "name": "Scorpion Venom",
+    "description": "The apothecary needs giant scorpion venom for her antidotes. Hunt the creatures in the desert.",
+    "giverTown": "tidecrest",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "kill", "target": "giant-scorpion", "quantity": 5, "description": "Kill 5 Giant Scorpions" }
+    ],
+    "rewards": { "xp": 110, "gold": 55, "items": [{ "itemId": "greater-health-potion", "quantity": 3 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "pearlshore-crocodile-hunt",
+    "name": "Crocodile Hunt",
+    "description": "Crocodiles are threatening the pearl divers. The dive master wants the beasts culled.",
+    "giverTown": "pearlshore",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "kill", "target": "crocodile", "quantity": 5, "description": "Kill 5 Crocodiles" }
+    ],
+    "rewards": { "xp": 100, "gold": 50, "items": [{ "itemId": "steel-spear", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "pearlshore-enchanting-dust",
+    "name": "Dust of Enchantment",
+    "description": "A jeweler in Pearlshore needs enchanting dust to craft magical pearl jewelry.",
+    "giverTown": "pearlshore",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "fetch", "target": "enchanting-dust", "quantity": 3, "description": "Collect 3 Enchanting Dust" }
+    ],
+    "rewards": { "xp": 90, "gold": 60, "items": [{ "itemId": "mana-potion", "quantity": 3 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "pearlshore-bastion-report",
+    "name": "Bastion Report",
+    "description": "The Pearlshore militia wants a report on the defenses at Tideguard Bastion. Scout the fortress.",
+    "giverTown": "pearlshore",
+    "levelMin": 4,
+    "levelMax": 7,
+    "objectives": [
+      { "type": "explore", "target": "tideguard-bastion", "quantity": 1, "description": "Scout Tideguard Bastion" }
+    ],
+    "rewards": { "xp": 130, "gold": 65, "items": [{ "itemId": "steel-shield", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "stormwatch-undead-shore",
+    "name": "Undead Shore",
+    "description": "Skeletons have been washing ashore near Stormwatch. The watch commander needs them put back to rest.",
+    "giverTown": "stormwatch",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "kill", "target": "skeleton", "quantity": 8, "description": "Kill 8 Skeletons" },
+      { "type": "kill", "target": "zombie", "quantity": 4, "description": "Kill 4 Zombies" }
+    ],
+    "rewards": { "xp": 120, "gold": 55, "items": [{ "itemId": "holy-mace", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "stormwatch-nightwatch-check",
+    "name": "Nightwatch Check",
+    "description": "The garrison hasn't heard from the Nightwatch Tower in weeks. Investigate.",
+    "giverTown": "stormwatch",
+    "levelMin": 1,
+    "levelMax": 4,
+    "objectives": [
+      { "type": "explore", "target": "nightwatch-tower", "quantity": 1, "description": "Visit Nightwatch Tower" }
+    ],
+    "rewards": { "xp": 60, "gold": 30, "items": [{ "itemId": "health-potion", "quantity": 3 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "stormwatch-captain-bounty",
+    "name": "Captain's Bounty",
+    "description": "A notorious pirate captain has been spotted. The admiral wants him eliminated.",
+    "giverTown": "stormwatch",
+    "levelMin": 4,
+    "levelMax": 7,
+    "objectives": [
+      { "type": "kill", "target": "pirate-captain", "quantity": 1, "description": "Defeat a Pirate Captain" }
+    ],
+    "rewards": { "xp": 200, "gold": 100, "items": [{ "itemId": "enchanted-short-sword", "quantity": 1 }] },
+    "prerequisiteQuestId": "stormwatch-undead-shore"
+  },
+  {
+    "id": "goldfield-boar-hunt",
+    "name": "Boar Hunt",
+    "description": "Wild boars are trampling the wheat fields. The farmers need a hunter to stop them.",
+    "giverTown": "goldfield",
+    "levelMin": 1,
+    "levelMax": 4,
+    "objectives": [
+      { "type": "kill", "target": "wild-boar", "quantity": 6, "description": "Kill 6 Wild Boars" }
+    ],
+    "rewards": { "xp": 70, "gold": 30, "items": [{ "itemId": "ration", "quantity": 10 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "goldfield-iron-delivery",
+    "name": "Iron for the Forge",
+    "description": "The blacksmith needs iron ore urgently for the upcoming harvest festival. Source some for him.",
+    "giverTown": "goldfield",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "fetch", "target": "iron-ore", "quantity": 5, "description": "Collect 5 Iron Ore" }
+    ],
+    "rewards": { "xp": 100, "gold": 50, "items": [{ "itemId": "steel-longsword", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "goldfield-sanctum-herbs",
+    "name": "Sanctum Herbs",
+    "description": "The healer heard rare herbs grow near the Verdant Sanctum. Travel there and confirm.",
+    "giverTown": "goldfield",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "explore", "target": "verdant-sanctum", "quantity": 1, "description": "Visit the Verdant Sanctum" }
+    ],
+    "rewards": { "xp": 80, "gold": 35, "items": [{ "itemId": "greater-health-potion", "quantity": 2 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "windhollow-goblin-raid",
+    "name": "Goblin Raids",
+    "description": "Goblins have been raiding supply wagons passing through the valley. Put an end to their mischief.",
+    "giverTown": "windhollow",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "kill", "target": "goblin", "quantity": 8, "description": "Kill 8 Goblins" },
+      { "type": "kill", "target": "goblin-shaman", "quantity": 2, "description": "Kill 2 Goblin Shamans" }
+    ],
+    "rewards": { "xp": 120, "gold": 55, "items": [{ "itemId": "studded-leather-boots", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "windhollow-briarhelm-scout",
+    "name": "Briarhelm Scout",
+    "description": "The Windhollow militia wants intelligence on Fort Briarhelm. Infiltrate and report back.",
+    "giverTown": "windhollow",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "explore", "target": "fort-briarhelm", "quantity": 1, "description": "Scout Fort Briarhelm" }
+    ],
+    "rewards": { "xp": 110, "gold": 50, "items": [{ "itemId": "steel-battle-axe", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "windhollow-steel-shipment",
+    "name": "Steel Shipment",
+    "description": "The armorer needs steel ingots to outfit the town guard. Bring what you can find.",
+    "giverTown": "windhollow",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "fetch", "target": "steel-ingot", "quantity": 3, "description": "Collect 3 Steel Ingots" }
+    ],
+    "rewards": { "xp": 130, "gold": 70, "items": [{ "itemId": "chainmail", "quantity": 1 }] },
+    "prerequisiteQuestId": "windhollow-goblin-raid"
+  },
+  {
+    "id": "hearthstead-viper-nest",
+    "name": "Viper Nest",
+    "description": "A nest of vipers has been found near the communal hearth. Clear them out before someone gets bitten.",
+    "giverTown": "hearthstead",
+    "levelMin": 2,
+    "levelMax": 5,
+    "objectives": [
+      { "type": "kill", "target": "viper", "quantity": 6, "description": "Kill 6 Vipers" }
+    ],
+    "rewards": { "xp": 80, "gold": 35, "items": [{ "itemId": "potion-of-bears-endurance", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "hearthstead-citadel-relics",
+    "name": "Citadel Relics",
+    "description": "The lorekeeper has heard of ancient relics in the Sunken Citadel. Explore the ruins and return with knowledge.",
+    "giverTown": "hearthstead",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "explore", "target": "sunken-citadel", "quantity": 1, "description": "Explore the Sunken Citadel" }
+    ],
+    "rewards": { "xp": 120, "gold": 55, "items": [{ "itemId": "circlet-of-insight", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "hearthstead-cultist-purge",
+    "name": "Cultist Purge",
+    "description": "Dark cultists have been sighted performing rituals near Hearthstead. The elder wants them stopped.",
+    "giverTown": "hearthstead",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "kill", "target": "cultist", "quantity": 6, "description": "Kill 6 Cultists" },
+      { "type": "kill", "target": "cult-priest", "quantity": 1, "description": "Defeat a Cult Priest" }
+    ],
+    "rewards": { "xp": 150, "gold": 70, "items": [{ "itemId": "staff-of-flames", "quantity": 1 }] },
+    "prerequisiteQuestId": "hearthstead-viper-nest"
+  },
+  {
+    "id": "mosswood-treant-trouble",
+    "name": "Treant Trouble",
+    "description": "Something has angered the treants of Mosswood. Fell the corrupted ones to restore the forest's balance.",
+    "giverTown": "mosswood",
+    "levelMin": 3,
+    "levelMax": 7,
+    "objectives": [
+      { "type": "kill", "target": "treant", "quantity": 5, "description": "Kill 5 Treants" }
+    ],
+    "rewards": { "xp": 130, "gold": 60, "items": [{ "itemId": "staff-of-frost", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "mosswood-shadowfang-delve",
+    "name": "Shadowfang Expedition",
+    "description": "The Mosswood rangers want someone brave enough to delve into Shadowfang Caverns and report what lurks within.",
+    "giverTown": "mosswood",
+    "levelMin": 4,
+    "levelMax": 7,
+    "objectives": [
+      { "type": "explore", "target": "shadowfang-caverns", "quantity": 1, "description": "Explore Shadowfang Caverns" }
+    ],
+    "rewards": { "xp": 180, "gold": 80, "items": [{ "itemId": "enchanted-longbow", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "mosswood-ancient-maps",
+    "name": "The Lost Cartographer",
+    "description": "A scholar is piecing together an ancient map. She needs map fragments found in dungeons and ruins.",
+    "giverTown": "mosswood",
+    "levelMin": 4,
+    "levelMax": 8,
+    "objectives": [
+      { "type": "fetch", "target": "ancient-map-fragment", "quantity": 2, "description": "Collect 2 Ancient Map Fragments" }
+    ],
+    "rewards": { "xp": 200, "gold": 100, "items": [{ "itemId": "boots-of-swiftness", "quantity": 1 }] },
+    "prerequisiteQuestId": "mosswood-shadowfang-delve"
+  },
+  {
+    "id": "ferngate-bear-menace",
+    "name": "Bear Menace",
+    "description": "Bears have become aggressive near the stone arch. The gatekeepers need them driven off.",
+    "giverTown": "ferngate",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "kill", "target": "bear", "quantity": 5, "description": "Kill 5 Bears" }
+    ],
+    "rewards": { "xp": 100, "gold": 45, "items": [{ "itemId": "studded-leather-leggings", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "ferngate-crystaldelve-ore",
+    "name": "Crystal Mining",
+    "description": "A jeweler has heard of rare crystals in the Crystaldelve mine. Investigate the mine.",
+    "giverTown": "ferngate",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "explore", "target": "crystaldelve", "quantity": 1, "description": "Explore Crystaldelve" }
+    ],
+    "rewards": { "xp": 120, "gold": 60, "items": [{ "itemId": "mithril-ore", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "ferngate-orc-warband",
+    "name": "Orc Warband",
+    "description": "An orc warband has set up camp near Ferngate. Defeat their warriors before they attack the town.",
+    "giverTown": "ferngate",
+    "levelMin": 4,
+    "levelMax": 7,
+    "objectives": [
+      { "type": "kill", "target": "orc-warrior", "quantity": 6, "description": "Kill 6 Orc Warriors" }
+    ],
+    "rewards": { "xp": 160, "gold": 75, "items": [{ "itemId": "enchanted-battle-axe", "quantity": 1 }] },
+    "prerequisiteQuestId": "ferngate-bear-menace"
+  },
+  {
+    "id": "ironpeak-mountain-lions",
+    "name": "Mountain Terror",
+    "description": "Mountain lions are stalking the miners on their way to the shafts. The foreman wants them dealt with.",
+    "giverTown": "ironpeak",
+    "levelMin": 5,
+    "levelMax": 8,
+    "objectives": [
+      { "type": "kill", "target": "mountain-lion", "quantity": 6, "description": "Kill 6 Mountain Lions" }
+    ],
+    "rewards": { "xp": 180, "gold": 80, "items": [{ "itemId": "chainmail-gauntlets", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "ironpeak-mithril-vein",
+    "name": "Mithril Vein",
+    "description": "The master smith has heard rumors of mithril ore deep in the Ironveil Mines. Bring proof.",
+    "giverTown": "ironpeak",
+    "levelMin": 5,
+    "levelMax": 8,
+    "objectives": [
+      { "type": "fetch", "target": "mithril-ore", "quantity": 3, "description": "Collect 3 Mithril Ore" }
+    ],
+    "rewards": { "xp": 200, "gold": 120, "items": [{ "itemId": "enchanted-chainmail", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "ironpeak-echoes-investigation",
+    "name": "Echoes of the Spire",
+    "description": "Strange sounds emanate from the Spire of Echoes. The mountain elders want it investigated.",
+    "giverTown": "ironpeak",
+    "levelMin": 5,
+    "levelMax": 8,
+    "objectives": [
+      { "type": "explore", "target": "spire-of-echoes", "quantity": 1, "description": "Investigate the Spire of Echoes" }
+    ],
+    "rewards": { "xp": 180, "gold": 90, "items": [{ "itemId": "gauntlets-of-might", "quantity": 1 }] },
+    "prerequisiteQuestId": "ironpeak-mountain-lions"
+  },
+  {
+    "id": "driftholm-kraken-threat",
+    "name": "Kraken Spawn",
+    "description": "Kraken spawn have been sighted near Driftholm. The flotilla commander needs warriors to drive them back.",
+    "giverTown": "driftholm",
+    "levelMin": 6,
+    "levelMax": 9,
+    "objectives": [
+      { "type": "kill", "target": "bog-lurker", "quantity": 4, "description": "Kill 4 Bog Lurkers" },
+      { "type": "kill", "target": "cave-crawler", "quantity": 4, "description": "Kill 4 Cave Crawlers" }
+    ],
+    "rewards": { "xp": 250, "gold": 120, "items": [{ "itemId": "enchanted-steel-shield", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "driftholm-dragon-scale",
+    "name": "Dragon Scale Hunt",
+    "description": "The legendary shipwright of Driftholm needs dragon scales to reinforce the flotilla. An impossible task — unless you're brave enough.",
+    "giverTown": "driftholm",
+    "levelMin": 7,
+    "levelMax": 10,
+    "objectives": [
+      { "type": "fetch", "target": "dragon-scale", "quantity": 1, "description": "Obtain 1 Dragon Scale" }
+    ],
+    "rewards": { "xp": 350, "gold": 200, "items": [{ "itemId": "plate-armor", "quantity": 1 }] },
+    "prerequisiteQuestId": "driftholm-kraken-threat"
+  }
+]

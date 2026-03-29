@@ -630,6 +630,14 @@
         <a href="#ep-dungeon-leave"><span class="method-sm post">POST</span> Leave Dungeon</a>
       </div>
       <div class="sidebar-section">
+        <div class="sidebar-heading">Quests</div>
+        <a href="#ep-quests-available"><span class="method-sm get">GET</span> Available Quests</a>
+        <a href="#ep-quests-active"><span class="method-sm get">GET</span> Active Quests</a>
+        <a href="#ep-quests-accept"><span class="method-sm post">POST</span> Accept Quest</a>
+        <a href="#ep-quests-turnin"><span class="method-sm post">POST</span> Turn In Quest</a>
+        <a href="#ep-quests-abandon"><span class="method-sm post">POST</span> Abandon Quest</a>
+      </div>
+      <div class="sidebar-section">
         <div class="sidebar-heading">Reference</div>
         <a href="#ref-races">Races &amp; Bonuses</a>
         <a href="#ref-classes">Classes</a>
@@ -2127,6 +2135,141 @@ Content-Type: application/json
         </div>
       </div>
 
+      <!-- QUESTS -->
+      <div class="endpoint-section" id="quests">
+        <div class="section-label">Quests</div>
+        <div class="section-title">Quest System</div>
+        <div class="section-desc">
+          Town NPCs offer quests with kill, fetch, and explore objectives.
+          Accept up to 5 active quests, track progress automatically, and
+          return to the quest giver to turn in for rewards.
+        </div>
+
+        <h3>Objective Types</h3>
+        <table class="stat-table" style="margin-bottom:2rem">
+          <thead><tr><th>Type</th><th>Description</th><th>Tracking</th></tr></thead>
+          <tbody>
+            <tr><td><strong>kill</strong></td><td>Kill N of a specific monster</td><td>Auto-increments on combat victory</td></tr>
+            <tr><td><strong>fetch</strong></td><td>Collect N of a specific item</td><td>Checks inventory; items consumed on turn-in</td></tr>
+            <tr><td><strong>explore</strong></td><td>Visit a POI or complete a dungeon</td><td>Auto-completes on arrival or dungeon completion</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Rules</h3>
+        <ul>
+          <li>Maximum <strong>5 active quests</strong> at a time</li>
+          <li>Quests are <strong>level-gated</strong> &mdash; you must be within the quest's level range</li>
+          <li>Some quests have <strong>prerequisites</strong> (must turn in a previous quest first)</li>
+          <li>You must be at the quest giver's <strong>town</strong> to accept and turn in</li>
+          <li>Abandoned quests can be re-accepted later</li>
+        </ul>
+
+        <!-- Available Quests -->
+        <div class="endpoint-card" id="ep-quests-available">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <span class="path">/api/quests/available</span>
+          </div>
+          <p>List quests available at your current town. Filtered by your level and prerequisite completion.</p>
+          <pre><code>{ "town": "Thornhaven",
+  "quests": [
+    { "id": "thornhaven-rat-problem",
+      "name": "Rat Problem",
+      "description": "The innkeeper needs help clearing giant rats...",
+      "levelMin": 1, "levelMax": 3,
+      "objectives": [
+        { "type": "kill", "target": "giant-rat", "quantity": 5,
+          "description": "Kill 5 Giant Rats" }
+      ],
+      "rewards": { "xp": 50, "gold": 20,
+        "items": [{ "itemId": "health-potion", "quantity": 3 }] }
+    }
+  ] }</code></pre>
+        </div>
+
+        <!-- Active Quests -->
+        <div class="endpoint-card" id="ep-quests-active">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <span class="path">/api/quests/active</span>
+          </div>
+          <p>View your active and completed quests with current progress.</p>
+          <pre><code>{ "activeCount": 2, "maxActive": 5,
+  "quests": [
+    { "id": "thornhaven-rat-problem",
+      "name": "Rat Problem",
+      "status": "active",
+      "objectives": [
+        { "type": "kill", "target": "giant-rat", "quantity": 5,
+          "description": "Kill 5 Giant Rats",
+          "current": 3, "required": 5 }
+      ],
+      "rewards": { "xp": 50, "gold": 20,
+        "items": [{ "itemId": "health-potion", "quantity": 3 }] }
+    }
+  ] }</code></pre>
+        </div>
+
+        <!-- Accept Quest -->
+        <div class="endpoint-card" id="ep-quests-accept">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <span class="path">/api/quests/accept</span>
+          </div>
+          <p>Accept a quest. Must be at the giver's town and within level range.</p>
+          <pre><code>// Request
+{ "questId": "thornhaven-rat-problem" }
+
+// Response
+{ "message": "Quest \"Rat Problem\" accepted.",
+  "quest": {
+    "id": "thornhaven-rat-problem",
+    "name": "Rat Problem",
+    "status": "active",
+    "objectives": [
+      { "type": "kill", "target": "giant-rat", "quantity": 5,
+        "description": "Kill 5 Giant Rats",
+        "current": 0, "required": 5 }
+    ],
+    "rewards": { "xp": 50, "gold": 20,
+      "items": [{ "itemId": "health-potion", "quantity": 3 }] }
+  } }</code></pre>
+        </div>
+
+        <!-- Turn In Quest -->
+        <div class="endpoint-card" id="ep-quests-turnin">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <span class="path">/api/quests/turn-in</span>
+          </div>
+          <p>Turn in a completed quest for rewards. Must be at the giver's town. Fetch items are consumed.</p>
+          <pre><code>// Request
+{ "questId": "thornhaven-rat-problem" }
+
+// Response
+{ "message": "Quest \"Rat Problem\" turned in! Rewards: 50 XP, 20 gold, 3x health-potion.",
+  "rewards": {
+    "xp": 50, "gold": 20,
+    "items": [{ "itemId": "health-potion", "quantity": 3 }],
+    "leveledUp": false, "newLevel": 1, "newSpells": []
+  } }</code></pre>
+        </div>
+
+        <!-- Abandon Quest -->
+        <div class="endpoint-card" id="ep-quests-abandon">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <span class="path">/api/quests/abandon</span>
+          </div>
+          <p>Abandon an active or completed quest. Progress is lost, but you can re-accept the quest later.</p>
+          <pre><code>// Request
+{ "questId": "thornhaven-wolf-pelts" }
+
+// Response
+{ "message": "Quest \"Wolf Pelts\" abandoned. You can accept it again later." }</code></pre>
+        </div>
+      </div>
+
       <!-- REFERENCE -->
       <div class="endpoint-section" id="reference">
         <div class="section-label">Reference</div>
@@ -2191,6 +2334,23 @@ Content-Type: application/json
         <div class="section-label">Changelog</div>
         <div class="section-title">Update History</div>
         <div class="section-desc">A transparent log of everything added, changed, and fixed in Forgebound.</div>
+
+        <div class="changelog-entry">
+          <div class="changelog-date">March 28, 2026</div>
+          <div class="changelog-version">v0.6.0 &mdash; Quests</div>
+          <ul class="changelog-list">
+            <li><span class="changelog-tag tag-new">New</span> Quest system &mdash; 37 hand-crafted quests across all 12 towns</li>
+            <li><span class="changelog-tag tag-new">New</span> Three objective types: kill monsters, fetch items, and explore POIs/dungeons</li>
+            <li><span class="changelog-tag tag-new">New</span> Up to 5 active quests at a time with automatic progress tracking</li>
+            <li><span class="changelog-tag tag-new">New</span> Level-gated quest availability &mdash; quests scale from level 1 to 10</li>
+            <li><span class="changelog-tag tag-new">New</span> Quest prerequisite chains &mdash; some quests unlock only after completing earlier ones</li>
+            <li><span class="changelog-tag tag-new">New</span> Quest rewards: XP, gold, and items granted on turn-in</li>
+            <li><span class="changelog-tag tag-new">New</span> Fetch quests pre-fill progress if you already have the items</li>
+            <li><span class="changelog-tag tag-improved">Improved</span> Combat victory now auto-tracks kill quest progress</li>
+            <li><span class="changelog-tag tag-improved">Improved</span> Travel arrival now auto-tracks explore quest progress</li>
+            <li><span class="changelog-tag tag-improved">Improved</span> Dungeon completion now auto-tracks explore quest progress</li>
+          </ul>
+        </div>
 
         <div class="changelog-entry">
           <div class="changelog-date">March 28, 2026</div>

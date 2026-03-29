@@ -127,6 +127,7 @@ export class CombatService implements OnModuleInit {
   private monstersList: MonsterDef[] = [];
 
   private dungeonService: DungeonService | null = null;
+  private questService: any = null;
 
   constructor(
     private supabaseService: SupabaseService,
@@ -138,6 +139,11 @@ export class CombatService implements OnModuleInit {
   /** Called by DungeonModule to set the dungeon service (avoids circular dep) */
   setDungeonService(ds: DungeonService) {
     this.dungeonService = ds;
+  }
+
+  /** Called by QuestModule to set the quest service (avoids circular dep) */
+  setQuestService(qs: any) {
+    this.questService = qs;
   }
 
   onModuleInit() {
@@ -780,6 +786,15 @@ export class CombatService implements OnModuleInit {
         log.push(
           `Dungeon complete! Bonus: ${dungeonResult.completionBonus.xp} XP, ${dungeonResult.completionBonus.gold} gold.`,
         );
+      }
+    }
+
+    // Quest integration: track kill progress
+    if (this.questService) {
+      try {
+        await this.questService.onMonsterKill(character.id, combat.monster_id);
+      } catch (e) {
+        this.logger.warn(`Quest kill tracking failed: ${(e as Error).message}`);
       }
     }
 

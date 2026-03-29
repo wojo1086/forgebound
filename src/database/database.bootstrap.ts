@@ -306,6 +306,24 @@ export class DatabaseBootstrap implements OnModuleInit {
       CREATE INDEX IF NOT EXISTS idx_dungeon_rooms_dungeon ON dungeon_rooms(dungeon_id);
     `);
 
+    // Quests: character_quests table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS character_quests (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        character_id uuid NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+        quest_id varchar(60) NOT NULL,
+        status varchar(20) NOT NULL DEFAULT 'active'
+          CHECK (status IN ('active','completed','turned_in')),
+        progress jsonb NOT NULL DEFAULT '[]',
+        accepted_at timestamptz NOT NULL DEFAULT now(),
+        completed_at timestamptz DEFAULT NULL,
+        UNIQUE(character_id, quest_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_char_quests_character ON character_quests(character_id);
+      CREATE INDEX IF NOT EXISTS idx_char_quests_status ON character_quests(character_id, status);
+    `);
+
     this.logger.log('Tables verified');
   }
 
@@ -491,6 +509,30 @@ export class DatabaseBootstrap implements OnModuleInit {
                 SELECT id FROM characters WHERE user_id = auth.uid()
               )
             ));
+        END IF;
+      END $$;
+    `);
+
+    // Character quests RLS
+    await client.query(`
+      ALTER TABLE character_quests ENABLE ROW LEVEL SECURITY;
+
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'quests_select_own') THEN
+          CREATE POLICY quests_select_own ON character_quests FOR SELECT
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'quests_insert_own') THEN
+          CREATE POLICY quests_insert_own ON character_quests FOR INSERT
+            WITH CHECK (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'quests_update_own') THEN
+          CREATE POLICY quests_update_own ON character_quests FOR UPDATE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'quests_delete_own') THEN
+          CREATE POLICY quests_delete_own ON character_quests FOR DELETE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
         END IF;
       END $$;
     `);

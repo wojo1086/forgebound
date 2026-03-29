@@ -77,6 +77,7 @@ export class DungeonService implements OnModuleInit {
   private readonly logger = new Logger(DungeonService.name);
   private readonly templates: Record<string, DungeonTemplate> =
     templates as any;
+  private questService: any = null;
 
   constructor(
     private supabaseService: SupabaseService,
@@ -89,6 +90,11 @@ export class DungeonService implements OnModuleInit {
   onModuleInit() {
     // Wire up the bidirectional reference to avoid circular dep issues
     this.combatService.setDungeonService(this);
+  }
+
+  /** Called by QuestModule to set the quest service (avoids circular dep) */
+  setQuestService(qs: any) {
+    this.questService = qs;
   }
 
   /* ═══════════════════════════════════════════════
@@ -822,6 +828,15 @@ export class DungeonService implements OnModuleInit {
     this.logger.log(
       `Dungeon completed! Character ${characterId} earned ${bonusXp} XP and ${bonusGold} gold bonus.`,
     );
+
+    // Quest integration: track dungeon completion for explore objectives
+    if (this.questService) {
+      try {
+        await this.questService.onDungeonComplete(characterId, dungeon.poi_id);
+      } catch (e) {
+        this.logger.warn(`Quest dungeon tracking failed: ${(e as Error).message}`);
+      }
+    }
 
     return {
       dungeonCompleted: true,
