@@ -3,8 +3,8 @@ POST {{host}}/auth/register
 Content-Type: application/json
 
 {
-  "email": "t.wojtylak@gmail.com",
-  "password": "Badboytim32!"
+  "email": "test@example.com",
+  "password": "YourPassword123!"
 }
 
 ### Login
@@ -12,8 +12,8 @@ POST {{host}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "t.wojtylak@gmail.com",
-    "password": "Badboytim32!"
+    "email": "test@example.com",
+    "password": "YourPassword123!"
 }
 
 > {%
