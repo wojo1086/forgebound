@@ -26,6 +26,7 @@ export class AuthService {
     return {
       id: data.user?.id,
       email: data.user?.email,
+      message: 'Account created. Please check your email and confirm your address before logging in.',
     };
   }
 
