@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Forgebound — OpenAPI Spec</title>
+  <meta name="description" content="OpenAPI 3.0 specification for the Forgebound REST API fantasy RPG.">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0d12;
+      --gold: #d4a843;
+      --border: rgba(212, 168, 67, 0.12);
+      --text-muted: #9ca3af;
+      --nav-h: 56px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ── Top Nav ── */
+    .topnav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      height: var(--nav-h);
+      background: rgba(12, 13, 18, 0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 1.5rem;
+    }
+    .topnav-logo {
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.15rem;
+      color: var(--gold); text-decoration: none; letter-spacing: 0.03em;
+    }
+    .topnav-links {
+      list-style: none; display: flex; gap: 1.75rem; margin-left: 3rem;
+    }
+    .topnav-links a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.8rem;
+      font-weight: 500; transition: color 0.15s; letter-spacing: 0.01em;
+      font-family: 'Inter', sans-serif;
+    }
+    .topnav-links a:hover { color: #f3f4f6; }
+    .topnav-links a.active { color: var(--gold); }
+
+    .nav-toggle {
+      display: none; background: none; border: none; cursor: pointer;
+      padding: 0.5rem; margin-left: auto; position: relative;
+      width: 36px; height: 36px;
+    }
+    .nav-toggle span {
+      display: block; width: 20px; height: 2px; background: var(--text-muted);
+      border-radius: 2px; transition: transform 0.25s, opacity 0.25s;
+      position: absolute; left: 8px;
+    }
+    .nav-toggle span:nth-child(1) { top: 10px; }
+    .nav-toggle span:nth-child(2) { top: 17px; }
+    .nav-toggle span:nth-child(3) { top: 24px; }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    @media (max-width: 768px) {
+      :root { --nav-h: 52px; }
+      .nav-toggle { display: block; margin-left: auto; }
+      .topnav { padding: 0 1rem; }
+      .topnav-links {
+        display: none !important; flex-direction: column; gap: 0;
+        position: fixed; top: var(--nav-h); left: 0; right: 0;
+        background: rgba(12, 13, 18, 0.97); backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+        padding: 0.5rem 0; margin: 0; z-index: 199;
+      }
+      .topnav-links.open { display: flex !important; }
+      .topnav-links li { width: 100%; }
+      .topnav-links a {
+        display: block; padding: 0.85rem 1.25rem; font-size: 0.9rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .topnav-links li:last-child a { border-bottom: none; }
+    }
+
+    /* ── Redoc container ── */
+    body { background: var(--bg); }
+    #redoc-container { padding-top: var(--nav-h); }
+
+    /* Fix low-contrast tab buttons (Payload, 201, 400, etc.) in the right panel */
+    [role="tablist"] button[role="tab"],
+    ul > li.react-tabs__tab {
+      color: #e5e7eb !important;
+      background: transparent !important;
+    }
+    [role="tablist"] button[role="tab"][aria-selected="true"],
+    ul > li.react-tabs__tab--selected {
+      color: #d4a843 !important;
+      background: rgba(212, 168, 67, 0.12) !important;
+      border-color: #d4a843 !important;
+    }
+
+    /* Fix low-contrast schema labels ("REQUEST BODY SCHEMA: application/json") */
+    h5[class] {
+      color: #9ca3af !important;
+    }
+    h5[class] span {
+      color: #e5e7eb !important;
+    }
+
+    /* Fix server URL dropdown panel — dark bg + readable text */
+    .sc-eZYNyq {
+      background: #1a1c2a !important;
+      color: #e5e7eb !important;
+    }
+    .sc-eZYNyq p {
+      color: #e5e7eb !important;
+    }
+    .sc-hHOBiw {
+      background: #141620 !important;
+      border-color: rgba(212, 168, 67, 0.25) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topnav">
+    <a href="/" class="topnav-logo">Forgebound</a>
+    <ul class="topnav-links" id="nav-links">
+      <li><a href="/#quickstart">Quickstart</a></li>
+      <li><a href="/#api">API Reference</a></li>
+      <li><a href="/#reference">Game Data</a></li>
+      <li><a href="/openapi.html" class="active">OpenAPI Spec</a></li>
+      <li><a href="/map.html">World Map</a></li>
+      <li><a href="/#changelog">Changelog</a></li>
+      <li><a href="https://discord.gg/qPgsa5xqe3" target="_blank" rel="noopener">Discord</a></li>
+    </ul>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div id="redoc-container">
+    <redoc spec-url="/openapi.json"
+      hide-download-button="false"
+      theme='{
+        "colors": {
+          "primary": { "main": "#d4a843" },
+          "success": { "main": "#22c55e" },
+          "warning": { "main": "#f59e0b" },
+          "error": { "main": "#ef4444" },
+          "text": { "primary": "#e5e7eb", "secondary": "#9ca3af" },
+          "http": {
+            "get": "#22c55e",
+            "post": "#3b82f6",
+            "put": "#f59e0b",
+            "delete": "#ef4444"
+          }
+        },
+        "typography": {
+          "fontSize": "14px",
+          "fontFamily": "Inter, system-ui, sans-serif",
+          "headings": { "fontFamily": "Cinzel, serif" },
+          "code": { "fontSize": "13px", "fontFamily": "JetBrains Mono, Fira Code, monospace" }
+        },
+        "sidebar": {
+          "backgroundColor": "#0f1017",
+          "textColor": "#9ca3af",
+          "activeTextColor": "#d4a843",
+          "groupItems": { "textTransform": "uppercase" }
+        },
+        "rightPanel": {
+          "backgroundColor": "#141620"
+        },
+        "schema": {
+          "nestedBackground": "#0f1017"
+        }
+      }'>
+    </redoc>
+  </div>
+
+  <script src="https://cdn.redoc.ly/redoc/v2.1.5/bundles/redoc.standalone.js"></script>
+
+  <script>
+    const toggle = document.getElementById('nav-toggle');
+    const links = document.getElementById('nav-links');
+    toggle.addEventListener('click', () => {
+      toggle.classList.toggle('open');
+      links.classList.toggle('open');
+    });
+    links.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        toggle.classList.remove('open');
+        links.classList.remove('open');
+      });
+    });
+  </script>
+</body>
+</html>

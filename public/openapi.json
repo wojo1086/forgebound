@@ -1,0 +1,1190 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Forgebound API",
+    "description": "A fantasy RPG played entirely through REST API calls. Create characters, explore a vast world, fight monsters, delve into dungeons, and complete quests — all via HTTP requests.\n\n## Authentication\nMost endpoints require a Bearer token obtained from the login endpoint. Include it in the `Authorization` header:\n```\nAuthorization: Bearer <your-token>\n```\n\n## Rate Limiting\nAll endpoints are rate-limited. Public endpoints allow 60 requests per minute. Gameplay endpoints share a similar limit. Authentication endpoints have stricter limits.\n\n## Base URL\n`https://forgebound.io/api`",
+    "version": "0.7.0",
+    "contact": {
+      "name": "Forgebound",
+      "url": "https://forgebound.io"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://forgebound.io/api",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Local development"
+    }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Registration, login, and profile" },
+    { "name": "Characters", "description": "Character creation and management" },
+    { "name": "Travel", "description": "World movement and pathfinding" },
+    { "name": "Map", "description": "World map, regions, and cell data" },
+    { "name": "Combat", "description": "Turn-based combat with status effects" },
+    { "name": "Inventory", "description": "Items, equipment, and consumables" },
+    { "name": "Spells", "description": "Spellbook, learning, and casting" },
+    { "name": "Rest", "description": "Camping and inn resting" },
+    { "name": "Shops", "description": "Town shop inventory, buying, and selling" },
+    { "name": "Quests", "description": "Quest discovery, tracking, and completion" },
+    { "name": "Dungeons", "description": "Multi-room instanced dungeons" },
+    { "name": "Game Data", "description": "Public reference data (races, classes, items, spells)" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Supabase JWT token from the login endpoint"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "statusCode": { "type": "integer" },
+          "message": { "type": "string" },
+          "error": { "type": "string" }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 8, "maxLength": 128 }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": { "type": "string" },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "format": "uuid" },
+              "email": { "type": "string", "format": "email" }
+            }
+          }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "email": { "type": "string", "format": "email" }
+        }
+      },
+      "CreateCharacterRequest": {
+        "type": "object",
+        "required": ["name", "raceId", "classId", "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 30, "pattern": "^[a-zA-Z0-9 ]+$", "example": "Aldric the Bold" },
+          "raceId": { "type": "string", "enum": ["human", "elf", "dwarf", "halfling", "orc"], "example": "human" },
+          "classId": { "type": "string", "enum": ["warrior", "mage", "rogue", "cleric", "ranger"], "example": "warrior" },
+          "strength": { "type": "integer", "minimum": 8, "maximum": 15 },
+          "dexterity": { "type": "integer", "minimum": 8, "maximum": 15 },
+          "constitution": { "type": "integer", "minimum": 8, "maximum": 15 },
+          "intelligence": { "type": "integer", "minimum": 8, "maximum": 15 },
+          "wisdom": { "type": "integer", "minimum": 8, "maximum": 15 },
+          "charisma": { "type": "integer", "minimum": 8, "maximum": 15 }
+        }
+      },
+      "AllocateStatRequest": {
+        "type": "object",
+        "required": ["stat"],
+        "properties": {
+          "stat": { "type": "string", "enum": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] }
+        }
+      },
+      "Character": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "race_id": { "type": "string" },
+          "class_id": { "type": "string" },
+          "level": { "type": "integer" },
+          "xp": { "type": "integer" },
+          "xp_next": { "type": "integer" },
+          "hp": { "type": "integer" },
+          "max_hp": { "type": "integer" },
+          "mana": { "type": "integer" },
+          "max_mana": { "type": "integer" },
+          "gold": { "type": "integer" },
+          "strength": { "type": "integer" },
+          "dexterity": { "type": "integer" },
+          "constitution": { "type": "integer" },
+          "intelligence": { "type": "integer" },
+          "wisdom": { "type": "integer" },
+          "charisma": { "type": "integer" },
+          "unspent_points": { "type": "integer" },
+          "pos_x": { "type": "integer" },
+          "pos_y": { "type": "integer" },
+          "in_combat": { "type": "boolean" },
+          "traveling": { "type": "boolean" },
+          "resting": { "type": "boolean" }
+        }
+      },
+      "MoveRequest": {
+        "type": "object",
+        "required": ["direction"],
+        "properties": {
+          "direction": { "type": "string", "enum": ["north", "south", "east", "west"] }
+        }
+      },
+      "TravelRequest": {
+        "type": "object",
+        "required": ["x", "y"],
+        "properties": {
+          "x": { "type": "integer", "minimum": 0, "maximum": 99 },
+          "y": { "type": "integer", "minimum": 0, "maximum": 99 }
+        }
+      },
+      "TravelStatus": {
+        "type": "object",
+        "properties": {
+          "traveling": { "type": "boolean" },
+          "origin": { "type": "object", "properties": { "x": { "type": "integer" }, "y": { "type": "integer" } } },
+          "destination": { "type": "object", "properties": { "x": { "type": "integer" }, "y": { "type": "integer" } } },
+          "progress": { "type": "number", "description": "0.0 to 1.0" },
+          "eta": { "type": "string", "format": "date-time" },
+          "terrain": { "type": "string" }
+        }
+      },
+      "CombatActionRequest": {
+        "type": "object",
+        "required": ["action"],
+        "properties": {
+          "action": { "type": "string", "enum": ["attack", "cast", "use_item", "flee"] },
+          "spellId": { "type": "string", "description": "Required when action is 'cast'" },
+          "itemId": { "type": "string", "description": "Required when action is 'use_item'" }
+        }
+      },
+      "StatusEffect": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["poison", "bleed", "stun", "burn", "weakness", "shield", "freeze", "regen", "blind", "silence", "curse", "enrage"] },
+          "duration": { "type": "integer", "description": "Remaining turns" },
+          "value": { "type": "number", "description": "Effect magnitude" },
+          "source": { "type": "string", "description": "Name of the spell, weapon, or ability that applied this" }
+        }
+      },
+      "CombatStatus": {
+        "type": "object",
+        "properties": {
+          "inCombat": { "type": "boolean" },
+          "turn": { "type": "integer" },
+          "source": { "type": "string", "enum": ["random", "poi", "dungeon"] },
+          "monster": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "level": { "type": "integer" },
+              "hp": { "type": "integer" },
+              "maxHp": { "type": "integer" },
+              "ac": { "type": "integer" },
+              "type": { "type": "string" },
+              "effects": { "type": "array", "items": { "$ref": "#/components/schemas/StatusEffect" } }
+            }
+          },
+          "player": {
+            "type": "object",
+            "properties": {
+              "hp": { "type": "integer" },
+              "maxHp": { "type": "integer" },
+              "mana": { "type": "integer" },
+              "maxMana": { "type": "integer" },
+              "ac": { "type": "integer" },
+              "effects": { "type": "array", "items": { "$ref": "#/components/schemas/StatusEffect" } }
+            }
+          },
+          "log": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "CombatResult": {
+        "type": "object",
+        "properties": {
+          "outcome": { "type": "string", "enum": ["ongoing", "victory", "defeat", "fled"] },
+          "turn": { "type": "integer" },
+          "log": { "type": "array", "items": { "type": "string" } },
+          "monster": {
+            "type": "object",
+            "properties": {
+              "hp": { "type": "integer" },
+              "maxHp": { "type": "integer" },
+              "effects": { "type": "array", "items": { "$ref": "#/components/schemas/StatusEffect" } }
+            }
+          },
+          "player": {
+            "type": "object",
+            "properties": {
+              "hp": { "type": "integer" },
+              "mana": { "type": "integer" },
+              "effects": { "type": "array", "items": { "$ref": "#/components/schemas/StatusEffect" } }
+            }
+          },
+          "xpGained": { "type": "integer", "description": "Present on victory" },
+          "goldGained": { "type": "integer", "description": "Present on victory" },
+          "loot": { "type": "array", "items": { "type": "string" }, "description": "Present on victory" },
+          "levelUp": { "type": "object", "nullable": true, "description": "Present if leveled up on victory" },
+          "goldLost": { "type": "integer", "description": "Present on defeat" },
+          "xpLost": { "type": "integer", "description": "Present on defeat" },
+          "respawnTown": { "type": "string", "description": "Present on defeat" }
+        }
+      },
+      "PickUpItemRequest": {
+        "type": "object",
+        "required": ["itemId"],
+        "properties": {
+          "itemId": { "type": "string" },
+          "quantity": { "type": "integer", "minimum": 1, "maximum": 99, "default": 1 }
+        }
+      },
+      "DropItemRequest": {
+        "type": "object",
+        "required": ["itemId"],
+        "properties": {
+          "itemId": { "type": "string" },
+          "quantity": { "type": "integer", "minimum": 1, "maximum": 99, "default": 1 }
+        }
+      },
+      "EquipItemRequest": {
+        "type": "object",
+        "required": ["itemId"],
+        "properties": {
+          "itemId": { "type": "string" },
+          "slot": { "type": "string", "enum": ["weapon", "armor", "helmet", "shield", "leggings", "boots", "gloves", "ring1", "ring2", "amulet"], "description": "Optional; auto-detected from item type if omitted" }
+        }
+      },
+      "UnequipItemRequest": {
+        "type": "object",
+        "required": ["slot"],
+        "properties": {
+          "slot": { "type": "string", "enum": ["weapon", "armor", "helmet", "shield", "leggings", "boots", "gloves", "ring1", "ring2", "amulet"] }
+        }
+      },
+      "UseItemRequest": {
+        "type": "object",
+        "required": ["itemId"],
+        "properties": {
+          "itemId": { "type": "string" }
+        }
+      },
+      "LearnSpellRequest": {
+        "type": "object",
+        "required": ["spellId"],
+        "properties": {
+          "spellId": { "type": "string" }
+        }
+      },
+      "CastSpellRequest": {
+        "type": "object",
+        "required": ["spellId"],
+        "properties": {
+          "spellId": { "type": "string" }
+        }
+      },
+      "StartCampRequest": {
+        "type": "object",
+        "properties": {
+          "duration": { "type": "integer", "minimum": 10, "maximum": 600, "description": "Camp duration in seconds (default varies)" }
+        }
+      },
+      "BuyItemRequest": {
+        "type": "object",
+        "required": ["itemId"],
+        "properties": {
+          "itemId": { "type": "string" },
+          "quantity": { "type": "integer", "minimum": 1, "maximum": 99, "default": 1 }
+        }
+      },
+      "SellItemRequest": {
+        "type": "object",
+        "required": ["itemId"],
+        "properties": {
+          "itemId": { "type": "string" },
+          "quantity": { "type": "integer", "minimum": 1, "maximum": 99, "default": 1 }
+        }
+      },
+      "AcceptQuestRequest": {
+        "type": "object",
+        "required": ["questId"],
+        "properties": {
+          "questId": { "type": "string" }
+        }
+      },
+      "TurnInQuestRequest": {
+        "type": "object",
+        "required": ["questId"],
+        "properties": {
+          "questId": { "type": "string" }
+        }
+      },
+      "AbandonQuestRequest": {
+        "type": "object",
+        "required": ["questId"],
+        "properties": {
+          "questId": { "type": "string" }
+        }
+      },
+      "EnterDungeonRequest": {
+        "type": "object",
+        "required": ["poiId"],
+        "properties": {
+          "poiId": { "type": "string", "description": "The POI ID of the dungeon entrance" }
+        }
+      },
+      "Quest": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "town": { "type": "string" },
+          "minLevel": { "type": "integer" },
+          "objectives": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string", "enum": ["kill", "fetch", "explore"] },
+                "target": { "type": "string" },
+                "quantity": { "type": "integer" },
+                "current": { "type": "integer" }
+              }
+            }
+          },
+          "rewards": {
+            "type": "object",
+            "properties": {
+              "xp": { "type": "integer" },
+              "gold": { "type": "integer" },
+              "items": { "type": "array", "items": { "type": "object", "properties": { "itemId": { "type": "string" }, "quantity": { "type": "integer" } } } }
+            }
+          }
+        }
+      },
+      "DungeonStatus": {
+        "type": "object",
+        "properties": {
+          "inDungeon": { "type": "boolean" },
+          "poiId": { "type": "string" },
+          "dungeonName": { "type": "string" },
+          "currentRoom": { "type": "integer" },
+          "totalRooms": { "type": "integer" },
+          "roomType": { "type": "string", "enum": ["combat", "treasure", "trap", "rest", "boss"] },
+          "completed": { "type": "boolean" }
+        }
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "rarity": { "type": "string", "enum": ["common", "uncommon", "rare", "epic", "legendary"] },
+          "damage_min": { "type": "integer" },
+          "damage_max": { "type": "integer" },
+          "armor": { "type": "integer" },
+          "value": { "type": "integer" },
+          "weight": { "type": "number" },
+          "level_req": { "type": "integer" },
+          "class_req": { "type": "string", "nullable": true },
+          "statusEffect": { "type": "object", "nullable": true, "description": "Status effect applied on hit (weapons only)" },
+          "statusChance": { "type": "number", "nullable": true, "description": "Chance to proc status effect (0-1)" }
+        }
+      },
+      "Spell": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "class": { "type": "string" },
+          "level_req": { "type": "integer" },
+          "mana_cost": { "type": "integer" },
+          "targetType": { "type": "string" },
+          "effectType": { "type": "string" },
+          "effectValue": { "type": "number" },
+          "damageType": { "type": "string", "nullable": true },
+          "cooldown": { "type": "integer" },
+          "description": { "type": "string" },
+          "statusEffect": { "type": "object", "nullable": true, "description": "Status effect applied on cast" }
+        }
+      },
+      "Race": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "bonuses": { "type": "object" }
+        }
+      },
+      "Class": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "hitDie": { "type": "integer" },
+          "primaryStat": { "type": "string" }
+        }
+      },
+      "MapData": {
+        "type": "object",
+        "properties": {
+          "terrain": {
+            "type": "array",
+            "description": "100x100 grid of terrain type strings",
+            "items": { "type": "array", "items": { "type": "string" } }
+          },
+          "pois": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "x": { "type": "integer" },
+                "y": { "type": "integer" }
+              }
+            }
+          }
+        }
+      },
+      "Region": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "x1": { "type": "integer" },
+          "y1": { "type": "integer" },
+          "x2": { "type": "integer" },
+          "y2": { "type": "integer" },
+          "level": { "type": "integer" },
+          "terrain": { "type": "string" }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid Bearer token",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" },
+            "example": { "statusCode": 401, "message": "Unauthorized" }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Invalid request body or parameters",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Action not allowed in current state",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Rate limit exceeded",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" },
+            "example": { "statusCode": 429, "message": "ThrottlerException: Too Many Requests" }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    { "BearerAuth": [] }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new account",
+        "description": "Create a new user account. A confirmation email will be sent.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created — check email for confirmation",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "409": { "description": "Email already registered", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Log in",
+        "description": "Authenticate with email and password. Returns a JWT access token.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } }
+          },
+          "401": { "description": "Invalid credentials", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get current user profile",
+        "responses": {
+          "200": {
+            "description": "User profile",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserProfile" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/characters": {
+      "post": {
+        "tags": ["Characters"],
+        "summary": "Create a new character",
+        "description": "Create a character with a name, race, class, and point-buy ability scores. Each account can have one character. Ability scores must be between 8 and 15, and the total cost must equal 27 points using the D&D 5e point-buy table.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateCharacterRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Character created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Character" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Character already exists", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/characters/me": {
+      "get": {
+        "tags": ["Characters"],
+        "summary": "Get your character",
+        "description": "Returns the authenticated player's character with all stats, position, and status flags. Includes travel progress if currently traveling.",
+        "responses": {
+          "200": { "description": "Character data", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Character" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "description": "No character found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/characters/allocate-stat": {
+      "post": {
+        "tags": ["Characters"],
+        "summary": "Allocate a stat point",
+        "description": "Spend one unspent stat point to increase an ability score by 1. Points are earned on level up.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AllocateStatRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Stat allocated", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Character" } } } },
+          "400": { "description": "No unspent points available", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/travel/move": {
+      "post": {
+        "tags": ["Travel"],
+        "summary": "Move one cell",
+        "description": "Step one cell in a cardinal direction. Immediate movement. May trigger a random encounter based on terrain danger.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MoveRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Moved successfully. May include combat encounter data." },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/travel/go": {
+      "post": {
+        "tags": ["Travel"],
+        "summary": "Travel to coordinates",
+        "description": "Start A* pathfinding travel to a target cell. Travel takes real time based on terrain cost. Check status to track progress. May trigger encounters en route.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TravelRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Travel started" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/travel/status": {
+      "get": {
+        "tags": ["Travel"],
+        "summary": "Get travel status",
+        "description": "Check current travel progress. Returns position, destination, ETA, and progress percentage.",
+        "responses": {
+          "200": { "description": "Travel status", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TravelStatus" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/travel/cancel": {
+      "post": {
+        "tags": ["Travel"],
+        "summary": "Cancel active travel",
+        "description": "Stop traveling and remain at the last resolved position along the route.",
+        "responses": {
+          "200": { "description": "Travel cancelled" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Not currently traveling", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/map": {
+      "get": {
+        "tags": ["Map"],
+        "summary": "Get world map",
+        "description": "Returns the full 100x100 terrain grid and all visible points of interest.",
+        "security": [],
+        "responses": {
+          "200": { "description": "Map data", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MapData" } } } }
+        }
+      }
+    },
+    "/map/regions": {
+      "get": {
+        "tags": ["Map"],
+        "summary": "Get all regions",
+        "description": "Returns named regions with their boundaries, terrain types, and suggested level ranges.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Region list",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Region" } } } }
+          }
+        }
+      }
+    },
+    "/map/cell/{x}/{y}": {
+      "get": {
+        "tags": ["Map"],
+        "summary": "Get cell details",
+        "description": "Returns detailed information about a specific cell including terrain, region, nearby POIs, and area level.",
+        "security": [],
+        "parameters": [
+          { "name": "x", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 0, "maximum": 99 } },
+          { "name": "y", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 0, "maximum": 99 } }
+        ],
+        "responses": {
+          "200": { "description": "Cell details" },
+          "400": { "description": "Coordinates out of range", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/combat/status": {
+      "get": {
+        "tags": ["Combat"],
+        "summary": "Get combat status",
+        "description": "Returns current combat state including monster info, player HP/mana, active status effects on both sides, and the combat log. Returns `{ inCombat: false }` if not in combat.",
+        "responses": {
+          "200": { "description": "Combat state", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CombatStatus" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/combat/action": {
+      "post": {
+        "tags": ["Combat"],
+        "summary": "Perform a combat action",
+        "description": "Execute a combat action. Your turn resolves first (affected by status effects like stun, silence, blind), then the monster attacks. Status effects (DoTs, regen, stun) process at turn start. Possible outcomes: ongoing, victory, defeat, fled.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CombatActionRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Action result", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CombatResult" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Not in combat", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/inventory": {
+      "get": {
+        "tags": ["Inventory"],
+        "summary": "Get inventory",
+        "description": "Returns the player's full inventory including equipment slots, backpack items, carry weight, and gold.",
+        "responses": {
+          "200": { "description": "Inventory data" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/inventory/pick-up": {
+      "post": {
+        "tags": ["Inventory"],
+        "summary": "Pick up an item",
+        "description": "Add an item to your backpack. Checks carry weight limits.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PickUpItemRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Item picked up" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/inventory/drop": {
+      "post": {
+        "tags": ["Inventory"],
+        "summary": "Drop an item",
+        "description": "Remove an item from your backpack.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DropItemRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Item dropped" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/inventory/equip": {
+      "post": {
+        "tags": ["Inventory"],
+        "summary": "Equip an item",
+        "description": "Equip an item from your backpack to an equipment slot. Slot is auto-detected from item type if not specified. Cannot equip during combat.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EquipItemRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Item equipped" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/inventory/unequip": {
+      "post": {
+        "tags": ["Inventory"],
+        "summary": "Unequip a slot",
+        "description": "Unequip an item from the specified equipment slot back to the backpack. Cannot unequip during combat.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UnequipItemRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Item unequipped" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/inventory/use": {
+      "post": {
+        "tags": ["Inventory"],
+        "summary": "Use a consumable item",
+        "description": "Use a consumable item from your backpack (e.g., health potion, mana potion). Costs a combat turn if in combat.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UseItemRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Item used" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/spells": {
+      "get": {
+        "tags": ["Spells"],
+        "summary": "Get spellbook",
+        "description": "Returns the player's learned spells with their details, mana costs, and cooldown status.",
+        "responses": {
+          "200": { "description": "Spellbook" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/spells/learn": {
+      "post": {
+        "tags": ["Spells"],
+        "summary": "Learn a spell",
+        "description": "Learn a new spell. Must meet the class and level requirements.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LearnSpellRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Spell learned" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Already learned or requirements not met", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/spells/cast": {
+      "post": {
+        "tags": ["Spells"],
+        "summary": "Cast a spell (outside combat)",
+        "description": "Cast a healing or buff spell outside of combat. Damage spells can only be used during combat via the combat action endpoint.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CastSpellRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Spell cast" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/rest/camp": {
+      "post": {
+        "tags": ["Rest"],
+        "summary": "Start camping",
+        "description": "Begin camping in the wilderness to restore HP and mana over time. Optional duration in seconds (10-600). Cannot camp while in combat, traveling, or already resting.",
+        "requestBody": {
+          "required": false,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StartCampRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Camping started" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/rest/inn": {
+      "post": {
+        "tags": ["Rest"],
+        "summary": "Rest at an inn",
+        "description": "Rest at a town inn to fully restore HP and mana. Must be at a town. Costs gold.",
+        "responses": {
+          "200": { "description": "Rested at inn — HP and mana restored" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Not at a town or insufficient gold", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/rest/status": {
+      "get": {
+        "tags": ["Rest"],
+        "summary": "Get rest status",
+        "description": "Check if currently resting and how much time remains.",
+        "responses": {
+          "200": { "description": "Rest status" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/rest/stop": {
+      "post": {
+        "tags": ["Rest"],
+        "summary": "Stop resting",
+        "description": "Cancel an active rest session early. You keep any HP/mana restored so far.",
+        "responses": {
+          "200": { "description": "Rest stopped" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Not currently resting", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/shops/{townId}": {
+      "get": {
+        "tags": ["Shops"],
+        "summary": "Get shop inventory",
+        "description": "View the shop inventory at a specific town. Stock refreshes periodically. Must be at the town to buy/sell.",
+        "parameters": [
+          { "name": "townId", "in": "path", "required": true, "schema": { "type": "string" }, "example": "thornhaven" }
+        ],
+        "responses": {
+          "200": { "description": "Shop inventory" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "description": "Town not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/shops/{townId}/buy": {
+      "post": {
+        "tags": ["Shops"],
+        "summary": "Buy an item",
+        "description": "Purchase an item from a town shop. Deducts gold and adds item to backpack. Must be at the town.",
+        "parameters": [
+          { "name": "townId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BuyItemRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Item purchased" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Insufficient gold or not at town", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/shops/{townId}/sell": {
+      "post": {
+        "tags": ["Shops"],
+        "summary": "Sell an item",
+        "description": "Sell an item from your backpack to a town shop. Receive gold (sell price is lower than buy price). Must be at the town.",
+        "parameters": [
+          { "name": "townId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SellItemRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Item sold" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Item not in backpack or not at town", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/quests/available": {
+      "get": {
+        "tags": ["Quests"],
+        "summary": "Get available quests",
+        "description": "Returns quests available at your current town. Quests are level-gated and some require completing prerequisite quests. Already-completed and active quests are excluded.",
+        "responses": {
+          "200": { "description": "Available quests", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Quest" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/quests/active": {
+      "get": {
+        "tags": ["Quests"],
+        "summary": "Get active quests",
+        "description": "Returns all quests currently in progress with objective tracking (current/required counts).",
+        "responses": {
+          "200": { "description": "Active quests with progress", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Quest" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/quests/accept": {
+      "post": {
+        "tags": ["Quests"],
+        "summary": "Accept a quest",
+        "description": "Accept a quest from the available list. Maximum 5 active quests at a time. Fetch quest progress is pre-filled if you already have the required items.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AcceptQuestRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Quest accepted" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Quest limit reached or quest not available", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/quests/turn-in": {
+      "post": {
+        "tags": ["Quests"],
+        "summary": "Turn in a completed quest",
+        "description": "Turn in a quest with all objectives complete. Grants XP, gold, and item rewards. Fetch quest items are consumed on turn-in.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TurnInQuestRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Quest turned in — rewards granted" },
+          "400": { "description": "Objectives not complete", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/quests/abandon": {
+      "post": {
+        "tags": ["Quests"],
+        "summary": "Abandon a quest",
+        "description": "Abandon an active quest. Progress is lost. The quest can be re-accepted later.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AbandonQuestRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Quest abandoned" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Quest not active", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/dungeons/status": {
+      "get": {
+        "tags": ["Dungeons"],
+        "summary": "Get dungeon status",
+        "description": "Check if you're in a dungeon and get current room info. Returns `{ inDungeon: false }` if not in a dungeon.",
+        "responses": {
+          "200": { "description": "Dungeon status", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DungeonStatus" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/dungeons/enter": {
+      "post": {
+        "tags": ["Dungeons"],
+        "summary": "Enter a dungeon",
+        "description": "Enter a dungeon at a POI location. The dungeon generates random rooms (combat, treasure, trap, rest) with a boss at the end. 24-hour cooldown after completion.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EnterDungeonRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Dungeon entered — first room revealed" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Not at a dungeon POI, already in dungeon, or cooldown active", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/dungeons/advance": {
+      "post": {
+        "tags": ["Dungeons"],
+        "summary": "Advance to next room",
+        "description": "Move to the next dungeon room. Non-combat rooms (trap, treasure, rest) resolve immediately. Combat and boss rooms start a fight — use `POST /api/combat/action` to battle.",
+        "responses": {
+          "200": { "description": "Room result — varies by room type" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Not in dungeon, in combat, or dungeon completed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/dungeons/leave": {
+      "post": {
+        "tags": ["Dungeons"],
+        "summary": "Leave dungeon",
+        "description": "Leave the dungeon. Progress is saved — you can re-enter later to continue from where you left off (unless completed, which triggers cooldown).",
+        "responses": {
+          "200": { "description": "Left dungeon" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Not in dungeon", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/game/races": {
+      "get": {
+        "tags": ["Game Data"],
+        "summary": "Get all races",
+        "description": "Returns all playable races with their stat bonuses and descriptions.",
+        "security": [],
+        "responses": {
+          "200": { "description": "Race list", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Race" } } } } }
+        }
+      }
+    },
+    "/game/classes": {
+      "get": {
+        "tags": ["Game Data"],
+        "summary": "Get all classes",
+        "description": "Returns all playable classes with their hit dice, primary stats, and descriptions.",
+        "security": [],
+        "responses": {
+          "200": { "description": "Class list", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Class" } } } } }
+        }
+      }
+    },
+    "/game/items": {
+      "get": {
+        "tags": ["Game Data"],
+        "summary": "Get all items",
+        "description": "Returns the complete item database including weapons, armor, and consumables with stats, requirements, and status effect data.",
+        "security": [],
+        "responses": {
+          "200": { "description": "Item list", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Item" } } } } }
+        }
+      }
+    },
+    "/game/spells": {
+      "get": {
+        "tags": ["Game Data"],
+        "summary": "Get all spells",
+        "description": "Returns the complete spell database with class requirements, mana costs, effects, and status effect data.",
+        "security": [],
+        "responses": {
+          "200": { "description": "Spell list", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Spell" } } } } }
+        }
+      }
+    }
+  }
+}
