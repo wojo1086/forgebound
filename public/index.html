@@ -745,12 +745,21 @@ Authorization: Bearer &lt;token&gt;
               <span class="ep-path">/api/auth/register</span>
             </div>
             <p class="ep-desc">Create a new player account.</p>
+            <div class="info-box" style="margin-bottom:1rem;">
+              <strong>Email validation rules:</strong>
+              <ul style="margin:0.3rem 0 0 1.2rem;padding:0;">
+                <li>Must be a valid email format</li>
+                <li>Subaddressing (<code>+</code> aliases like <code>user+tag@example.com</code>) is <strong>not allowed</strong></li>
+                <li>Disposable / throwaway email domains are blocked</li>
+                <li>Domain must have valid MX records (can actually receive email)</li>
+              </ul>
+            </div>
             <table class="params-table">
               <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
               <tr>
                 <td><span class="param-name">email</span><span class="param-req">required</span></td>
                 <td><span class="param-type">string</span></td>
-                <td>Valid email address</td>
+                <td>Valid email address &mdash; no <code>+</code> subaddressing, no disposable domains</td>
               </tr>
               <tr>
                 <td><span class="param-name">password</span><span class="param-req">required</span></td>

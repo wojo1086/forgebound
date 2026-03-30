@@ -56,7 +56,7 @@
         "type": "object",
         "required": ["email", "password"],
         "properties": {
-          "email": { "type": "string", "format": "email" },
+          "email": { "type": "string", "format": "email", "description": "Valid email address. Subaddressing (+ aliases) and disposable domains are rejected." },
           "password": { "type": "string", "minLength": 8, "maxLength": 128 }
         }
       },
@@ -1440,7 +1440,7 @@
       "post": {
         "tags": ["Auth"],
         "summary": "Register a new account",
-        "description": "Create a new user account. A confirmation email will be sent.",
+        "description": "Create a new user account. A confirmation email will be sent.\n\nEmail validation rules:\n- Must be a valid email format\n- Subaddressing (+ aliases like user+tag@example.com) is not allowed\n- Disposable/throwaway email domains are blocked\n- Domain must have valid MX records (can receive email)",
         "security": [],
         "requestBody": {
           "required": true,

@@ -19,8 +19,9 @@ export class EmailValidatorService {
    * Validate an email address before sending it to Supabase for sign-up.
    * Checks:
    *  1. Basic format
-   *  2. Disposable / throwaway domain blocklist
-   *  3. DNS MX record lookup (domain can actually receive mail)
+   *  2. Subaddressing (+ aliases) rejection
+   *  3. Disposable / throwaway domain blocklist
+   *  4. DNS MX record lookup (domain can actually receive mail)
    */
   async validate(email: string): Promise<EmailValidationResult> {
     const normalised = email.trim().toLowerCase();
@@ -31,13 +32,22 @@ export class EmailValidatorService {
       return { valid: false, reason: 'Invalid email format.' };
     }
 
+    const localPart = normalised.slice(0, atIdx);
     const domain = normalised.slice(atIdx + 1);
 
     if (!domain || !domain.includes('.')) {
       return { valid: false, reason: 'Invalid email domain.' };
     }
 
-    // 2. Disposable domain check
+    // 2. Subaddressing check (plus addressing)
+    if (localPart.includes('+')) {
+      return {
+        valid: false,
+        reason: 'Email subaddressing (+ addresses) is not allowed. Please use your base email address.',
+      };
+    }
+
+    // 3. Disposable domain check
     if (DISPOSABLE_EMAIL_DOMAINS.has(domain)) {
       return {
         valid: false,
@@ -45,7 +55,7 @@ export class EmailValidatorService {
       };
     }
 
-    // 3. MX record lookup — verify the domain can receive email
+    // 4. MX record lookup — verify the domain can receive email
     const hasMx = await this.checkMx(domain);
     if (!hasMx) {
       return {
