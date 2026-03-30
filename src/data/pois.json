@@ -5948,5 +5948,10 @@
     { "id": "ebonwood-thicket-1", "name": "Ebonwood Thicket", "type": "woodcutting_node", "x": 20, "y": 31, "terrain": "forest", "description": "Jet-black ebonwood trees in a dark hollow.", "nodeId": "ebonwood-thicket", "levelMin": 7, "levelMax": 8, "visible": true },
     { "id": "ebonwood-thicket-2", "name": "Ebonwood Thicket", "type": "woodcutting_node", "x": 26, "y": 33, "terrain": "forest", "description": "A thicket of rare ebonwood, shadow-cloaked.", "nodeId": "ebonwood-thicket", "levelMin": 7, "levelMax": 8, "visible": true },
     { "id": "worldtree-roots-1", "name": "Worldtree Roots", "type": "woodcutting_node", "x": 41, "y": 12, "terrain": "plains", "description": "Massive roots of the Worldtree breach the surface, still alive with power.", "nodeId": "worldtree-roots", "levelMin": 9, "levelMax": 10, "visible": true }
+  ],
+  "crafting_stations": [
+    { "id": "ironpeak-forge", "name": "Ironpeak Forge", "type": "forge_station", "x": 75, "y": 71, "terrain": "mountain", "description": "A massive forge built into the mountainside, its chimney belching smoke day and night. Anvils ring with the sound of hammer on metal.", "levelMin": null, "levelMax": null, "visible": true },
+    { "id": "mosswood-alchemy-lab", "name": "Mosswood Alchemy Lab", "type": "alchemy_station", "x": 81, "y": 48, "terrain": "forest", "description": "A cluttered laboratory nestled among ancient trees, filled with bubbling cauldrons and shelves of strange ingredients.", "levelMin": null, "levelMax": null, "visible": true },
+    { "id": "ferngate-woodshop", "name": "Ferngate Woodshop", "type": "woodworking_station", "x": 29, "y": 25, "terrain": "forest", "description": "An open-air workshop surrounded by sawdust and the scent of fresh-cut timber. Master carpenters shape wood into weapons and shields.", "levelMin": null, "levelMax": null, "visible": true }
   ]
 }

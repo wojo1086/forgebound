@@ -2060,5 +2060,33 @@
     "weight": 3,
     "value": 1000,
     "levelRequired": 1
+  },
+  {
+    "id": "ironwood-staff",
+    "name": "Ironwood Staff",
+    "description": "A staff carved from ironwood, dense enough to channel powerful magic and crack skulls alike.",
+    "type": "weapon",
+    "rarity": "rare",
+    "weight": 4,
+    "value": 280,
+    "levelRequired": 6,
+    "damageMin": 2,
+    "damageMax": 8,
+    "bonusWisdom": 2,
+    "classRestriction": "mage"
+  },
+  {
+    "id": "ebonwood-bow",
+    "name": "Ebonwood Bow",
+    "description": "A sleek bow of jet-black ebonwood, bending with unnatural ease and deadly precision.",
+    "type": "weapon",
+    "rarity": "rare",
+    "weight": 3,
+    "value": 420,
+    "levelRequired": 8,
+    "damageMin": 3,
+    "damageMax": 10,
+    "bonusDexterity": 1,
+    "classRestriction": "ranger"
   }
 ]

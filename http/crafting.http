@@ -1,0 +1,68 @@
+## Run auth.http → Login first to populate {{token}}
+
+###
+## ─── Crafting Skills ───
+###
+
+### Get crafting skill levels
+GET {{host}}/crafting/skills
+Authorization: Bearer {{token}}
+
+###
+## ─── Crafting Recipes ───
+###
+
+### Get all recipes (with canCraft status)
+GET {{host}}/crafting/recipes
+Authorization: Bearer {{token}}
+
+### Get blacksmithing recipes only
+GET {{host}}/crafting/recipes?skill=blacksmithing
+Authorization: Bearer {{token}}
+
+### Get alchemy recipes only
+GET {{host}}/crafting/recipes?skill=alchemy
+Authorization: Bearer {{token}}
+
+### Get woodworking recipes only
+GET {{host}}/crafting/recipes?skill=woodworking
+Authorization: Bearer {{token}}
+
+###
+## ─── Crafting Stations ───
+###
+
+### Get nearby crafting stations (must be at a station's town)
+GET {{host}}/crafting/stations
+Authorization: Bearer {{token}}
+
+###
+## ─── Craft ───
+###
+
+### Craft a copper dagger (must be at Ironpeak Forge: 75,71)
+POST {{host}}/crafting/craft
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "recipeId": "recipe-copper-dagger"
+}
+
+### Craft a health potion (must be at Mosswood Alchemy Lab: 81,48)
+POST {{host}}/crafting/craft
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "recipeId": "recipe-health-potion"
+}
+
+### Craft a wooden shield (must be at Ferngate Woodshop: 29,25)
+POST {{host}}/crafting/craft
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "recipeId": "recipe-wooden-shield"
+}

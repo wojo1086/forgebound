@@ -15,6 +15,8 @@ import { MapService } from '../map/map.service';
 import { CombatService } from '../combat/combat.service';
 import { DungeonService } from '../dungeons/dungeon.service';
 import { TravelService } from '../travel/travel.service';
+import { GatheringService } from '../gathering/gathering.service';
+import { CraftingService } from '../crafting/crafting.service';
 import { MAX_ACTIVE_QUESTS } from '../common/constants/quest.constants';
 import questsData = require('../data/quests.json');
 
@@ -72,6 +74,10 @@ export class QuestService implements OnModuleInit {
     private dungeonService: DungeonService,
     @Inject(forwardRef(() => TravelService))
     private travelService: TravelService,
+    @Inject(forwardRef(() => GatheringService))
+    private gatheringService: GatheringService,
+    @Inject(forwardRef(() => CraftingService))
+    private craftingService: CraftingService,
   ) {
     // Index quest definitions
     for (const q of questsData as QuestDef[]) {
@@ -90,6 +96,8 @@ export class QuestService implements OnModuleInit {
     this.combatService.setQuestService(this);
     this.dungeonService.setQuestService(this);
     this.travelService.setQuestService(this);
+    this.gatheringService.setQuestService(this);
+    this.craftingService.setQuestService(this);
   }
 
   /* ═══════════════════════════════════════════════════════

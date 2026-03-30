@@ -646,6 +646,13 @@
         <a href="#ep-gathering-harvest"><span class="method-sm post">POST</span> Harvest</a>
       </div>
       <div class="sidebar-section">
+        <div class="sidebar-heading">Crafting</div>
+        <a href="#ep-crafting-skills"><span class="method-sm get">GET</span> Crafting Skills</a>
+        <a href="#ep-crafting-recipes"><span class="method-sm get">GET</span> Recipes</a>
+        <a href="#ep-crafting-stations"><span class="method-sm get">GET</span> Stations</a>
+        <a href="#ep-crafting-craft"><span class="method-sm post">POST</span> Craft Item</a>
+      </div>
+      <div class="sidebar-section">
         <div class="sidebar-heading">Reference</div>
         <a href="#ref-races">Races &amp; Bonuses</a>
         <a href="#ref-classes">Classes</a>
@@ -2460,6 +2467,160 @@ Content-Type: application/json
         </div>
       </div>
 
+      <!-- CRAFTING -->
+      <div class="endpoint-section" id="section-crafting">
+        <div class="section-label">Crafting</div>
+        <div class="section-title">Item Crafting</div>
+        <div class="section-desc">
+          Transform gathered materials into equipment and consumables at town crafting stations. Three crafting skills &mdash; <strong>Blacksmithing</strong>, <strong>Alchemy</strong>, and <strong>Woodworking</strong> &mdash; level up through use (1&ndash;10), unlocking higher-tier recipes. No cooldowns &mdash; material cost is the only gate.
+        </div>
+
+        <h4 style="margin-top: 1.5rem; color: #d4a843;">Crafting Skills &amp; Stations</h4>
+        <table class="stat-table" style="margin-top:0.5rem">
+          <thead><tr><th>Skill</th><th>Station</th><th>Town</th><th>Outputs</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Blacksmithing</td>
+              <td>Forge</td>
+              <td>Ironpeak (75,71)</td>
+              <td>Copper/Iron/Steel weapons, Chainmail, Plate Armor</td>
+            </tr>
+            <tr>
+              <td>Alchemy</td>
+              <td>Alchemy Lab</td>
+              <td>Mosswood (81,48)</td>
+              <td>Health/Mana Potions, Elixirs, Stat Potions</td>
+            </tr>
+            <tr>
+              <td>Woodworking</td>
+              <td>Woodshop</td>
+              <td>Ferngate (29,25)</td>
+              <td>Wooden/Steel Shields, Staves, Bows</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="margin-top: 1.5rem; color: #d4a843;">Skill XP Thresholds</h4>
+        <table class="stat-table" style="margin-top:0.5rem">
+          <thead><tr><th>Level</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr></thead>
+          <tbody><tr><td>XP</td><td>50</td><td>120</td><td>220</td><td>360</td><td>550</td><td>800</td><td>1120</td><td>1520</td><td>2000</td></tr></tbody>
+        </table>
+
+        <h4 style="margin-top: 1.5rem; color: #d4a843;">Sample Recipes</h4>
+        <table class="stat-table" style="margin-top:0.5rem">
+          <thead><tr><th>Recipe</th><th>Skill</th><th>Lvl</th><th>Ingredients</th><th>XP</th></tr></thead>
+          <tbody>
+            <tr><td>Copper Dagger</td><td>Blacksmithing</td><td>1</td><td>3&times; Copper Ore</td><td>15</td></tr>
+            <tr><td>Iron Longsword</td><td>Blacksmithing</td><td>3</td><td>5&times; Iron Ore</td><td>35</td></tr>
+            <tr><td>Plate Armor</td><td>Blacksmithing</td><td>8</td><td>8&times; Steel Ingot, 2&times; Mithril Ore</td><td>120</td></tr>
+            <tr><td>Health Potion</td><td>Alchemy</td><td>1</td><td>3&times; Wildflower</td><td>12</td></tr>
+            <tr><td>Supreme Health Potion</td><td>Alchemy</td><td>6</td><td>4&times; Moonpetal, 2&times; Thornvine</td><td>60</td></tr>
+            <tr><td>Wooden Staff</td><td>Woodworking</td><td>1</td><td>3&times; Pine Log</td><td>18</td></tr>
+            <tr><td>Ebonwood Bow</td><td>Woodworking</td><td>8</td><td>4&times; Ebonwood Log, 2&times; Amber Resin, 1&times; Sticky Sap</td><td>110</td></tr>
+          </tbody>
+        </table>
+
+        <div class="endpoint" id="ep-crafting-skills">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/crafting/skills</code>
+          </div>
+          <p>View your three crafting skill levels and XP progress.</p>
+          <pre><code>// Response
+{
+  "skills": {
+    "blacksmithing": { "level": 3, "xp": 145, "xpToNext": 220 },
+    "alchemy": { "level": 1, "xp": 0, "xpToNext": 50 },
+    "woodworking": { "level": 5, "xp": 410, "xpToNext": 550 }
+  }
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="ep-crafting-recipes">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/crafting/recipes</code>
+          </div>
+          <p>List all crafting recipes with your current ingredient counts and whether you can craft each one. Optionally filter by skill with <code>?skill=blacksmithing</code>.</p>
+          <pre><code>// Response (GET /api/crafting/recipes?skill=blacksmithing)
+{
+  "recipes": [
+    {
+      "id": "recipe-copper-dagger",
+      "name": "Copper Dagger",
+      "skill": "blacksmithing",
+      "minLevel": 1,
+      "xpReward": 15,
+      "ingredients": [
+        { "itemId": "copper-ore", "quantity": 3, "have": 7 }
+      ],
+      "output": { "itemId": "copper-dagger", "quantity": 1 },
+      "meetsLevel": true,
+      "hasIngredients": true,
+      "canCraft": true
+    }
+  ]
+}</code></pre>
+          <div class="endpoint-desc" style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">
+            Valid skill values: <code>blacksmithing</code>, <code>alchemy</code>, <code>woodworking</code>. Omit the query param to see all recipes.
+          </div>
+        </div>
+
+        <div class="endpoint" id="ep-crafting-stations">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/crafting/stations</code>
+          </div>
+          <p>List crafting stations at your current position.</p>
+          <pre><code>// Response (at Ironpeak Forge)
+{
+  "position": { "x": 75, "y": 71 },
+  "stations": [
+    {
+      "id": "ironpeak-forge",
+      "name": "Ironpeak Forge",
+      "type": "forge_station",
+      "skill": "blacksmithing",
+      "description": "A massive forge built into the mountainside..."
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="ep-crafting-craft">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/crafting/craft</code>
+          </div>
+          <p>Craft an item from a recipe. Must be at the appropriate crafting station, not in combat/traveling/resting/dungeon, have the required skill level, and have all ingredients in your backpack. Ingredients are consumed and the crafted item is added to your backpack.</p>
+          <pre><code>// Request
+{ "recipeId": "recipe-copper-dagger" }
+
+// Response
+{
+  "crafted": "Copper Dagger",
+  "itemId": "copper-dagger",
+  "quantity": 1,
+  "xpGained": 15,
+  "skill": "blacksmithing",
+  "skillLevel": 1,
+  "skillXp": 15
+}
+
+// Response (with level-up)
+{
+  "crafted": "Iron Longsword",
+  "itemId": "iron-longsword",
+  "quantity": 1,
+  "xpGained": 35,
+  "skill": "blacksmithing",
+  "skillLevel": 3,
+  "skillXp": 125,
+  "levelUp": { "newLevel": 3, "skill": "blacksmithing" }
+}</code></pre>
+        </div>
+      </div>
+
       <!-- REFERENCE -->
       <div class="endpoint-section" id="reference">
         <div class="section-label">Reference</div>
@@ -2524,6 +2685,20 @@ Content-Type: application/json
         <div class="section-label">Changelog</div>
         <div class="section-title">Update History</div>
         <div class="section-desc">A transparent log of everything added, changed, and fixed in Forgebound.</div>
+
+        <div class="changelog-entry">
+          <div class="changelog-date">March 30, 2026</div>
+          <div class="changelog-version">v0.9.0 &mdash; Crafting</div>
+          <ul class="changelog-list">
+            <li><span class="changelog-tag tag-new">New</span> Crafting system &mdash; 3 independent skills: Blacksmithing, Alchemy, Woodworking</li>
+            <li><span class="changelog-tag tag-new">New</span> 25 crafting recipes across 3 skills, transforming gathered materials into equipment and consumables</li>
+            <li><span class="changelog-tag tag-new">New</span> 3 crafting stations at Ironpeak (Forge), Mosswood (Alchemy Lab), and Ferngate (Woodshop)</li>
+            <li><span class="changelog-tag tag-new">New</span> Crafting skills level 1&ndash;10 with XP progression, unlocking higher-tier recipes</li>
+            <li><span class="changelog-tag tag-new">New</span> 2 new craftable items: Ironwood Staff (rare mage weapon) and Ebonwood Bow (rare ranger weapon)</li>
+            <li><span class="changelog-tag tag-new">New</span> 4 new endpoints: GET /crafting/skills, GET /crafting/recipes, GET /crafting/stations, POST /crafting/craft</li>
+            <li><span class="changelog-tag tag-improved">Improved</span> Quest integration &mdash; gathering and crafting now trigger fetch quest progress checks</li>
+          </ul>
+        </div>
 
         <div class="changelog-entry">
           <div class="changelog-date">March 29, 2026</div>

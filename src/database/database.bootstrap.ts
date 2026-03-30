@@ -357,6 +357,18 @@ export class DatabaseBootstrap implements OnModuleInit {
 
       CREATE INDEX IF NOT EXISTS idx_gathering_cooldowns_character
         ON gathering_cooldowns(character_id);
+
+      CREATE TABLE IF NOT EXISTS character_crafting_skills (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        character_id uuid NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+        skill varchar(20) NOT NULL CHECK (skill IN ('blacksmithing', 'alchemy', 'woodworking')),
+        level int NOT NULL DEFAULT 1,
+        xp int NOT NULL DEFAULT 0,
+        UNIQUE(character_id, skill)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_crafting_skills_character
+        ON character_crafting_skills(character_id);
     `);
 
     this.logger.log('Tables verified');
@@ -618,6 +630,27 @@ export class DatabaseBootstrap implements OnModuleInit {
             USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
         END IF;
       END $$;
+
+      ALTER TABLE character_crafting_skills ENABLE ROW LEVEL SECURITY;
+
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'crafting_skills_select_own') THEN
+          CREATE POLICY crafting_skills_select_own ON character_crafting_skills FOR SELECT
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'crafting_skills_insert_own') THEN
+          CREATE POLICY crafting_skills_insert_own ON character_crafting_skills FOR INSERT
+            WITH CHECK (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'crafting_skills_update_own') THEN
+          CREATE POLICY crafting_skills_update_own ON character_crafting_skills FOR UPDATE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'crafting_skills_delete_own') THEN
+          CREATE POLICY crafting_skills_delete_own ON character_crafting_skills FOR DELETE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+      END $$;
     `);
 
     this.logger.log('RLS policies verified');
@@ -658,6 +691,7 @@ export class DatabaseBootstrap implements OnModuleInit {
       ...poisData.landmarks.map((p) => ({ ...p, category: 'landmark' })),
       ...poisData.hidden.map((p) => ({ ...p, category: 'hidden' })),
       ...(poisData as any).gathering_nodes?.map((p: any) => ({ ...p, category: 'gathering' })) ?? [],
+      ...(poisData as any).crafting_stations?.map((p: any) => ({ ...p, category: 'crafting' })) ?? [],
     ];
 
     // Batch insert in chunks of 50

@@ -1,0 +1,302 @@
+[
+  {
+    "id": "recipe-copper-dagger",
+    "name": "Copper Dagger",
+    "skill": "blacksmithing",
+    "minLevel": 1,
+    "xpReward": 15,
+    "ingredients": [
+      { "itemId": "copper-ore", "quantity": 3 }
+    ],
+    "output": { "itemId": "copper-dagger", "quantity": 1 }
+  },
+  {
+    "id": "recipe-copper-longsword",
+    "name": "Copper Longsword",
+    "skill": "blacksmithing",
+    "minLevel": 1,
+    "xpReward": 20,
+    "ingredients": [
+      { "itemId": "copper-ore", "quantity": 5 }
+    ],
+    "output": { "itemId": "copper-longsword", "quantity": 1 }
+  },
+  {
+    "id": "recipe-copper-mace",
+    "name": "Copper Mace",
+    "skill": "blacksmithing",
+    "minLevel": 1,
+    "xpReward": 18,
+    "ingredients": [
+      { "itemId": "copper-ore", "quantity": 4 },
+      { "itemId": "rough-stone", "quantity": 1 }
+    ],
+    "output": { "itemId": "copper-mace", "quantity": 1 }
+  },
+  {
+    "id": "recipe-iron-longsword",
+    "name": "Iron Longsword",
+    "skill": "blacksmithing",
+    "minLevel": 3,
+    "xpReward": 35,
+    "ingredients": [
+      { "itemId": "iron-ore", "quantity": 5 }
+    ],
+    "output": { "itemId": "iron-longsword", "quantity": 1 }
+  },
+  {
+    "id": "recipe-iron-mace",
+    "name": "Iron Mace",
+    "skill": "blacksmithing",
+    "minLevel": 3,
+    "xpReward": 30,
+    "ingredients": [
+      { "itemId": "iron-ore", "quantity": 4 },
+      { "itemId": "rough-stone", "quantity": 2 }
+    ],
+    "output": { "itemId": "iron-mace", "quantity": 1 }
+  },
+  {
+    "id": "recipe-steel-longsword",
+    "name": "Steel Longsword",
+    "skill": "blacksmithing",
+    "minLevel": 5,
+    "xpReward": 55,
+    "ingredients": [
+      { "itemId": "iron-ore", "quantity": 3 },
+      { "itemId": "steel-ingot", "quantity": 2 }
+    ],
+    "output": { "itemId": "steel-longsword", "quantity": 1 }
+  },
+  {
+    "id": "recipe-steel-greatsword",
+    "name": "Steel Greatsword",
+    "skill": "blacksmithing",
+    "minLevel": 5,
+    "xpReward": 65,
+    "ingredients": [
+      { "itemId": "iron-ore", "quantity": 4 },
+      { "itemId": "steel-ingot", "quantity": 3 }
+    ],
+    "output": { "itemId": "steel-greatsword", "quantity": 1 }
+  },
+  {
+    "id": "recipe-chainmail",
+    "name": "Chainmail",
+    "skill": "blacksmithing",
+    "minLevel": 6,
+    "xpReward": 75,
+    "ingredients": [
+      { "itemId": "iron-ore", "quantity": 6 },
+      { "itemId": "steel-ingot", "quantity": 4 }
+    ],
+    "output": { "itemId": "chainmail", "quantity": 1 }
+  },
+  {
+    "id": "recipe-plate-armor",
+    "name": "Plate Armor",
+    "skill": "blacksmithing",
+    "minLevel": 8,
+    "xpReward": 120,
+    "ingredients": [
+      { "itemId": "steel-ingot", "quantity": 8 },
+      { "itemId": "mithril-ore", "quantity": 2 }
+    ],
+    "output": { "itemId": "plate-armor", "quantity": 1 }
+  },
+
+  {
+    "id": "recipe-health-potion",
+    "name": "Health Potion",
+    "skill": "alchemy",
+    "minLevel": 1,
+    "xpReward": 12,
+    "ingredients": [
+      { "itemId": "wildflower", "quantity": 3 }
+    ],
+    "output": { "itemId": "health-potion", "quantity": 1 }
+  },
+  {
+    "id": "recipe-mana-potion",
+    "name": "Mana Potion",
+    "skill": "alchemy",
+    "minLevel": 1,
+    "xpReward": 12,
+    "ingredients": [
+      { "itemId": "wildflower", "quantity": 2 },
+      { "itemId": "clover-root", "quantity": 2 }
+    ],
+    "output": { "itemId": "mana-potion", "quantity": 1 }
+  },
+  {
+    "id": "recipe-greater-health-potion",
+    "name": "Greater Health Potion",
+    "skill": "alchemy",
+    "minLevel": 3,
+    "xpReward": 30,
+    "ingredients": [
+      { "itemId": "sage-leaf", "quantity": 3 },
+      { "itemId": "clover-root", "quantity": 2 }
+    ],
+    "output": { "itemId": "greater-health-potion", "quantity": 1 }
+  },
+  {
+    "id": "recipe-greater-mana-potion",
+    "name": "Greater Mana Potion",
+    "skill": "alchemy",
+    "minLevel": 3,
+    "xpReward": 30,
+    "ingredients": [
+      { "itemId": "sage-leaf", "quantity": 3 },
+      { "itemId": "thornvine", "quantity": 2 }
+    ],
+    "output": { "itemId": "greater-mana-potion", "quantity": 1 }
+  },
+  {
+    "id": "recipe-supreme-health-potion",
+    "name": "Supreme Health Potion",
+    "skill": "alchemy",
+    "minLevel": 6,
+    "xpReward": 60,
+    "ingredients": [
+      { "itemId": "moonpetal", "quantity": 4 },
+      { "itemId": "thornvine", "quantity": 2 }
+    ],
+    "output": { "itemId": "supreme-health-potion", "quantity": 1 }
+  },
+  {
+    "id": "recipe-supreme-mana-potion",
+    "name": "Supreme Mana Potion",
+    "skill": "alchemy",
+    "minLevel": 6,
+    "xpReward": 60,
+    "ingredients": [
+      { "itemId": "moonpetal", "quantity": 4 },
+      { "itemId": "sage-leaf", "quantity": 2 }
+    ],
+    "output": { "itemId": "supreme-mana-potion", "quantity": 1 }
+  },
+  {
+    "id": "recipe-elixir-of-fortitude",
+    "name": "Elixir of Fortitude",
+    "skill": "alchemy",
+    "minLevel": 7,
+    "xpReward": 80,
+    "ingredients": [
+      { "itemId": "shadowbloom", "quantity": 3 },
+      { "itemId": "moonpetal", "quantity": 2 }
+    ],
+    "output": { "itemId": "elixir-of-fortitude", "quantity": 1 }
+  },
+  {
+    "id": "recipe-greater-elixir-of-fortitude",
+    "name": "Greater Elixir of Fortitude",
+    "skill": "alchemy",
+    "minLevel": 9,
+    "xpReward": 130,
+    "ingredients": [
+      { "itemId": "shadowbloom", "quantity": 4 },
+      { "itemId": "starlight-lotus", "quantity": 2 }
+    ],
+    "output": { "itemId": "greater-elixir-of-fortitude", "quantity": 1 }
+  },
+  {
+    "id": "recipe-potion-of-giant-strength",
+    "name": "Potion of Giant Strength",
+    "skill": "alchemy",
+    "minLevel": 10,
+    "xpReward": 180,
+    "ingredients": [
+      { "itemId": "starlight-lotus", "quantity": 3 },
+      { "itemId": "shadowbloom", "quantity": 2 },
+      { "itemId": "enchanting-dust", "quantity": 1 }
+    ],
+    "output": { "itemId": "potion-of-giant-strength", "quantity": 1 }
+  },
+
+  {
+    "id": "recipe-wooden-shield",
+    "name": "Wooden Shield",
+    "skill": "woodworking",
+    "minLevel": 1,
+    "xpReward": 15,
+    "ingredients": [
+      { "itemId": "pine-log", "quantity": 4 },
+      { "itemId": "sticky-sap", "quantity": 2 }
+    ],
+    "output": { "itemId": "wooden-shield", "quantity": 1 }
+  },
+  {
+    "id": "recipe-wooden-staff",
+    "name": "Wooden Staff",
+    "skill": "woodworking",
+    "minLevel": 1,
+    "xpReward": 18,
+    "ingredients": [
+      { "itemId": "pine-log", "quantity": 3 }
+    ],
+    "output": { "itemId": "wooden-staff", "quantity": 1 }
+  },
+  {
+    "id": "recipe-hunting-bow",
+    "name": "Hunting Bow",
+    "skill": "woodworking",
+    "minLevel": 2,
+    "xpReward": 25,
+    "ingredients": [
+      { "itemId": "oak-log", "quantity": 3 },
+      { "itemId": "sticky-sap", "quantity": 2 }
+    ],
+    "output": { "itemId": "hunting-bow", "quantity": 1 }
+  },
+  {
+    "id": "recipe-longbow",
+    "name": "Longbow",
+    "skill": "woodworking",
+    "minLevel": 4,
+    "xpReward": 45,
+    "ingredients": [
+      { "itemId": "oak-log", "quantity": 4 },
+      { "itemId": "tree-bark", "quantity": 2 },
+      { "itemId": "sticky-sap", "quantity": 1 }
+    ],
+    "output": { "itemId": "longbow", "quantity": 1 }
+  },
+  {
+    "id": "recipe-steel-shield",
+    "name": "Steel Shield",
+    "skill": "woodworking",
+    "minLevel": 5,
+    "xpReward": 55,
+    "ingredients": [
+      { "itemId": "ironwood-log", "quantity": 3 },
+      { "itemId": "steel-ingot", "quantity": 2 }
+    ],
+    "output": { "itemId": "steel-shield", "quantity": 1 }
+  },
+  {
+    "id": "recipe-ironwood-staff",
+    "name": "Ironwood Staff",
+    "skill": "woodworking",
+    "minLevel": 6,
+    "xpReward": 70,
+    "ingredients": [
+      { "itemId": "ironwood-log", "quantity": 4 },
+      { "itemId": "amber-resin", "quantity": 2 }
+    ],
+    "output": { "itemId": "ironwood-staff", "quantity": 1 }
+  },
+  {
+    "id": "recipe-ebonwood-bow",
+    "name": "Ebonwood Bow",
+    "skill": "woodworking",
+    "minLevel": 8,
+    "xpReward": 110,
+    "ingredients": [
+      { "itemId": "ebonwood-log", "quantity": 4 },
+      { "itemId": "amber-resin", "quantity": 2 },
+      { "itemId": "sticky-sap", "quantity": 1 }
+    ],
+    "output": { "itemId": "ebonwood-bow", "quantity": 1 }
+  }
+]

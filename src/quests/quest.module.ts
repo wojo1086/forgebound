@@ -7,6 +7,8 @@ import { MapModule } from '../map/map.module';
 import { CombatModule } from '../combat/combat.module';
 import { DungeonModule } from '../dungeons/dungeon.module';
 import { TravelModule } from '../travel/travel.module';
+import { GatheringModule } from '../gathering/gathering.module';
+import { CraftingModule } from '../crafting/crafting.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { TravelModule } from '../travel/travel.module';
     forwardRef(() => CombatModule),
     forwardRef(() => DungeonModule),
     forwardRef(() => TravelModule),
+    forwardRef(() => GatheringModule),
+    forwardRef(() => CraftingModule),
   ],
   controllers: [QuestController],
   providers: [QuestService],

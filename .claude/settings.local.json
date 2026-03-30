@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''public/openapi.json'',''utf8''\\)\\); console.log\\(''Valid JSON''\\)\")",
+      "Bash(grep -o [0-9]+)",
+      "Bash(grep -o \"\"y\"\":s*[0-9]+ src/data/pois.json)"
+    ]
+  }
+}

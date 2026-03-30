@@ -3,7 +3,7 @@
   "info": {
     "title": "Forgebound API",
     "description": "A fantasy RPG played entirely through REST API calls. Create characters, explore a vast world, fight monsters, delve into dungeons, and complete quests — all via HTTP requests.\n\n## Authentication\nMost endpoints require a Bearer token obtained from the login endpoint. Include it in the `Authorization` header:\n```\nAuthorization: Bearer <your-token>\n```\n\n## Rate Limiting\nAll endpoints are rate-limited. Public endpoints allow 60 requests per minute. Gameplay endpoints share a similar limit. Authentication endpoints have stricter limits.\n\n## Base URL\n`https://forgebound.io/api`",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "contact": {
       "name": "Forgebound",
       "url": "https://forgebound.io"
@@ -32,6 +32,7 @@
     { "name": "Quests", "description": "Quest discovery, tracking, and completion" },
     { "name": "Dungeons", "description": "Multi-room instanced dungeons" },
     { "name": "Gathering", "description": "Resource gathering with Mining, Herbalism, and Woodcutting skills" },
+    { "name": "Crafting", "description": "Item crafting with Blacksmithing, Alchemy, and Woodworking skills" },
     { "name": "Game Data", "description": "Public reference data (races, classes, items, spells)" }
   ],
   "components": {
@@ -1393,6 +1394,112 @@
             }
           }
         }
+      },
+      "CraftingSkillsResponse": {
+        "type": "object",
+        "properties": {
+          "skills": {
+            "type": "object",
+            "properties": {
+              "blacksmithing": { "$ref": "#/components/schemas/CraftingSkillEntry" },
+              "alchemy": { "$ref": "#/components/schemas/CraftingSkillEntry" },
+              "woodworking": { "$ref": "#/components/schemas/CraftingSkillEntry" }
+            }
+          }
+        }
+      },
+      "CraftingSkillEntry": {
+        "type": "object",
+        "properties": {
+          "level": { "type": "integer", "minimum": 1, "maximum": 10 },
+          "xp": { "type": "integer" },
+          "xpToNext": { "type": "integer", "nullable": true, "description": "XP needed for next level, null at max level" }
+        }
+      },
+      "CraftingRecipesResponse": {
+        "type": "object",
+        "properties": {
+          "recipes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "skill": { "type": "string", "enum": ["blacksmithing", "alchemy", "woodworking"] },
+                "minLevel": { "type": "integer" },
+                "xpReward": { "type": "integer" },
+                "ingredients": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "itemId": { "type": "string" },
+                      "quantity": { "type": "integer" },
+                      "have": { "type": "integer", "description": "How many the player currently has" }
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "properties": {
+                    "itemId": { "type": "string" },
+                    "quantity": { "type": "integer" }
+                  }
+                },
+                "meetsLevel": { "type": "boolean" },
+                "hasIngredients": { "type": "boolean" },
+                "canCraft": { "type": "boolean", "description": "True if meetsLevel AND hasIngredients" }
+              }
+            }
+          }
+        }
+      },
+      "CraftingStationsResponse": {
+        "type": "object",
+        "properties": {
+          "position": { "$ref": "#/components/schemas/Coordinate" },
+          "stations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "type": { "type": "string", "enum": ["forge_station", "alchemy_station", "woodworking_station"] },
+                "skill": { "type": "string", "enum": ["blacksmithing", "alchemy", "woodworking"] },
+                "description": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "CraftRequest": {
+        "type": "object",
+        "required": ["recipeId"],
+        "properties": {
+          "recipeId": { "type": "string", "description": "ID of the recipe to craft (e.g. recipe-copper-dagger)" }
+        }
+      },
+      "CraftResponse": {
+        "type": "object",
+        "properties": {
+          "crafted": { "type": "string", "description": "Item name" },
+          "itemId": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "xpGained": { "type": "integer" },
+          "skill": { "type": "string", "enum": ["blacksmithing", "alchemy", "woodworking"] },
+          "skillLevel": { "type": "integer" },
+          "skillXp": { "type": "integer" },
+          "levelUp": {
+            "type": "object",
+            "description": "Present if the crafting skill leveled up",
+            "properties": {
+              "newLevel": { "type": "integer" },
+              "skill": { "type": "string" }
+            }
+          }
+        }
       }
     },
     "responses": {
@@ -2116,6 +2223,65 @@
         },
         "responses": {
           "200": { "description": "Harvest successful", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HarvestResponse" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/crafting/skills": {
+      "get": {
+        "tags": ["Crafting"],
+        "summary": "Get crafting skill levels",
+        "description": "View your three crafting skill levels (Blacksmithing, Alchemy, Woodworking) and XP progress toward the next level.",
+        "responses": {
+          "200": { "description": "Crafting skills", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CraftingSkillsResponse" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/crafting/recipes": {
+      "get": {
+        "tags": ["Crafting"],
+        "summary": "Get crafting recipes",
+        "description": "List all crafting recipes with your current ingredient counts and whether you can craft each one. Optionally filter by skill.",
+        "parameters": [
+          {
+            "name": "skill",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "enum": ["blacksmithing", "alchemy", "woodworking"] },
+            "description": "Filter recipes by crafting skill"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Recipe list", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CraftingRecipesResponse" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/crafting/stations": {
+      "get": {
+        "tags": ["Crafting"],
+        "summary": "Get nearby crafting stations",
+        "description": "List crafting stations at your current position. Stations are located at specific towns: Ironpeak (Forge), Mosswood (Alchemy Lab), Ferngate (Woodshop).",
+        "responses": {
+          "200": { "description": "Nearby stations", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CraftingStationsResponse" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/crafting/craft": {
+      "post": {
+        "tags": ["Crafting"],
+        "summary": "Craft an item",
+        "description": "Craft an item from a recipe. Must be at the appropriate crafting station, not in combat/traveling/resting/dungeon, have the required crafting skill level, and have all ingredients in your backpack. Ingredients are consumed and the crafted item is added to your backpack.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CraftRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Craft successful", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CraftResponse" } } } },
           "400": { "$ref": "#/components/responses/BadRequest" },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "$ref": "#/components/responses/Conflict" }
