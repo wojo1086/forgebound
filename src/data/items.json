@@ -1827,5 +1827,238 @@
     "weight": 0.1,
     "value": 0,
     "levelRequired": 1
+  },
+
+  {
+    "id": "copper-ore",
+    "name": "Copper Ore",
+    "description": "A chunk of reddish-brown copper ore, the most basic mining material.",
+    "type": "material",
+    "rarity": "common",
+    "weight": 2,
+    "value": 3,
+    "levelRequired": 1
+  },
+  {
+    "id": "rough-stone",
+    "name": "Rough Stone",
+    "description": "A rough chunk of stone broken from the earth.",
+    "type": "material",
+    "rarity": "common",
+    "weight": 3,
+    "value": 1,
+    "levelRequired": 1
+  },
+  {
+    "id": "chipped-gem",
+    "name": "Chipped Gem",
+    "description": "A small gem with visible imperfections, still somewhat valuable.",
+    "type": "material",
+    "rarity": "uncommon",
+    "weight": 0.2,
+    "value": 15,
+    "levelRequired": 1
+  },
+  {
+    "id": "gold-ore",
+    "name": "Gold Ore",
+    "description": "A heavy chunk of gold-bearing rock that glitters in the light.",
+    "type": "material",
+    "rarity": "rare",
+    "weight": 3,
+    "value": 80,
+    "levelRequired": 1
+  },
+  {
+    "id": "polished-gem",
+    "name": "Polished Gem",
+    "description": "A beautifully cut gemstone that catches the light from every angle.",
+    "type": "material",
+    "rarity": "rare",
+    "weight": 0.2,
+    "value": 120,
+    "levelRequired": 1
+  },
+  {
+    "id": "adamantite-ore",
+    "name": "Adamantite Ore",
+    "description": "An extraordinarily rare ore, nearly indestructible when forged.",
+    "type": "material",
+    "rarity": "legendary",
+    "weight": 3,
+    "value": 800,
+    "levelRequired": 1
+  },
+  {
+    "id": "flawless-gem",
+    "name": "Flawless Gem",
+    "description": "A perfect gemstone without a single imperfection, radiating inner light.",
+    "type": "material",
+    "rarity": "epic",
+    "weight": 0.2,
+    "value": 400,
+    "levelRequired": 1
+  },
+  {
+    "id": "starfire-crystal",
+    "name": "Starfire Crystal",
+    "description": "A crystal that pulses with captured starlight, warm to the touch.",
+    "type": "material",
+    "rarity": "legendary",
+    "weight": 0.3,
+    "value": 1200,
+    "levelRequired": 1
+  },
+
+  {
+    "id": "wildflower",
+    "name": "Wildflower",
+    "description": "A common wildflower with subtle medicinal properties.",
+    "type": "material",
+    "rarity": "common",
+    "weight": 0.1,
+    "value": 2,
+    "levelRequired": 1
+  },
+  {
+    "id": "clover-root",
+    "name": "Clover Root",
+    "description": "A sturdy root from a four-leaf clover, said to bring luck.",
+    "type": "material",
+    "rarity": "common",
+    "weight": 0.2,
+    "value": 3,
+    "levelRequired": 1
+  },
+  {
+    "id": "sage-leaf",
+    "name": "Sage Leaf",
+    "description": "Aromatic sage leaves prized by alchemists for their purifying qualities.",
+    "type": "material",
+    "rarity": "uncommon",
+    "weight": 0.1,
+    "value": 12,
+    "levelRequired": 1
+  },
+  {
+    "id": "thornvine",
+    "name": "Thornvine",
+    "description": "A resilient vine covered in sharp thorns, useful in potent salves.",
+    "type": "material",
+    "rarity": "uncommon",
+    "weight": 0.3,
+    "value": 18,
+    "levelRequired": 1
+  },
+  {
+    "id": "moonpetal",
+    "name": "Moonpetal",
+    "description": "A luminescent flower that only blooms under moonlight.",
+    "type": "material",
+    "rarity": "rare",
+    "weight": 0.1,
+    "value": 75,
+    "levelRequired": 1
+  },
+  {
+    "id": "shadowbloom",
+    "name": "Shadowbloom",
+    "description": "A dark, ethereal flower that thrives in places untouched by sunlight.",
+    "type": "material",
+    "rarity": "epic",
+    "weight": 0.1,
+    "value": 350,
+    "levelRequired": 1
+  },
+  {
+    "id": "starlight-lotus",
+    "name": "Starlight Lotus",
+    "description": "An exceedingly rare lotus that glows with captured starlight, the pinnacle of herbalism.",
+    "type": "material",
+    "rarity": "legendary",
+    "weight": 0.1,
+    "value": 1000,
+    "levelRequired": 1
+  },
+
+  {
+    "id": "pine-log",
+    "name": "Pine Log",
+    "description": "A fresh-cut log of pine, lightweight and fragrant.",
+    "type": "material",
+    "rarity": "common",
+    "weight": 3,
+    "value": 3,
+    "levelRequired": 1
+  },
+  {
+    "id": "tree-bark",
+    "name": "Tree Bark",
+    "description": "Strips of bark peeled from a tree, useful for tanning and crafting.",
+    "type": "material",
+    "rarity": "common",
+    "weight": 1,
+    "value": 2,
+    "levelRequired": 1
+  },
+  {
+    "id": "sticky-sap",
+    "name": "Sticky Sap",
+    "description": "Golden tree sap with strong adhesive properties.",
+    "type": "material",
+    "rarity": "common",
+    "weight": 0.5,
+    "value": 4,
+    "levelRequired": 1
+  },
+  {
+    "id": "oak-log",
+    "name": "Oak Log",
+    "description": "A solid log of oak, prized for its strength and durability.",
+    "type": "material",
+    "rarity": "uncommon",
+    "weight": 4,
+    "value": 15,
+    "levelRequired": 1
+  },
+  {
+    "id": "ironwood-log",
+    "name": "Ironwood Log",
+    "description": "Wood so dense it sinks in water, nearly as hard as metal.",
+    "type": "material",
+    "rarity": "rare",
+    "weight": 5,
+    "value": 70,
+    "levelRequired": 1
+  },
+  {
+    "id": "amber-resin",
+    "name": "Amber Resin",
+    "description": "Fossilized tree resin that glows with a warm golden light.",
+    "type": "material",
+    "rarity": "rare",
+    "weight": 0.3,
+    "value": 90,
+    "levelRequired": 1
+  },
+  {
+    "id": "ebonwood-log",
+    "name": "Ebonwood Log",
+    "description": "Jet-black wood that absorbs light, magically reinforced by dark forests.",
+    "type": "material",
+    "rarity": "epic",
+    "weight": 5,
+    "value": 350,
+    "levelRequired": 1
+  },
+  {
+    "id": "worldtree-branch",
+    "name": "Worldtree Branch",
+    "description": "A living branch from the legendary Worldtree, still pulsing with ancient energy.",
+    "type": "material",
+    "rarity": "legendary",
+    "weight": 3,
+    "value": 1000,
+    "levelRequired": 1
   }
 ]

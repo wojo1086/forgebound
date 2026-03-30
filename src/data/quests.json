@@ -470,5 +470,73 @@
     ],
     "rewards": { "xp": 350, "gold": 200, "items": [{ "itemId": "plate-armor", "quantity": 1 }] },
     "prerequisiteQuestId": "driftholm-kraken-threat"
+  },
+
+  {
+    "id": "thornhaven-copper-supply",
+    "name": "Copper for the Smithy",
+    "description": "The blacksmith in Thornhaven needs copper ore to keep up with demand for basic tools and horseshoes.",
+    "giverTown": "thornhaven",
+    "levelMin": 1,
+    "levelMax": 3,
+    "objectives": [
+      { "type": "fetch", "target": "copper-ore", "quantity": 5, "description": "Gather 5 Copper Ore" }
+    ],
+    "rewards": { "xp": 60, "gold": 30, "items": [{ "itemId": "health-potion", "quantity": 2 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "thornhaven-herb-gathering",
+    "name": "Healer's Herbs",
+    "description": "The town healer is running low on wildflowers and clover root for poultices. Gather some from the nearby forest.",
+    "giverTown": "thornhaven",
+    "levelMin": 1,
+    "levelMax": 3,
+    "objectives": [
+      { "type": "fetch", "target": "wildflower", "quantity": 5, "description": "Gather 5 Wildflowers" },
+      { "type": "fetch", "target": "clover-root", "quantity": 3, "description": "Gather 3 Clover Roots" }
+    ],
+    "rewards": { "xp": 75, "gold": 25, "items": [{ "itemId": "mana-potion", "quantity": 2 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "thornhaven-lumber-order",
+    "name": "Lumber for Repairs",
+    "description": "Storm damage has left Thornhaven's walls in need of repair. The carpenter needs pine logs urgently.",
+    "giverTown": "thornhaven",
+    "levelMin": 1,
+    "levelMax": 3,
+    "objectives": [
+      { "type": "fetch", "target": "pine-log", "quantity": 8, "description": "Gather 8 Pine Logs" }
+    ],
+    "rewards": { "xp": 65, "gold": 35, "items": [] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "ironkeep-iron-demand",
+    "name": "Iron for the Forge",
+    "description": "Ironkeep's famed forge has run low on iron ore. The master smith will reward anyone who can resupply the smelters.",
+    "giverTown": "ironkeep",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "fetch", "target": "iron-ore", "quantity": 8, "description": "Gather 8 Iron Ore" }
+    ],
+    "rewards": { "xp": 150, "gold": 80, "items": [{ "itemId": "iron-longsword", "quantity": 1 }] },
+    "prerequisiteQuestId": null
+  },
+  {
+    "id": "gloomfen-rare-herbs",
+    "name": "Rare Swamp Herbs",
+    "description": "A traveling alchemist in Gloomfen seeks sage leaves and thornvine for an experimental brew.",
+    "giverTown": "gloomfen",
+    "levelMin": 3,
+    "levelMax": 6,
+    "objectives": [
+      { "type": "fetch", "target": "sage-leaf", "quantity": 5, "description": "Gather 5 Sage Leaves" },
+      { "type": "fetch", "target": "thornvine", "quantity": 3, "description": "Gather 3 Thornvines" }
+    ],
+    "rewards": { "xp": 175, "gold": 60, "items": [{ "itemId": "health-potion", "quantity": 5 }] },
+    "prerequisiteQuestId": null
   }
 ]

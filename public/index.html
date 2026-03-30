@@ -640,6 +640,12 @@
         <a href="#ep-quests-abandon"><span class="method-sm post">POST</span> Abandon Quest</a>
       </div>
       <div class="sidebar-section">
+        <div class="sidebar-heading">Gathering</div>
+        <a href="#ep-gathering-skills"><span class="method-sm get">GET</span> Gathering Skills</a>
+        <a href="#ep-gathering-nodes"><span class="method-sm get">GET</span> Nearby Nodes</a>
+        <a href="#ep-gathering-harvest"><span class="method-sm post">POST</span> Harvest</a>
+      </div>
+      <div class="sidebar-section">
         <div class="sidebar-heading">Reference</div>
         <a href="#ref-races">Races &amp; Bonuses</a>
         <a href="#ref-classes">Classes</a>
@@ -2329,6 +2335,122 @@ Content-Type: application/json
         </div>
       </div>
 
+      <!-- GATHERING -->
+      <div class="endpoint-section" id="gathering">
+        <div class="section-label">Gathering</div>
+        <div class="section-title">Resource Gathering</div>
+        <div class="section-desc">
+          Harvest raw materials from gathering nodes placed throughout the world. Three independent gathering skills &mdash; <strong>Mining</strong>, <strong>Herbalism</strong>, and <strong>Woodcutting</strong> &mdash; level up through use (1&ndash;10), unlocking rarer materials at higher levels. Each node has a cooldown after harvesting.
+        </div>
+
+        <h4 style="margin-top: 1.5rem; color: #d4a843;">Gathering Skills &amp; Materials</h4>
+        <table class="stat-table" style="margin-top:0.5rem">
+          <thead><tr><th>Skill</th><th>Terrain</th><th>Materials (by level)</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Mining</td>
+              <td>Mountain, Desert</td>
+              <td>Copper Ore &rarr; Iron Ore &rarr; Gold Ore &rarr; Mithril Ore &rarr; Adamantite Ore<br>+ Rough Stone, Chipped/Polished/Flawless Gems, Starfire Crystal</td>
+            </tr>
+            <tr>
+              <td>Herbalism</td>
+              <td>Forest, Swamp</td>
+              <td>Wildflower &rarr; Sage Leaf &rarr; Moonpetal &rarr; Shadowbloom &rarr; Starlight Lotus<br>+ Clover Root, Thornvine</td>
+            </tr>
+            <tr>
+              <td>Woodcutting</td>
+              <td>Forest, Plains</td>
+              <td>Pine Log &rarr; Oak Log &rarr; Ironwood Log &rarr; Ebonwood Log &rarr; Worldtree Branch<br>+ Tree Bark, Sticky Sap, Amber Resin</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="margin-top: 1.5rem; color: #d4a843;">Skill XP Thresholds</h4>
+        <table class="stat-table" style="margin-top:0.5rem">
+          <thead><tr><th>Level</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr></thead>
+          <tbody><tr><td>XP</td><td>50</td><td>120</td><td>220</td><td>360</td><td>550</td><td>800</td><td>1120</td><td>1520</td><td>2000</td></tr></tbody>
+        </table>
+
+        <div class="endpoint" id="ep-gathering-skills">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/gathering/skills</code>
+          </div>
+          <p>View your three gathering skill levels and XP progress.</p>
+          <pre><code>// Response
+{
+  "skills": {
+    "mining": { "level": 3, "xp": 145, "xpToNext": 220 },
+    "herbalism": { "level": 1, "xp": 0, "xpToNext": 50 },
+    "woodcutting": { "level": 5, "xp": 410, "xpToNext": 550 }
+  }
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="ep-gathering-nodes">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/gathering/nodes</code>
+          </div>
+          <p>List gathering nodes at your current position with cooldown status.</p>
+          <pre><code>// Response
+{
+  "position": { "x": 37, "y": 26 },
+  "nodes": [
+    {
+      "poiId": "copper-vein-1",
+      "name": "Copper Vein",
+      "type": "mining_node",
+      "nodeId": "copper-vein",
+      "skill": "mining",
+      "minLevel": 1,
+      "xpReward": 8,
+      "cooldownMinutes": 5,
+      "ready": true,
+      "availableAt": null
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <div class="endpoint" id="ep-gathering-harvest">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/gathering/harvest</code>
+          </div>
+          <p>Harvest from a gathering node. Must be at the node's coordinates, not in combat/traveling/resting, and have the required skill level. Node goes on cooldown after harvesting.</p>
+          <pre><code>// Request
+{ "nodeId": "copper-vein-1" }
+
+// Response
+{
+  "harvested": "Copper Ore",
+  "itemId": "copper-ore",
+  "quantity": 2,
+  "xpGained": 8,
+  "skill": "mining",
+  "skillLevel": 1,
+  "skillXp": 8,
+  "cooldownMinutes": 5,
+  "availableAt": "2026-03-29T12:35:00.000Z"
+}
+
+// Response (with level-up)
+{
+  "harvested": "Iron Ore",
+  "itemId": "iron-ore",
+  "quantity": 2,
+  "xpGained": 15,
+  "skill": "mining",
+  "skillLevel": 3,
+  "skillXp": 125,
+  "cooldownMinutes": 7,
+  "availableAt": "2026-03-29T12:37:00.000Z",
+  "levelUp": { "newLevel": 3, "skill": "mining" }
+}</code></pre>
+        </div>
+      </div>
+
       <!-- REFERENCE -->
       <div class="endpoint-section" id="reference">
         <div class="section-label">Reference</div>
@@ -2393,6 +2515,22 @@ Content-Type: application/json
         <div class="section-label">Changelog</div>
         <div class="section-title">Update History</div>
         <div class="section-desc">A transparent log of everything added, changed, and fixed in Forgebound.</div>
+
+        <div class="changelog-entry">
+          <div class="changelog-date">March 29, 2026</div>
+          <div class="changelog-version">v0.8.0 &mdash; Gathering</div>
+          <ul class="changelog-list">
+            <li><span class="changelog-tag tag-new">New</span> Resource gathering system &mdash; 3 independent skills: Mining, Herbalism, Woodcutting</li>
+            <li><span class="changelog-tag tag-new">New</span> Gathering skills level 1&ndash;10 with XP progression, unlocking rarer material nodes</li>
+            <li><span class="changelog-tag tag-new">New</span> 15 gathering node types across 5 tiers, each with weighted loot tables</li>
+            <li><span class="changelog-tag tag-new">New</span> 36 gathering node POIs placed on terrain-appropriate coordinates</li>
+            <li><span class="changelog-tag tag-new">New</span> 23 new material items &mdash; ores, gems, herbs, logs, and more</li>
+            <li><span class="changelog-tag tag-new">New</span> Per-character per-node cooldowns (5&ndash;15 minutes based on tier)</li>
+            <li><span class="changelog-tag tag-new">New</span> 5 gathering-related fetch quests across Thornhaven, Ironkeep, and Gloomfen</li>
+            <li><span class="changelog-tag tag-new">New</span> 3 new endpoints: GET /gathering/skills, GET /gathering/nodes, POST /gathering/harvest</li>
+            <li><span class="changelog-tag tag-improved">Improved</span> POI seeding now uses ON CONFLICT for additive updates</li>
+          </ul>
+        </div>
 
         <div class="changelog-entry">
           <div class="changelog-date">March 28, 2026</div>

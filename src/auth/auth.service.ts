@@ -4,14 +4,24 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { EmailValidatorService } from './email-validator.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private supabaseService: SupabaseService,
+    private emailValidator: EmailValidatorService,
+  ) {}
 
   async register(dto: RegisterDto) {
+    // Validate email before calling Supabase (prevents bounced confirmation emails)
+    const validation = await this.emailValidator.validate(dto.email);
+    if (!validation.valid) {
+      throw new BadRequestException(validation.reason);
+    }
+
     const supabase = this.supabaseService.getClient();
 
     const { data, error } = await supabase.auth.signUp({

@@ -3,7 +3,7 @@
   "info": {
     "title": "Forgebound API",
     "description": "A fantasy RPG played entirely through REST API calls. Create characters, explore a vast world, fight monsters, delve into dungeons, and complete quests — all via HTTP requests.\n\n## Authentication\nMost endpoints require a Bearer token obtained from the login endpoint. Include it in the `Authorization` header:\n```\nAuthorization: Bearer <your-token>\n```\n\n## Rate Limiting\nAll endpoints are rate-limited. Public endpoints allow 60 requests per minute. Gameplay endpoints share a similar limit. Authentication endpoints have stricter limits.\n\n## Base URL\n`https://forgebound.io/api`",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "contact": {
       "name": "Forgebound",
       "url": "https://forgebound.io"
@@ -31,6 +31,7 @@
     { "name": "Shops", "description": "Town shop inventory, buying, and selling" },
     { "name": "Quests", "description": "Quest discovery, tracking, and completion" },
     { "name": "Dungeons", "description": "Multi-room instanced dungeons" },
+    { "name": "Gathering", "description": "Resource gathering with Mining, Herbalism, and Woodcutting skills" },
     { "name": "Game Data", "description": "Public reference data (races, classes, items, spells)" }
   ],
   "components": {
@@ -1305,6 +1306,93 @@
           "hitDie": { "type": "integer" },
           "primaryStat": { "type": "string" }
         }
+      },
+      "GatheringSkillsResponse": {
+        "type": "object",
+        "properties": {
+          "skills": {
+            "type": "object",
+            "properties": {
+              "mining": {
+                "type": "object",
+                "properties": {
+                  "level": { "type": "integer" },
+                  "xp": { "type": "integer" },
+                  "xpToNext": { "type": "integer", "nullable": true, "description": "Null at max level" }
+                }
+              },
+              "herbalism": {
+                "type": "object",
+                "properties": {
+                  "level": { "type": "integer" },
+                  "xp": { "type": "integer" },
+                  "xpToNext": { "type": "integer", "nullable": true }
+                }
+              },
+              "woodcutting": {
+                "type": "object",
+                "properties": {
+                  "level": { "type": "integer" },
+                  "xp": { "type": "integer" },
+                  "xpToNext": { "type": "integer", "nullable": true }
+                }
+              }
+            }
+          }
+        }
+      },
+      "GatheringNodesResponse": {
+        "type": "object",
+        "properties": {
+          "position": { "$ref": "#/components/schemas/Coordinate" },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "poiId": { "type": "string" },
+                "name": { "type": "string" },
+                "type": { "type": "string", "enum": ["mining_node", "herb_node", "woodcutting_node"] },
+                "nodeId": { "type": "string" },
+                "skill": { "type": "string", "enum": ["mining", "herbalism", "woodcutting"] },
+                "minLevel": { "type": "integer" },
+                "xpReward": { "type": "integer" },
+                "cooldownMinutes": { "type": "integer" },
+                "ready": { "type": "boolean" },
+                "availableAt": { "type": "string", "format": "date-time", "nullable": true }
+              }
+            }
+          }
+        }
+      },
+      "HarvestRequest": {
+        "type": "object",
+        "required": ["nodeId"],
+        "properties": {
+          "nodeId": { "type": "string", "description": "The POI ID of the gathering node" }
+        }
+      },
+      "HarvestResponse": {
+        "type": "object",
+        "properties": {
+          "harvested": { "type": "string", "description": "Item name" },
+          "itemId": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "xpGained": { "type": "integer" },
+          "skill": { "type": "string", "enum": ["mining", "herbalism", "woodcutting"] },
+          "skillLevel": { "type": "integer" },
+          "skillXp": { "type": "integer" },
+          "cooldownMinutes": { "type": "integer" },
+          "availableAt": { "type": "string", "format": "date-time" },
+          "levelUp": {
+            "type": "object",
+            "description": "Present if the gathering skill leveled up",
+            "properties": {
+              "newLevel": { "type": "integer" },
+              "skill": { "type": "string" }
+            }
+          }
+        }
       }
     },
     "responses": {
@@ -1992,6 +2080,45 @@
           "200": { "description": "Left dungeon", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DungeonLeaveResponse" } } } },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "409": { "description": "Not in dungeon", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/gathering/skills": {
+      "get": {
+        "tags": ["Gathering"],
+        "summary": "Get gathering skill levels",
+        "description": "View your three gathering skill levels (Mining, Herbalism, Woodcutting) and XP progress toward the next level.",
+        "responses": {
+          "200": { "description": "Gathering skills", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GatheringSkillsResponse" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/gathering/nodes": {
+      "get": {
+        "tags": ["Gathering"],
+        "summary": "Get nearby gathering nodes",
+        "description": "List gathering nodes at your current position with cooldown status and skill requirements.",
+        "responses": {
+          "200": { "description": "Nearby nodes", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GatheringNodesResponse" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/gathering/harvest": {
+      "post": {
+        "tags": ["Gathering"],
+        "summary": "Harvest from a node",
+        "description": "Harvest resources from a gathering node. Must be at the node's coordinates, not in combat/traveling/resting/dungeon, and have the required gathering skill level. The node goes on cooldown after harvesting (5-15 minutes based on tier).",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HarvestRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Harvest successful", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HarvestResponse" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "$ref": "#/components/responses/Conflict" }
         }
       }
     },

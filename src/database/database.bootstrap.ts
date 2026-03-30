@@ -333,6 +333,32 @@ export class DatabaseBootstrap implements OnModuleInit {
       CREATE INDEX IF NOT EXISTS idx_char_quests_status ON character_quests(character_id, status);
     `);
 
+    // Gathering: skill levels + cooldowns
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS character_gathering_skills (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        character_id uuid NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+        skill varchar(20) NOT NULL CHECK (skill IN ('mining', 'herbalism', 'woodcutting')),
+        level int NOT NULL DEFAULT 1,
+        xp int NOT NULL DEFAULT 0,
+        UNIQUE(character_id, skill)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_gathering_skills_character
+        ON character_gathering_skills(character_id);
+
+      CREATE TABLE IF NOT EXISTS gathering_cooldowns (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        character_id uuid NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+        node_id varchar(60) NOT NULL,
+        available_at timestamptz NOT NULL,
+        UNIQUE(character_id, node_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_gathering_cooldowns_character
+        ON gathering_cooldowns(character_id);
+    `);
+
     this.logger.log('Tables verified');
   }
 
@@ -546,6 +572,54 @@ export class DatabaseBootstrap implements OnModuleInit {
       END $$;
     `);
 
+    // Gathering skills RLS
+    await client.query(`
+      ALTER TABLE character_gathering_skills ENABLE ROW LEVEL SECURITY;
+
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'gathering_skills_select_own') THEN
+          CREATE POLICY gathering_skills_select_own ON character_gathering_skills FOR SELECT
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'gathering_skills_insert_own') THEN
+          CREATE POLICY gathering_skills_insert_own ON character_gathering_skills FOR INSERT
+            WITH CHECK (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'gathering_skills_update_own') THEN
+          CREATE POLICY gathering_skills_update_own ON character_gathering_skills FOR UPDATE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'gathering_skills_delete_own') THEN
+          CREATE POLICY gathering_skills_delete_own ON character_gathering_skills FOR DELETE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+      END $$;
+    `);
+
+    // Gathering cooldowns RLS
+    await client.query(`
+      ALTER TABLE gathering_cooldowns ENABLE ROW LEVEL SECURITY;
+
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'gathering_cd_select_own') THEN
+          CREATE POLICY gathering_cd_select_own ON gathering_cooldowns FOR SELECT
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'gathering_cd_insert_own') THEN
+          CREATE POLICY gathering_cd_insert_own ON gathering_cooldowns FOR INSERT
+            WITH CHECK (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'gathering_cd_update_own') THEN
+          CREATE POLICY gathering_cd_update_own ON gathering_cooldowns FOR UPDATE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'gathering_cd_delete_own') THEN
+          CREATE POLICY gathering_cd_delete_own ON gathering_cooldowns FOR DELETE
+            USING (character_id IN (SELECT id FROM characters WHERE user_id = auth.uid()));
+        END IF;
+      END $$;
+    `);
+
     this.logger.log('RLS policies verified');
   }
 
@@ -576,49 +650,49 @@ export class DatabaseBootstrap implements OnModuleInit {
       this.logger.log('Races and classes seeded');
     }
 
-    // Seed POIs
-    const { rows: poiRows } = await client.query('SELECT count(*) FROM pois');
-    if (parseInt(poiRows[0].count, 10) === 0) {
-      this.logger.log('Seeding POIs...');
+    // Seed POIs (uses ON CONFLICT so new POIs are added on restarts)
+    this.logger.log('Syncing POIs...');
 
-      const allPois = [
-        ...poisData.towns.map((p) => ({ ...p, type: 'town', category: 'town' })),
-        ...poisData.landmarks.map((p) => ({ ...p, category: 'landmark' })),
-        ...poisData.hidden.map((p) => ({ ...p, category: 'hidden' })),
-      ];
+    const allPois = [
+      ...poisData.towns.map((p) => ({ ...p, type: 'town', category: 'town' })),
+      ...poisData.landmarks.map((p) => ({ ...p, category: 'landmark' })),
+      ...poisData.hidden.map((p) => ({ ...p, category: 'hidden' })),
+      ...(poisData as any).gathering_nodes?.map((p: any) => ({ ...p, category: 'gathering' })) ?? [],
+    ];
 
-      // Batch insert in chunks of 50
-      for (let i = 0; i < allPois.length; i += 50) {
-        const chunk = allPois.slice(i, i + 50);
-        const values = chunk
-          .map(
-            (p, idx) =>
-              `($${idx * 11 + 1}, $${idx * 11 + 2}, $${idx * 11 + 3}, $${idx * 11 + 4}, $${idx * 11 + 5}, $${idx * 11 + 6}, $${idx * 11 + 7}, $${idx * 11 + 8}, $${idx * 11 + 9}, $${idx * 11 + 10}, $${idx * 11 + 11})`,
-          )
-          .join(', ');
+    // Batch insert in chunks of 50
+    for (let i = 0; i < allPois.length; i += 50) {
+      const chunk = allPois.slice(i, i + 50);
+      const values = chunk
+        .map(
+          (p, idx) =>
+            `($${idx * 11 + 1}, $${idx * 11 + 2}, $${idx * 11 + 3}, $${idx * 11 + 4}, $${idx * 11 + 5}, $${idx * 11 + 6}, $${idx * 11 + 7}, $${idx * 11 + 8}, $${idx * 11 + 9}, $${idx * 11 + 10}, $${idx * 11 + 11})`,
+        )
+        .join(', ');
 
-        const params = chunk.flatMap((p) => [
-          p.id,
-          p.name,
-          p.type,
-          p.category,
-          p.x,
-          p.y,
-          p.terrain,
-          p.description ?? null,
-          (p as any).levelMin ?? null,
-          (p as any).levelMax ?? null,
-          p.visible,
-        ]);
+      const params = chunk.flatMap((p) => [
+        p.id,
+        p.name,
+        p.type,
+        p.category,
+        p.x,
+        p.y,
+        p.terrain,
+        p.description ?? null,
+        (p as any).levelMin ?? null,
+        (p as any).levelMax ?? null,
+        p.visible,
+      ]);
 
-        await client.query(
-          `INSERT INTO pois (id, name, type, category, x, y, terrain, description, level_min, level_max, visible) VALUES ${values}`,
-          params,
-        );
-      }
-
-      this.logger.log(`${allPois.length} POIs seeded`);
+      await client.query(
+        `INSERT INTO pois (id, name, type, category, x, y, terrain, description, level_min, level_max, visible)
+         VALUES ${values}
+         ON CONFLICT (id) DO NOTHING`,
+        params,
+      );
     }
+
+    this.logger.log(`${allPois.length} POIs synced`);
 
     // Seed items (uses ON CONFLICT so new items are added on restarts)
     this.logger.log('Syncing items...');

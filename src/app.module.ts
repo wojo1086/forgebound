@@ -17,6 +17,7 @@ import { ShopsModule } from './shops/shops.module';
 import { CombatModule } from './combat/combat.module';
 import { DungeonModule } from './dungeons/dungeon.module';
 import { QuestModule } from './quests/quest.module';
+import { GatheringModule } from './gathering/gathering.module';
 import { DatabaseModule } from './database/database.module';
 import { SupabaseAuthGuard } from './auth/auth.guard';
 import { ForgeboundThrottlerGuard } from './common/guards/throttler.guard';
@@ -44,6 +45,7 @@ import { AppController } from './app.controller';
     CombatModule,
     DungeonModule,
     QuestModule,
+    GatheringModule,
   ],
   controllers: [AppController],
   providers: [

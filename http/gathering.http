@@ -1,0 +1,48 @@
+## Run auth.http → Login first to populate {{token}}
+
+###
+## ─── Gathering Skills ───
+###
+
+### Get gathering skill levels
+GET {{host}}/gathering/skills
+Authorization: Bearer {{token}}
+
+###
+## ─── Gathering Nodes ───
+###
+
+### Get nearby gathering nodes (must be at a node's coordinates)
+GET {{host}}/gathering/nodes
+Authorization: Bearer {{token}}
+
+###
+## ─── Harvest ───
+###
+
+### Harvest from a copper vein (must be at 37,26)
+POST {{host}}/gathering/harvest
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nodeId": "copper-vein-1"
+}
+
+### Harvest from a wildflower patch (must be at 50,10)
+POST {{host}}/gathering/harvest
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nodeId": "wildflower-patch-1"
+}
+
+### Harvest from a pine stand (must be at 50,11)
+POST {{host}}/gathering/harvest
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nodeId": "pine-stand-1"
+}

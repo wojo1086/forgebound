@@ -1,0 +1,209 @@
+[
+  {
+    "id": "copper-vein",
+    "name": "Copper Vein",
+    "skill": "mining",
+    "minLevel": 1,
+    "xpReward": 8,
+    "cooldownMinutes": 5,
+    "lootTable": [
+      { "itemId": "copper-ore", "weight": 70, "quantity": [1, 3] },
+      { "itemId": "rough-stone", "weight": 25, "quantity": [1, 2] },
+      { "itemId": "chipped-gem", "weight": 5, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "iron-deposit",
+    "name": "Iron Deposit",
+    "skill": "mining",
+    "minLevel": 3,
+    "xpReward": 15,
+    "cooldownMinutes": 7,
+    "lootTable": [
+      { "itemId": "iron-ore", "weight": 65, "quantity": [1, 3] },
+      { "itemId": "rough-stone", "weight": 20, "quantity": [1, 2] },
+      { "itemId": "chipped-gem", "weight": 10, "quantity": [1, 1] },
+      { "itemId": "copper-ore", "weight": 5, "quantity": [1, 2] }
+    ]
+  },
+  {
+    "id": "gold-vein",
+    "name": "Gold Vein",
+    "skill": "mining",
+    "minLevel": 5,
+    "xpReward": 25,
+    "cooldownMinutes": 10,
+    "lootTable": [
+      { "itemId": "gold-ore", "weight": 55, "quantity": [1, 2] },
+      { "itemId": "polished-gem", "weight": 20, "quantity": [1, 1] },
+      { "itemId": "iron-ore", "weight": 15, "quantity": [1, 2] },
+      { "itemId": "rough-stone", "weight": 10, "quantity": [1, 2] }
+    ]
+  },
+  {
+    "id": "mithril-deposit",
+    "name": "Mithril Deposit",
+    "skill": "mining",
+    "minLevel": 7,
+    "xpReward": 40,
+    "cooldownMinutes": 12,
+    "lootTable": [
+      { "itemId": "mithril-ore", "weight": 50, "quantity": [1, 2] },
+      { "itemId": "polished-gem", "weight": 20, "quantity": [1, 1] },
+      { "itemId": "gold-ore", "weight": 20, "quantity": [1, 2] },
+      { "itemId": "flawless-gem", "weight": 10, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "adamantite-vein",
+    "name": "Adamantite Vein",
+    "skill": "mining",
+    "minLevel": 9,
+    "xpReward": 60,
+    "cooldownMinutes": 15,
+    "lootTable": [
+      { "itemId": "adamantite-ore", "weight": 45, "quantity": [1, 2] },
+      { "itemId": "flawless-gem", "weight": 20, "quantity": [1, 1] },
+      { "itemId": "mithril-ore", "weight": 20, "quantity": [1, 2] },
+      { "itemId": "starfire-crystal", "weight": 15, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "wildflower-patch",
+    "name": "Wildflower Patch",
+    "skill": "herbalism",
+    "minLevel": 1,
+    "xpReward": 8,
+    "cooldownMinutes": 5,
+    "lootTable": [
+      { "itemId": "wildflower", "weight": 65, "quantity": [1, 3] },
+      { "itemId": "clover-root", "weight": 30, "quantity": [1, 2] },
+      { "itemId": "sage-leaf", "weight": 5, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "sage-garden",
+    "name": "Sage Garden",
+    "skill": "herbalism",
+    "minLevel": 3,
+    "xpReward": 15,
+    "cooldownMinutes": 7,
+    "lootTable": [
+      { "itemId": "sage-leaf", "weight": 60, "quantity": [1, 3] },
+      { "itemId": "thornvine", "weight": 20, "quantity": [1, 2] },
+      { "itemId": "wildflower", "weight": 15, "quantity": [1, 2] },
+      { "itemId": "clover-root", "weight": 5, "quantity": [1, 2] }
+    ]
+  },
+  {
+    "id": "moonpetal-grove",
+    "name": "Moonpetal Grove",
+    "skill": "herbalism",
+    "minLevel": 5,
+    "xpReward": 25,
+    "cooldownMinutes": 10,
+    "lootTable": [
+      { "itemId": "moonpetal", "weight": 55, "quantity": [1, 2] },
+      { "itemId": "thornvine", "weight": 20, "quantity": [1, 2] },
+      { "itemId": "sage-leaf", "weight": 15, "quantity": [1, 2] },
+      { "itemId": "clover-root", "weight": 10, "quantity": [1, 2] }
+    ]
+  },
+  {
+    "id": "shadowbloom-thicket",
+    "name": "Shadowbloom Thicket",
+    "skill": "herbalism",
+    "minLevel": 7,
+    "xpReward": 40,
+    "cooldownMinutes": 12,
+    "lootTable": [
+      { "itemId": "shadowbloom", "weight": 50, "quantity": [1, 2] },
+      { "itemId": "moonpetal", "weight": 25, "quantity": [1, 2] },
+      { "itemId": "starlight-lotus", "weight": 10, "quantity": [1, 1] },
+      { "itemId": "thornvine", "weight": 15, "quantity": [1, 2] }
+    ]
+  },
+  {
+    "id": "starlight-pond",
+    "name": "Starlight Pond",
+    "skill": "herbalism",
+    "minLevel": 9,
+    "xpReward": 60,
+    "cooldownMinutes": 15,
+    "lootTable": [
+      { "itemId": "starlight-lotus", "weight": 45, "quantity": [1, 2] },
+      { "itemId": "shadowbloom", "weight": 25, "quantity": [1, 2] },
+      { "itemId": "moonpetal", "weight": 20, "quantity": [1, 2] },
+      { "itemId": "flawless-gem", "weight": 10, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "pine-stand",
+    "name": "Pine Stand",
+    "skill": "woodcutting",
+    "minLevel": 1,
+    "xpReward": 8,
+    "cooldownMinutes": 5,
+    "lootTable": [
+      { "itemId": "pine-log", "weight": 65, "quantity": [1, 3] },
+      { "itemId": "tree-bark", "weight": 25, "quantity": [1, 2] },
+      { "itemId": "sticky-sap", "weight": 10, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "oak-grove",
+    "name": "Oak Grove",
+    "skill": "woodcutting",
+    "minLevel": 3,
+    "xpReward": 15,
+    "cooldownMinutes": 7,
+    "lootTable": [
+      { "itemId": "oak-log", "weight": 60, "quantity": [1, 3] },
+      { "itemId": "tree-bark", "weight": 20, "quantity": [1, 2] },
+      { "itemId": "pine-log", "weight": 10, "quantity": [1, 2] },
+      { "itemId": "sticky-sap", "weight": 10, "quantity": [1, 2] }
+    ]
+  },
+  {
+    "id": "maple-stand",
+    "name": "Maple Stand",
+    "skill": "woodcutting",
+    "minLevel": 5,
+    "xpReward": 25,
+    "cooldownMinutes": 10,
+    "lootTable": [
+      { "itemId": "ironwood-log", "weight": 55, "quantity": [1, 2] },
+      { "itemId": "amber-resin", "weight": 20, "quantity": [1, 1] },
+      { "itemId": "oak-log", "weight": 15, "quantity": [1, 2] },
+      { "itemId": "tree-bark", "weight": 10, "quantity": [1, 2] }
+    ]
+  },
+  {
+    "id": "ebonwood-thicket",
+    "name": "Ebonwood Thicket",
+    "skill": "woodcutting",
+    "minLevel": 7,
+    "xpReward": 40,
+    "cooldownMinutes": 12,
+    "lootTable": [
+      { "itemId": "ebonwood-log", "weight": 50, "quantity": [1, 2] },
+      { "itemId": "amber-resin", "weight": 20, "quantity": [1, 1] },
+      { "itemId": "ironwood-log", "weight": 20, "quantity": [1, 2] },
+      { "itemId": "worldtree-branch", "weight": 10, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "worldtree-roots",
+    "name": "Worldtree Roots",
+    "skill": "woodcutting",
+    "minLevel": 9,
+    "xpReward": 60,
+    "cooldownMinutes": 15,
+    "lootTable": [
+      { "itemId": "worldtree-branch", "weight": 45, "quantity": [1, 2] },
+      { "itemId": "ebonwood-log", "weight": 25, "quantity": [1, 2] },
+      { "itemId": "amber-resin", "weight": 15, "quantity": [1, 2] },
+      { "itemId": "ironwood-log", "weight": 15, "quantity": [1, 2] }
+    ]
+  }
+]
