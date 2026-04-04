@@ -11,17 +11,17 @@ export class SpellsController {
   constructor(private spellsService: SpellsService) {}
 
   @Get()
-  getSpellbook(@CurrentUser() userId: string) {
-    return this.spellsService.getSpellbook(userId);
+  getSpellbook(@CurrentUser() user: { id: string }) {
+    return this.spellsService.getSpellbook(user.id);
   }
 
   @Post('learn')
-  learnSpell(@CurrentUser() userId: string, @Body() dto: LearnSpellDto) {
-    return this.spellsService.learnSpell(userId, dto.spellId);
+  learnSpell(@CurrentUser() user: { id: string }, @Body() dto: LearnSpellDto) {
+    return this.spellsService.learnSpell(user.id, dto.spellId);
   }
 
   @Post('cast')
-  castSpell(@CurrentUser() userId: string, @Body() dto: CastSpellDto) {
-    return this.spellsService.castSpell(userId, dto.spellId);
+  castSpell(@CurrentUser() user: { id: string }, @Body() dto: CastSpellDto) {
+    return this.spellsService.castSpell(user.id, dto.spellId);
   }
 }

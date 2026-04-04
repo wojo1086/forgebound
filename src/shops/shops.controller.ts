@@ -12,27 +12,27 @@ export class ShopsController {
 
   @Get(':townId')
   getShop(
-    @CurrentUser() userId: string,
+    @CurrentUser() user: { id: string },
     @Param('townId') townId: string,
   ) {
-    return this.shopsService.getShop(userId, townId);
+    return this.shopsService.getShop(user.id, townId);
   }
 
   @Post(':townId/buy')
   buyItem(
-    @CurrentUser() userId: string,
+    @CurrentUser() user: { id: string },
     @Param('townId') townId: string,
     @Body() dto: BuyItemDto,
   ) {
-    return this.shopsService.buyItem(userId, townId, dto.itemId, dto.quantity);
+    return this.shopsService.buyItem(user.id, townId, dto.itemId, dto.quantity);
   }
 
   @Post(':townId/sell')
   sellItem(
-    @CurrentUser() userId: string,
+    @CurrentUser() user: { id: string },
     @Param('townId') townId: string,
     @Body() dto: SellItemDto,
   ) {
-    return this.shopsService.sellItem(userId, townId, dto.itemId, dto.quantity);
+    return this.shopsService.sellItem(user.id, townId, dto.itemId, dto.quantity);
   }
 }

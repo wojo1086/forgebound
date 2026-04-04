@@ -18,22 +18,22 @@ export class RestController {
   constructor(private restService: RestService) {}
 
   @Post('camp')
-  startCamp(@CurrentUser() userId: string, @Body() dto: StartCampDto) {
-    return this.restService.startCamp(userId, dto.duration);
+  startCamp(@CurrentUser() user: { id: string }, @Body() dto: StartCampDto) {
+    return this.restService.startCamp(user.id, dto.duration);
   }
 
   @Post('inn')
-  restAtInn(@CurrentUser() userId: string) {
-    return this.restService.restAtInn(userId);
+  restAtInn(@CurrentUser() user: { id: string }) {
+    return this.restService.restAtInn(user.id);
   }
 
   @Get('status')
-  getStatus(@CurrentUser() userId: string) {
-    return this.restService.getStatus(userId);
+  getStatus(@CurrentUser() user: { id: string }) {
+    return this.restService.getStatus(user.id);
   }
 
   @Post('stop')
-  stopRest(@CurrentUser() userId: string) {
-    return this.restService.stopRest(userId);
+  stopRest(@CurrentUser() user: { id: string }) {
+    return this.restService.stopRest(user.id);
   }
 }
