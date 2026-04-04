@@ -1547,7 +1547,7 @@
       "post": {
         "tags": ["Auth"],
         "summary": "Register a new account",
-        "description": "Create a new user account. A confirmation email will be sent.\n\nEmail validation rules:\n- Must be a valid email format\n- Subaddressing (+ aliases like user+tag@example.com) is not allowed\n- Disposable/throwaway email domains are blocked\n- Domain must have valid MX records (can receive email)",
+        "description": "Create a new user account. A confirmation email will be sent.\n\nEmail validation rules:\n- Must be a valid email format\n- Subaddressing (+ aliases like user+tag@example.com) is not allowed\n- Disposable/throwaway email domains are blocked\n- Domain must have valid MX records (can receive email)\n- Accounts not verified within 24 hours are automatically deleted",
         "security": [],
         "requestBody": {
           "required": true,
