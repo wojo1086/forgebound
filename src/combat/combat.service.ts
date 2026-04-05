@@ -420,7 +420,7 @@ export class CombatService implements OnModuleInit {
       // Monster is stunned/frozen — skip its turn (already logged above)
     } else {
       const monsterResult = this.resolveMonsterTurn(
-        combat, effective, playerHp, log,
+        combat, effective, playerHp, monsterHp, log,
         playerEffects, monsterEffects, playerTick.vulnerabilityMultiplier,
       );
       playerHp = monsterResult.playerHp;
@@ -676,6 +676,7 @@ export class CombatService implements OnModuleInit {
     combat: any,
     effective: any,
     playerHp: number,
+    monsterHp: number,
     log: string[],
     playerEffects: StatusEffect[],
     monsterEffects: StatusEffect[],
@@ -683,7 +684,6 @@ export class CombatService implements OnModuleInit {
   ) {
     const abilities = (combat.monster_abilities as MonsterAbility[]) ?? [];
     const monsterMod = Math.floor(combat.monster_level / 3) + this.getCurseModifier(monsterEffects);
-    let monsterHp = combat.monster_hp; // track for self-heal abilities
 
     // Check for ability use
     let usedAbility: MonsterAbility | null = null;
