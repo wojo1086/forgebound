@@ -609,7 +609,10 @@ export class TravelService {
       class: character.class,
       level: character.level,
       xp: character.xp,
-      xpToNextLevel: xpForNextLevel(character.level),
+      xpToNextLevel: (() => {
+        const threshold = xpForNextLevel(character.level);
+        return threshold === null ? null : Math.max(0, threshold - character.xp);
+      })(),
       unspentStatPoints: character.unspent_stat_points ?? 0,
       hp: character.hp,
       maxHp: character.max_hp,

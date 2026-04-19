@@ -371,6 +371,21 @@ export class DatabaseBootstrap implements OnModuleInit {
         ON character_crafting_skills(character_id);
     `);
 
+    // Ground items: items dropped at world coordinates that can be picked up
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ground_items (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        item_id varchar(60) NOT NULL REFERENCES items(id),
+        quantity int NOT NULL CHECK (quantity > 0),
+        pos_x int NOT NULL,
+        pos_y int NOT NULL,
+        dropped_at timestamptz NOT NULL DEFAULT now(),
+        UNIQUE(pos_x, pos_y, item_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_ground_items_pos ON ground_items(pos_x, pos_y);
+    `);
+
     this.logger.log('Tables verified');
   }
 

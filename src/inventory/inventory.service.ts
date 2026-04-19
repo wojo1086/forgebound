@@ -100,9 +100,58 @@ export class InventoryService {
   }
 
   /** Add an item to the character's backpack */
+  /** List items on the ground at the character's current position */
+  async getGroundItemsHere(userId: string) {
+    const character = await this.getCharacter(userId);
+    const supabase = this.supabaseService.getClient();
+
+    const { data: rows, error } = await supabase
+      .from('ground_items')
+      .select('item_id, quantity, dropped_at, item:items(id, name, type, rarity, weight)')
+      .eq('pos_x', character.pos_x)
+      .eq('pos_y', character.pos_y);
+
+    if (error) throw new BadRequestException(error.message);
+
+    return {
+      position: { x: character.pos_x, y: character.pos_y },
+      items: (rows ?? []).map((r: any) => ({
+        id: r.item.id,
+        name: r.item.name,
+        type: r.item.type,
+        rarity: r.item.rarity,
+        weight: r.item.weight,
+        quantity: r.quantity,
+        droppedAt: r.dropped_at,
+      })),
+    };
+  }
+
   async pickUp(userId: string, dto: PickUpItemDto) {
     const character = await this.getCharacter(userId);
     const item = await this.getItemDef(dto.itemId);
+    const supabase = this.supabaseService.getClient();
+
+    // Location check — the item must actually be on the ground at the character's position
+    const { data: groundRow } = await supabase
+      .from('ground_items')
+      .select('*')
+      .eq('pos_x', character.pos_x)
+      .eq('pos_y', character.pos_y)
+      .eq('item_id', dto.itemId)
+      .maybeSingle();
+
+    if (!groundRow) {
+      throw new NotFoundException(
+        `There is no ${item.name} on the ground here.`,
+      );
+    }
+
+    if (groundRow.quantity < dto.quantity) {
+      throw new BadRequestException(
+        `Only ${groundRow.quantity}x ${item.name} available here, you requested ${dto.quantity}.`,
+      );
+    }
 
     // Level check
     if (character.level < item.level_required) {
@@ -131,6 +180,17 @@ export class InventoryService {
       );
     }
 
+    // Decrement or delete the ground pile
+    const remaining = groundRow.quantity - dto.quantity;
+    if (remaining <= 0) {
+      await supabase.from('ground_items').delete().eq('id', groundRow.id);
+    } else {
+      await supabase
+        .from('ground_items')
+        .update({ quantity: remaining })
+        .eq('id', groundRow.id);
+    }
+
     // Add to backpack (upserts if item already exists)
     await this.addToBackpack(character.id, dto.itemId, dto.quantity);
 
@@ -141,7 +201,7 @@ export class InventoryService {
     };
   }
 
-  /** Drop an item from the backpack */
+  /** Drop an item from the backpack onto the ground at the character's position */
   async drop(userId: string, dto: DropItemDto) {
     const character = await this.getCharacter(userId);
     const item = await this.getItemDef(dto.itemId);
@@ -152,10 +212,37 @@ export class InventoryService {
     }
 
     const dropped = await this.removeFromBackpack(character.id, dto.itemId, dto.quantity);
+
+    if (dropped > 0) {
+      // Persist on the ground at character's position (stacking with any existing pile)
+      const supabase = this.supabaseService.getClient();
+      const { data: existing } = await supabase
+        .from('ground_items')
+        .select('id, quantity')
+        .eq('pos_x', character.pos_x)
+        .eq('pos_y', character.pos_y)
+        .eq('item_id', dto.itemId)
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from('ground_items')
+          .update({ quantity: existing.quantity + dropped })
+          .eq('id', existing.id);
+      } else {
+        await supabase.from('ground_items').insert({
+          item_id: dto.itemId,
+          quantity: dropped,
+          pos_x: character.pos_x,
+          pos_y: character.pos_y,
+        });
+      }
+    }
+
     return {
       dropped: item.name,
       quantity: dropped,
-      message: `Dropped ${dropped}x ${item.name}.`,
+      message: `Dropped ${dropped}x ${item.name} on the ground.`,
     };
   }
 

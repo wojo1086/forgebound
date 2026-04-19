@@ -27,6 +27,8 @@ export interface QuestObjective {
   target: string;
   quantity: number;
   description: string;
+  /** Optional flavor hint telling the player where to find the target (e.g. "Giant Rats nest in swamps and along the coast."). */
+  hint?: string;
 }
 
 export interface QuestRewardItem {

@@ -7,7 +7,7 @@
     "levelMin": 1,
     "levelMax": 3,
     "objectives": [
-      { "type": "kill", "target": "giant-rat", "quantity": 5, "description": "Kill 5 Giant Rats" }
+      { "type": "kill", "target": "giant-rat", "quantity": 5, "description": "Kill 5 Giant Rats", "hint": "Giant Rats are most often found nesting in swamps and along the coast." }
     ],
     "rewards": { "xp": 50, "gold": 20, "items": [{ "itemId": "health-potion", "quantity": 3 }] },
     "prerequisiteQuestId": null
@@ -20,7 +20,7 @@
     "levelMin": 1,
     "levelMax": 4,
     "objectives": [
-      { "type": "kill", "target": "wolf", "quantity": 8, "description": "Kill 8 Wolves" }
+      { "type": "kill", "target": "wolf", "quantity": 8, "description": "Kill 8 Wolves", "hint": "Wolf packs roam the forests, plains, and mountain slopes." }
     ],
     "rewards": { "xp": 75, "gold": 35, "items": [{ "itemId": "steel-dagger", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -46,7 +46,7 @@
     "levelMin": 2,
     "levelMax": 5,
     "objectives": [
-      { "type": "kill", "target": "bandit", "quantity": 6, "description": "Kill 6 Bandits" }
+      { "type": "kill", "target": "bandit", "quantity": 6, "description": "Kill 6 Bandits", "hint": "Bandits ambush travelers on forest roads, open plains, and coastal trails." }
     ],
     "rewards": { "xp": 100, "gold": 50, "items": [{ "itemId": "studded-leather-armor", "quantity": 1 }] },
     "prerequisiteQuestId": "thornhaven-rat-problem"
@@ -59,7 +59,7 @@
     "levelMin": 2,
     "levelMax": 5,
     "objectives": [
-      { "type": "kill", "target": "pirate", "quantity": 6, "description": "Kill 6 Pirates" }
+      { "type": "kill", "target": "pirate", "quantity": 6, "description": "Kill 6 Pirates", "hint": "Pirates patrol the coast — stick close to the shoreline to find them." }
     ],
     "rewards": { "xp": 90, "gold": 45, "items": [{ "itemId": "steel-short-sword", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -98,7 +98,7 @@
     "levelMin": 2,
     "levelMax": 5,
     "objectives": [
-      { "type": "kill", "target": "giant-spider", "quantity": 8, "description": "Kill 8 Giant Spiders" }
+      { "type": "kill", "target": "giant-spider", "quantity": 8, "description": "Kill 8 Giant Spiders", "hint": "Giant Spiders weave their webs in forests and swamps." }
     ],
     "rewards": { "xp": 85, "gold": 40, "items": [{ "itemId": "studded-leather-gloves", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -124,7 +124,7 @@
     "levelMin": 3,
     "levelMax": 6,
     "objectives": [
-      { "type": "kill", "target": "giant-scorpion", "quantity": 5, "description": "Kill 5 Giant Scorpions" }
+      { "type": "kill", "target": "giant-scorpion", "quantity": 5, "description": "Kill 5 Giant Scorpions", "hint": "Giant Scorpions lurk beneath the desert sands." }
     ],
     "rewards": { "xp": 110, "gold": 55, "items": [{ "itemId": "greater-health-potion", "quantity": 3 }] },
     "prerequisiteQuestId": null
@@ -137,7 +137,7 @@
     "levelMin": 3,
     "levelMax": 6,
     "objectives": [
-      { "type": "kill", "target": "crocodile", "quantity": 5, "description": "Kill 5 Crocodiles" }
+      { "type": "kill", "target": "crocodile", "quantity": 5, "description": "Kill 5 Crocodiles", "hint": "Crocodiles hunt in the swamps and along the coast." }
     ],
     "rewards": { "xp": 100, "gold": 50, "items": [{ "itemId": "steel-spear", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -176,8 +176,8 @@
     "levelMin": 2,
     "levelMax": 5,
     "objectives": [
-      { "type": "kill", "target": "skeleton", "quantity": 8, "description": "Kill 8 Skeletons" },
-      { "type": "kill", "target": "zombie", "quantity": 4, "description": "Kill 4 Zombies" }
+      { "type": "kill", "target": "skeleton", "quantity": 8, "description": "Kill 8 Skeletons", "hint": "Skeletons rise from old battlefields in swamps, deserts, and mountain passes." },
+      { "type": "kill", "target": "zombie", "quantity": 4, "description": "Kill 4 Zombies", "hint": "Zombies shamble through the swamps." }
     ],
     "rewards": { "xp": 120, "gold": 55, "items": [{ "itemId": "holy-mace", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -203,7 +203,7 @@
     "levelMin": 4,
     "levelMax": 7,
     "objectives": [
-      { "type": "kill", "target": "pirate-captain", "quantity": 1, "description": "Defeat a Pirate Captain" }
+      { "type": "kill", "target": "pirate-captain", "quantity": 1, "description": "Defeat a Pirate Captain", "hint": "Pirate Captains hold court along the coast, where their crews can be found." }
     ],
     "rewards": { "xp": 200, "gold": 100, "items": [{ "itemId": "enchanted-short-sword", "quantity": 1 }] },
     "prerequisiteQuestId": "stormwatch-undead-shore"
@@ -216,7 +216,7 @@
     "levelMin": 1,
     "levelMax": 4,
     "objectives": [
-      { "type": "kill", "target": "wild-boar", "quantity": 6, "description": "Kill 6 Wild Boars" }
+      { "type": "kill", "target": "wild-boar", "quantity": 6, "description": "Kill 6 Wild Boars", "hint": "Wild Boars forage in the forests and plains." }
     ],
     "rewards": { "xp": 70, "gold": 30, "items": [{ "itemId": "ration", "quantity": 10 }] },
     "prerequisiteQuestId": null
@@ -255,8 +255,8 @@
     "levelMin": 2,
     "levelMax": 5,
     "objectives": [
-      { "type": "kill", "target": "goblin", "quantity": 8, "description": "Kill 8 Goblins" },
-      { "type": "kill", "target": "goblin-shaman", "quantity": 2, "description": "Kill 2 Goblin Shamans" }
+      { "type": "kill", "target": "goblin", "quantity": 8, "description": "Kill 8 Goblins", "hint": "Goblin raiding parties hide in forests, swamps, and the mountain foothills." },
+      { "type": "kill", "target": "goblin-shaman", "quantity": 2, "description": "Kill 2 Goblin Shamans", "hint": "Goblin Shamans keep to forests and swamps near their tribes." }
     ],
     "rewards": { "xp": 120, "gold": 55, "items": [{ "itemId": "studded-leather-boots", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -295,7 +295,7 @@
     "levelMin": 2,
     "levelMax": 5,
     "objectives": [
-      { "type": "kill", "target": "viper", "quantity": 6, "description": "Kill 6 Vipers" }
+      { "type": "kill", "target": "viper", "quantity": 6, "description": "Kill 6 Vipers", "hint": "Vipers coil in swamps, deserts, and the forest undergrowth." }
     ],
     "rewards": { "xp": 80, "gold": 35, "items": [{ "itemId": "potion-of-bears-endurance", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -321,8 +321,8 @@
     "levelMin": 3,
     "levelMax": 6,
     "objectives": [
-      { "type": "kill", "target": "cultist", "quantity": 6, "description": "Kill 6 Cultists" },
-      { "type": "kill", "target": "cult-priest", "quantity": 1, "description": "Defeat a Cult Priest" }
+      { "type": "kill", "target": "cultist", "quantity": 6, "description": "Kill 6 Cultists", "hint": "Cultists gather in remote swamps, mountain hideouts, and desert sanctums." },
+      { "type": "kill", "target": "cult-priest", "quantity": 1, "description": "Defeat a Cult Priest", "hint": "Cult Priests hold their rites in swamps and secluded mountain temples." }
     ],
     "rewards": { "xp": 150, "gold": 70, "items": [{ "itemId": "staff-of-flames", "quantity": 1 }] },
     "prerequisiteQuestId": "hearthstead-viper-nest"
@@ -335,7 +335,7 @@
     "levelMin": 3,
     "levelMax": 7,
     "objectives": [
-      { "type": "kill", "target": "treant", "quantity": 5, "description": "Kill 5 Treants" }
+      { "type": "kill", "target": "treant", "quantity": 5, "description": "Kill 5 Treants", "hint": "Treants wake only in the deep forest." }
     ],
     "rewards": { "xp": 130, "gold": 60, "items": [{ "itemId": "staff-of-frost", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -374,7 +374,7 @@
     "levelMin": 3,
     "levelMax": 6,
     "objectives": [
-      { "type": "kill", "target": "bear", "quantity": 5, "description": "Kill 5 Bears" }
+      { "type": "kill", "target": "bear", "quantity": 5, "description": "Kill 5 Bears", "hint": "Bears den in the forests and mountain country." }
     ],
     "rewards": { "xp": 100, "gold": 45, "items": [{ "itemId": "studded-leather-leggings", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -400,7 +400,7 @@
     "levelMin": 4,
     "levelMax": 7,
     "objectives": [
-      { "type": "kill", "target": "orc-warrior", "quantity": 6, "description": "Kill 6 Orc Warriors" }
+      { "type": "kill", "target": "orc-warrior", "quantity": 6, "description": "Kill 6 Orc Warriors", "hint": "Orc Warriors patrol the mountains, plains, and forest fringes." }
     ],
     "rewards": { "xp": 160, "gold": 75, "items": [{ "itemId": "enchanted-battle-axe", "quantity": 1 }] },
     "prerequisiteQuestId": "ferngate-bear-menace"
@@ -413,7 +413,7 @@
     "levelMin": 5,
     "levelMax": 8,
     "objectives": [
-      { "type": "kill", "target": "mountain-lion", "quantity": 6, "description": "Kill 6 Mountain Lions" }
+      { "type": "kill", "target": "mountain-lion", "quantity": 6, "description": "Kill 6 Mountain Lions", "hint": "Mountain Lions stalk the mountains and open plains." }
     ],
     "rewards": { "xp": 180, "gold": 80, "items": [{ "itemId": "chainmail-gauntlets", "quantity": 1 }] },
     "prerequisiteQuestId": null
@@ -452,8 +452,8 @@
     "levelMin": 6,
     "levelMax": 9,
     "objectives": [
-      { "type": "kill", "target": "bog-lurker", "quantity": 4, "description": "Kill 4 Bog Lurkers" },
-      { "type": "kill", "target": "cave-crawler", "quantity": 4, "description": "Kill 4 Cave Crawlers" }
+      { "type": "kill", "target": "bog-lurker", "quantity": 4, "description": "Kill 4 Bog Lurkers", "hint": "Bog Lurkers haunt the deepest swamps." },
+      { "type": "kill", "target": "cave-crawler", "quantity": 4, "description": "Kill 4 Cave Crawlers", "hint": "Cave Crawlers skitter through mountain caverns." }
     ],
     "rewards": { "xp": 250, "gold": 120, "items": [{ "itemId": "enchanted-steel-shield", "quantity": 1 }] },
     "prerequisiteQuestId": null

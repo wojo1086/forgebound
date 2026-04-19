@@ -18,6 +18,11 @@ export class InventoryController {
     return this.inventoryService.getInventory(user.id);
   }
 
+  @Get('ground')
+  getGroundItems(@CurrentUser() user: { id: string }) {
+    return this.inventoryService.getGroundItemsHere(user.id);
+  }
+
   @Post('pick-up')
   pickUp(@CurrentUser() user: { id: string }, @Body() dto: PickUpItemDto) {
     return this.inventoryService.pickUp(user.id, dto);
